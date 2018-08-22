@@ -1,0 +1,14 @@
+# can be multiline.
+description = '''
+
+
+
+'''
+
+# must be one line, in format ihc = {ihc1='+',ihc2='-'}.
+immunohistochemistry = {}
+
+# can be multiline, as strings separated by commas.
+differentials = [
+
+]

@@ -8,4 +8,4 @@ folder_based_dojo/*
 research
 
 # ignore jupyter notebook checkpoints
-!.ipynb_checkpoints
+.ipynb_checkpoints
