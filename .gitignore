@@ -1,4 +1,8 @@
 # exclude the folder containing all the diseases and images
 folder_based_dojo
+
 # include the '![genericfolder]'
-!![organ][type][subtype][complexity][incidence][name]
+!/folder_based_dojo/'![organ][type][subtype][complexity][incidence][name]'
+
+#exclude research/notes folder
+research

@@ -13,6 +13,7 @@ inflammatory
 degenerative
 vascular
 infection
+cystic
 
 [complexity]
 # as a guide, the librpathology.org/spot_diagnosis and /short_power_list and /long_power_list are used to determine complexity category
