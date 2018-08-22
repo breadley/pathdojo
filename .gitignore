@@ -1,8 +1,11 @@
 # exclude the folder containing all the diseases and images
-folder_based_dojo
+folder_based_dojo/*
 
 # include the '![genericfolder]'
-!/folder_based_dojo/'![organ][type][subtype][complexity][incidence][name]'
+!/folder_based_dojo/![organ][type][subtype][complexity][incidence][name]/*
 
 #exclude research/notes folder
 research
+
+# ignore jupyter notebook checkpoints
+!.ipynb_checkpoints
