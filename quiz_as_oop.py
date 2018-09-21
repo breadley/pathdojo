@@ -13,6 +13,8 @@ image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
 
 # The this file and the content_directory (which contains diseases) should be within one folder
 content_directory = './folder_based_dojo/'
+# Dictionary for diseases and their folder names {'disease':'foldername'}. Populated on start-up.
+disease_folder_inventory = {}
 
 # Goes through the list of folders and extracts items for each category from their name
 def get_inventory():
@@ -26,8 +28,9 @@ def get_inventory():
     subtype_list = []
     complexity_list = []
     incidence_list = []
+    
 
-    for disease in os.listdir(content_directory):
+    for disease in os.listdir(content_directory): # disease here is a folder name
         if disease.startswith('[') and disease.endswith(']'): # it's a disease
             category_list = disease.split('][')
 
@@ -49,8 +52,12 @@ def get_inventory():
 
             incidence = category_list[4].strip('[')
             if incidence not in incidence_list and incidence !='':
-                incidence_list.append(incidence)            
-            
+                incidence_list.append(incidence)      
+
+            disease_name = category_list[5].strip('[')
+            if disease_name !='':
+                disease_folder_inventory['disease_name'] = disease # Format {disease:[full][file[name]}
+                
     return organ_list, disease_type_list, subtype_list, complexity_list, incidence_list   
 
 class Disease():
@@ -76,7 +83,7 @@ class Disease():
         for file in os.listdir(content_directory+self.folder_name): 
 
             # if it is a text file
-            if file.endswith('.txt') and not file.startswith('._'):                                        
+            if file.endswith('.txt') and not file.startswith('._') and not file.startswith('_'):                                        
                 name = str(file).replace('.txt','')    
                 try:
                     contents = toml.load(content_directory+self.folder_name+'/'+file) # load .txt as .toml
@@ -107,6 +114,9 @@ class Disease():
             # for each file in the disease folder
         return description_text
 
+    def get_clue(self):
+        partial_folder_name = self.folder_name.strip(']').strip('[*').strip('[')
+        print('This might help:', partial_folder_name)
 
 
     def show_all_images(self):
@@ -146,53 +156,26 @@ class Disease():
     def display_immunohistochemistry(self):        
         for ihc_name in self.immunohistochemistry:
             print('The %s is %s'%(ihc_name, self.immunohistochemistry[ihc_name]))
-            
-            
-    def ask_for_answers(self):
-        guess = str(input("*******************************\nYour answer is: "))
 
-        if guess == '?':
-            print('Here are some clues:\n\n')
-            print(self.description)
-            self.guess = str(input("*******************************\nYour answer is: "))
-        elif guess == self.name:
-            print('Correct! This is '+self.name)
-        elif guess == 'q':
-            return
-        else:
-            print('Correct answer: %s\n*******************************' %(self.name))
-        print(self.description)        
-        
-        
-    def differentials_challenge(self):
-        # this starts a quiz based on the differential list of a disease
 
-        # ----------------------------
-        # This function will call the Quiz class to create a new quiz
-        # e.g. new_quiz = Quiz(list_of_diseases)
-        # return new_quiz
-        # ----------------------------
+    def show_name_and_description(self):
+        print(f'Disease: {self.name}\n\n{self.description}')                      
+        
+
+    def get_folder_names_of_differentials(self):
+        # Returns a list of folder names to be turned into a quiz
+
         differentials_quiz_length = len(self.differentials)
         
-        print("Starting a differentials quiz for "+self.name)
+        print("Preparing differentials for "+self.name)
 
-        count = 1
+        ddx_folder_names = []
+        
+        for differential in self.differentials:
+            if differential in disease_folder_inventory: # global dictionary of all disease names (as per last bracket of folder name [disease]) and folder name
+                ddx_folder_names.append(disease_folder_inventory[differential])    
 
-        for individual_differential in self.differentials:
-            print('Differential %s of %s.'%(count,len(self.differentials)))
-            # find the folder name 
-            if folder.endswith(str(individual_differential)+']'):
-                try:
-                   # turn into a disease
-                    individual_differential = Disease(folder)
-                    individual_differential.show_all_images()
-                    individual_differentials.ask_for_answers()
-                except: # folder doesn't exist
-                    print('cannot find differential: '+folder)
-            count+=1
-        for ddx_name in self.get_differentials():
-                print(ddx_name)        
-
+        return dxx_folder_names
 
 class Quiz():
     # Creates quiz objects
@@ -201,7 +184,7 @@ class Quiz():
         # Make a list of disease objects
         self.diseases = []
 
-        for disease_folder_name in list_of_folder_names:
+        for disease_folder_name in list_of_folder_names: # TODO this fails when startig a differentials quiz.
             self.diseases.append(Disease(disease_folder_name))
         # create quiz name (if designed, call it those parameters, if ddx quiz, call it that)
         self.name = quiz_name
@@ -211,6 +194,10 @@ class Quiz():
         self.progress = 1
         # remaining diseases
         self.remaining_diseases = self.diseases
+        # A child quiz (nested quiz that has started mid-quiz)
+        self.child_quiz = None
+        # A parent quiz (a quiz that was paused to create this quiz)
+        self.parent_quiz = None
 
     def __repr__(self):
         return f'"{self.name}" quiz with {self.total_quiz_length} items'
@@ -218,31 +205,91 @@ class Quiz():
     def __str__(self):
         return f'"{self.name}" quiz, currently on disease {self.progress}/{self.total_quiz_length}'
 
-    def get_quiz_diseases():
+    def get_quiz_diseases(self):
         # Gives a list of what diseases are in this quiz
         names = []
         for disease in self.diseases:
             names.append(disease.name)
         return names
 
-    def get_quiz_progress():
+    def get_quiz_progress(self):
         # Returns current progress with cases done vs cases left
         print('Progress: Completed %s of %s for quiz "%s".'%(self.progress,self.total_quiz_length+self.name))
-               
 
-    def present_next_disease(next_disease):
-        TODO
-        # Gets the name of the next disease
-         
-        # Calls function of the disease to show_all_images
+    def start_a_nested_quiz(self):
+        # In the event new differentials-based quiz was start this function ensures that the disease left behind is properly handled
         
-        # Calls function of the disease to show_ask_for_answers
 
-        # Waits for keypress to get IHC, DDx's or even start a side-DDx_challenge
+        # Create a new quiz as a child of the current quiz
+        self.child_quiz = Quiz(self.curent_disease.get_folder_names_of_differentials,'Differentials quiz, started during {self.name} quiz.')
+        # Record the fact that this child quiz has a parent quiz, which is the current quiz. When we step through a quiz we will check for children and parents and display that.
+        self.child_quiz.parent_quiz = self
+        # Go through child quiz
+        self.child_quiz.step_through_quiz()
+        # when done, display the current quiz name
+        print('------\n------\n------\nNow returning to',self.curent_disease)
+        # Then display the current disease images
+        self.curent_disease.show_all_images()
 
+    def terminate_quiz(self):
+        # This is used to exit the current quiz, but it will no destroy any parent quizzes.
+        self.remaining_diseases=[]
+
+    def skip_answer(self):
+        # This is a dummy function, so that the other elements in the options dictionary could be called with: option[value]().
         pass
 
-    def step_through_quiz():
+    def ask_for_response(self):
+        # Prompts a typed response
+        response = str(input('Options: a for answer, i for ihc, d for ddx, ? for clue, e to explore differentials, q to quit, s to skip\n> '))
+
+        return response
+
+
+
+    def present_next_disease(self,disease):
+        # Steps through the process of quizzing the user on a given disease
+        print('DØJo!1------------------\n------DØJo!1------------\n------------DØJo!1------\n------------------DØJo!1')
+
+        # check for parent quizzes, and note it's name so we know where we left off from.
+        if self.parent_quiz is not None:
+            print(f'This quiz has a parent quiz: ',self.parent_quiz,', which was paused to start the current quiz: self')
+        
+        # make the current disease available to other functions
+        self.curent_disease = disease
+
+        options={'i':disease.display_immunohistochemistry, # property of disease
+                'd':disease.display_differentials, # property of disease
+                '?':disease.get_clue, # property of disease
+                'e':self.start_a_nested_quiz, # quiz property
+                'a':disease.show_name_and_description, # Print the answer -> print(f'The answer is: {disease.name}\n\n{disease.description}\n\n')
+                'q':self.terminate_quiz, # property of the quiz       -> return self.remaining_diseases=[]
+                's':self.skip_answer # prpoerty of the quiz        -> return                 
+                }  
+        options_where_we_repeat_the_question = ['i','d','?','c','v']
+        options_where_we_dont_need_to_see_the_answer = ['q','s']
+
+        # Display images (Calls function of the disease to show_all_images)
+        disease.show_all_images()
+        # Ask for answers (Calls function of the disease to show_ask_for_answers)
+        user_input = self.ask_for_response() # Here the person tries to answer, then sees the answer
+        # evaluate responses
+
+        while user_input in options_where_we_repeat_the_question:
+            # Do the thing appropriate for the selection
+            try:
+                options[user_input]()
+            except:
+                pass
+            # ask again
+            user_input = self.ask_for_response()
+
+        # Evaluate input    
+        options[user_input]()   
+
+        return proceed_with_current_quiz
+
+    def step_through_quiz(self):
         # This function steps through the quiz
 
         # Goes through the list to see what disease is next
@@ -250,7 +297,7 @@ class Quiz():
             self.present_next_disease(disease)
 
             # Removes the disease from the quiz
-            self.remaining_diseases.remove()
+            self.remaining_diseases.remove(disease)
             # Increment progress counter
             self.progress+=1
             # Gets the progress of the quiz (get_quiz_progress) and prints the name of the current quiz
@@ -258,53 +305,7 @@ class Quiz():
 
             # If the quiz is at the end, ask the user if they want to design_new_quiz
             if self.progress == self.total_quiz_length:
-                print('Finished quiz, need to implement new quiz here')
-
-        
-def designed_quiz_preparer(organ = '', disease_type = '', subtype = '', complexity = '', incidence = '', 
-                   name = '', number_to_quiz = None):
-    # This function will be destroyed once Quiz class implemented.
-
-    
-    for disease_folder_name in filtered_diseases: # for all diseases in the current directory           
-       
-        # if the disease matches the search
-        if fnmatch.fnmatch(disease_folder_name, relevant_filenames) and disease_folder_name.startswith('[') and disease_folder_name.endswith(']'):    
-            print ("""--------D-----------------------
-                    \n-------------O------------------
-                    \n------------------J-------------
-                    \n-----------------------O--------""")
-            disease = Disease(disease_folder_name)            
-            disease.show_all_images()
-            disease.ask_for_answers()
-            #set_trace()   #for debugging
-            key_press = {'i':disease.immunohistochemistry,
-                         'd':disease.display_differentials,
-                         'c':disease.differentials_challenge,
-                        }    
-            
-            count += 1            
-
-            print('%s cases completed. Quiz length: %s'%(count,number_to_quiz))
-            if count == number_to_quiz:
-                return
-
-            looking_at_case = True
-            
-            while looking_at_case:
-                post_answer_options = str(input('Press: Enter for next, d for ddx, c for ddx challenge, i for ihc, q to quit:'))
-                
-                if post_answer_options == 'q':  
-                    looking_at_case = False
-                    return
-                elif post_answer_options == '': # enter gives ''
-                    looking_at_case = False
-                    break
-                else:
-                    try:
-                        key_press[post_answer_options]() # the () executes the functions
-                    except:
-                        pass
+                print('Finished quiz, need to implement option to start new quiz here')
             
 
 def design_new_quiz(first_quiz=False):
@@ -387,7 +388,7 @@ def design_new_quiz(first_quiz=False):
 
     # Make a new quiz using this list of diseases
     new_quiz = Quiz(selected_diseases, quiz_name)
-    pdb.set_trace()
+
     # Step through the quiz
     new_quiz.step_through_quiz()
 
