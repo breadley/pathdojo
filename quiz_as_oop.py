@@ -65,7 +65,10 @@ class Disease():
         self.immunohistochemistry = self.get_immunohistochemistry()
         
     def __repr__(self):
-        return 'Disease object',self.name
+        return f'{self.name} with {len(self.images)} images'
+
+    def __str__(self):
+        return f'{self.name}'
 
     def load_text_file(self):
         contents = {} # start with blank dictionary to populate with toml data
@@ -210,8 +213,10 @@ class Quiz():
         self.remaining_diseases = self.diseases
 
     def __repr__(self):
-        # Currently fails
-       return str(self.name)
+        return f'"{self.name}" quiz with {self.total_quiz_length} items'
+
+    def __str__(self):
+        return f'"{self.name}" quiz, currently on disease {self.progress}/{self.total_quiz_length}'
 
     def get_quiz_diseases():
         # Gives a list of what diseases are in this quiz
