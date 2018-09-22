@@ -9,8 +9,12 @@ ipykernel = "*"
 jupyter = "*"
 pillow = "*"
 toml = "*"
+zappa = "*"
+flask = "*"
+pyfiglet = "*"
 
 [dev-packages]
+awscli = "*"
 
 [requires]
 python_version = "3.6"
