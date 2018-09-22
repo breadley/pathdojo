@@ -1,11 +1,7 @@
 from flask import Flask, Response, json, request
 import os
-from pyfiglet import Figlet
-
 
 app = Flask(__name__)
-
-font = Figlet(font="starwars")
 
 # here is how we are handling routing with flask:
 
