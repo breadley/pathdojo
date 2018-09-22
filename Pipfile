@@ -11,7 +11,6 @@ pillow = "*"
 toml = "*"
 zappa = "*"
 flask = "*"
-pyfiglet = "*"
 
 [dev-packages]
 awscli = "*"

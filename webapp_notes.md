@@ -18,3 +18,9 @@ Flask is used to glue everything together, runs app logic, communicates with fro
 Flaskify python code
 
 Deploy Zappa https://www.viget.com/articles/building-a-simple-api-with-amazon-lambda-and-zappa/
+
+Called the project 'dev'
+usage: zappa deploy dev
+upload new code: zappa update dev 
+
+
