@@ -11,6 +11,8 @@ pillow = "*"
 toml = "*"
 zappa = "*"
 flask = "*"
+google-api-python-client = "*"
+"oauth2client" = "*"
 
 [dev-packages]
 awscli = "*"
