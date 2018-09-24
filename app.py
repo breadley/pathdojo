@@ -1,5 +1,6 @@
 from flask import Flask, Response, json, request
 import os
+import gdrive_api_calls
 
 app = Flask(__name__)
 
@@ -7,6 +8,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def index():
+    
     message = """   
                                                              . /  
                                                          . /  
@@ -44,8 +46,15 @@ def index():
                         
                         You must understand this.             
     
+    Here are the files we will master:
     """
-    
+
+    content = ''
+    dictionary_of_files = gdrive_api_calls.list_all_files('dummy_folder')
+    for name,id in dictionary_of_files.items():
+        content+=f'\nFilename: {name}\t\t\t\tFile ID: {id}'
+    message+=content
+
     # render plain text nicely in HTML
     html_text = message\
             .replace(" ","&nbsp;")\

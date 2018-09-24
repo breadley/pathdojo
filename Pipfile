@@ -13,6 +13,7 @@ zappa = "*"
 flask = "*"
 google-api-python-client = "*"
 "oauth2client" = "*"
+pydrive = "*"
 
 [dev-packages]
 awscli = "*"
