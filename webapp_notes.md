@@ -18,7 +18,7 @@ Turns python code into a web app.
 
 #### Testing
 
-`MY_FLASK_APP=app.py flask run` Will run app.py 
+`FLASK_APP=app.py flask run` Will run app.py 
 
 #### TODO
 
