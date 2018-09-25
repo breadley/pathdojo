@@ -12,19 +12,19 @@ code will retrieve file from google drive using the google drive API
 Flask is used to glue everything together, runs app logic, communicates with frontend. Flask is what will be deployed with Zappa.
 
 
-# Flask component
+### Flask component
 
 Turns python code into a web app.
 
-## Testing
+#### Testing
 
 `MY_FLASK_APP=app.py flask run` Will run app.py 
 
-## TODO
+#### TODO
 
 Flaskify the quiz
 
-# Zappa
+### Zappa
 
 Creates serverless web app architecture.
 
@@ -39,17 +39,17 @@ Currently about 40MB. Porbably need to trim down unused packages.
 Upload new code: `zappa update dev`
 
 
-# AWS Lambda
+### AWS Lambda
 
 Code (flask app) is hosted on AWS, but is only invoked when triggered by user/visitor.
 
-# Google Drive
+### Google Drive
 
 Hosting images with each disease in separate folder.
 
 API calls to be made by PyDrive for simplicity.
 
-# TODO
+#### TODO
 
 Replace local file calls in quiz code with API calls to drive.
 
