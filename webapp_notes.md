@@ -45,6 +45,8 @@ Upload new code: `zappa update dev`
 
 Code (flask app) is hosted on AWS, but is only invoked when triggered by user/visitor.
 
+When deploying/updating to AWS with zappa on a new computer `zappa update dev`, you need to first configure AWS CLI again.
+
 ### Google Drive
 
 Hosting images with each disease in separate folder.

@@ -18,6 +18,8 @@ research
 
 # ignore google drive api credentials file
 credentials.json
-# Ignore the google drive api wrapper credentials file
+
+# Ignore the google drive api wrapper credentials file 
+# (a copy of credentials.json, used for PyDrive)
 client_secrets.json
 token.json
