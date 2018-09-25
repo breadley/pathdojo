@@ -20,6 +20,8 @@ Turns python code into a web app.
 
 `FLASK_APP=app.py flask run` Will run app.py 
 
+on Windows: `$env:FLASK_APP='app.py' flask run`
+
 #### TODO
 
 Flaskify the quiz

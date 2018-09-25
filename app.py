@@ -6,6 +6,8 @@ app = Flask(__name__)
 
 # here is how we are handling routing with flask:
 
+dictionary_of_files = {}
+
 def string_to_html_page(string):
     # This function takes a string to display and returns a HTML page.
 
@@ -68,19 +70,37 @@ def index():
     answer = str(input("What can we do here?"))
     return page, 200
 
-@ app.route('/files/')
+@app.route('/files/')
 def files():
     # Homepage/files
     content = ''
-    dictionary_of_files = gdrive_api_calls.list_all_files('dummy_folder')
-
-    for name,id in dictionary_of_files.items():
-        content+=f'\n\nFilename: {name}\t\t\tFile ID: {id}'
+    # assign all the files to the global variable dictionary_of_files
+    temp_files = gdrive_api_calls.list_all_files('dummy_folder')
+    for filename,id in temp_files.items():
+        # if file is a disease folder
+        if file.os.startswith('[') and file.os.endswith(']'):
+            # add file to globally acccessible list
+            dictionary_of_files[filename] = id
+            content+=f'\n\nFilename: {filename}\t\t\tFile ID: {id}'
     
     page = string_to_html_page(content)
 
     # use a monospace font so everything lines up as expected
     return page, 200   
+
+@app.route('/photos/')
+def photos():
+    # Homepage/photos
+
+    count = 0
+    photos = []
+    for file,id in dictionary_of_files while count < 5:
+        #Need to implement this method
+        #gdrive_api_calls.get_photo(file,id)
+        count+=1
+
+
+
 
 # include this for local dev
 if __name__ == '__main__':

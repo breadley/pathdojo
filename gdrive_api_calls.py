@@ -16,4 +16,9 @@ def list_all_files(folder):
 	print(results)
 	return results
 
+def get_photo(filename,id):
+	# TODO
+
+	pass
+
 list_all_files('dummy_folder')
