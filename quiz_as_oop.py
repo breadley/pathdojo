@@ -116,7 +116,7 @@ class Disease():
 
     def get_clue(self):
         partial_folder_name = self.folder_name.strip(']').strip('[*').strip('[')
-        print('This might help:', partial_folder_name)
+        print(f'This might help: [{partial_folder_name}]')
 
 
     def show_all_images(self):
@@ -140,9 +140,12 @@ class Disease():
     
     def display_differentials(self):
         # This prints the differentials out in a nice format
-        print('There are %s differentials. They are:'%(len(self.differentials)))
-        for individual_differential in self.differentials:
-              print(individual_differential)
+        if len(self.differentials)==0:
+            print("There are no differentials available")
+        else:
+            print(f'There are {len(self.differentials)} differentials, they are:')
+            for individual_differential in self.differentials:
+                print(individual_differential)
                      
                 
     def get_immunohistochemistry(self):
@@ -153,7 +156,10 @@ class Disease():
             print('(no ihc available)')
         return ihc_dictionary
 
-    def display_immunohistochemistry(self):        
+    def display_immunohistochemistry(self):  
+        if self.immunohistochemistry==[]:
+            print("No IHC available")
+
         for ihc_name in self.immunohistochemistry:
             print('The %s is %s'%(ihc_name, self.immunohistochemistry[ihc_name]))
 
@@ -185,7 +191,9 @@ class Quiz():
         self.diseases = []
 
         for disease_folder_name in list_of_folder_names: # TODO this fails when startig a differentials quiz.
-            self.diseases.append(Disease(disease_folder_name))
+            # Check if desired folder name actually a disease 
+            if disease_folder_name in disease_folder_inventory: # TODO make this work with correct format
+                self.diseases.append(Disease(disease_folder_name))
         # create quiz name (if designed, call it those parameters, if ddx quiz, call it that)
         self.name = quiz_name
         # get quiz length
@@ -214,15 +222,21 @@ class Quiz():
 
     def get_quiz_progress(self):
         # Returns current progress with cases done vs cases left
-        print('Progress: Completed %s of %s for quiz "%s".'%(self.progress,self.total_quiz_length+self.name))
+        print(f'Progress: Completed {self.progress} of {self.total_quiz_length} for quiz "{self.name}".')
 
     def start_a_nested_quiz(self):
         # In the event new differentials-based quiz was start this function ensures that the disease left behind is properly handled
-        
+        if len(self.differentials)==0:
+            return print('This disease has no differentials to base a new quiz on.')
 
         # Create a new quiz as a child of the current quiz
         self.child_quiz = Quiz(self.curent_disease.get_folder_names_of_differentials,'Differentials quiz, started during {self.name} quiz.')
+        
+        # If the child quiz length is zero, cancel quiz
+        if len(self.child_quiz.total_quiz_length):
+            return print("No disease folders could be found to match recorded differentials")
         # Record the fact that this child quiz has a parent quiz, which is the current quiz. When we step through a quiz we will check for children and parents and display that.
+        # 'my child's parent is me'
         self.child_quiz.parent_quiz = self
         # Go through child quiz
         self.child_quiz.step_through_quiz()
@@ -287,7 +301,9 @@ class Quiz():
         # Evaluate input    
         options[user_input]()   
 
-        return proceed_with_current_quiz
+        move_on_to_next_question = str(input('press any key to move to next question'))
+
+        return
 
     def step_through_quiz(self):
         # This function steps through the quiz

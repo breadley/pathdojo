@@ -14,6 +14,7 @@ flask = "*"
 google-api-python-client = "*"
 "oauth2client" = "*"
 pydrive = "*"
+"boto3" = "*"
 
 [dev-packages]
 awscli = "*"
