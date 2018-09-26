@@ -1,11 +1,13 @@
-from flask import Flask, Response, json, request
+from flask import Flask, render_template, redirect, request, session
+import config
 import os
 import gdrive_api_calls
+import random
 
 app = Flask(__name__)
 
 # here is how we are handling routing with flask:
-
+# Format {folder_name:ID,...}
 dictionary_of_files = {}
 
 def string_to_html_page(string):
@@ -95,8 +97,13 @@ def photos():
     count = 0
     photos = []
     for file,id in dictionary_of_files while count < 5:
-        #Need to implement this method
-        #gdrive_api_calls.get_photo(file,id)
+        # Download the disease images and get list of images.
+        disease_image_names_array = drive_api_calls.get_photo(file,id)
+        # display the image
+
+        # Rmove the images
+        # clear_static_folder('imagenames')
+
         count+=1
 
 

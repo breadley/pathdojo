@@ -1,0 +1,53 @@
+Skip to content
+ 
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ @breadley Sign out
+0
+0 0 junkorbit/flask-and-template-demo
+ Code  Issues 0  Pull requests 0  Projects 0  Wiki  Insights
+flask-and-template-demo/templates/index.html
+138ab88  12 hours ago
+ Tim Fist initial commit
+     
+36 lines (28 sloc)  870 Bytes
+<!DOCTYPE html>
+<html>
+  	<head>
+    	<title>Name that blob!</title>
+    	<meta name="viewport" content="initial-scale=1.0">
+    	<meta charset="utf-8">
+    	<style>
+			/* Optional: Makes the sample page fill the window. */
+			html, body {
+				height: 100%;
+				margin: 0;
+				padding: 0;
+			}
+    	</style>
+  	</head>
+	  
+	<body>
+
+  		<div style=" bottom: 0; position: fixed; z-index: 1; background-color: rgba(255,255,255,0.85); padding: 1em 2em; font-family: 'Open Sans';">
+  			<h1> What's this blobby boi called? </h1>
+
+ 		 	<p> Come on, tell us what the blob in the picture is.</p>
+
+			<form action="/" method="POST">
+				<input type="text" name="blob" value=""><br>
+				<input type="submit" value="Guess">
+			</form>
+
+    		<p><b> Your score: </b>{{ successes }}</p>
+
+  		</div>
+    	<img src="{{url_for('static', filename=image)}}"></div>
+  
+	</body>
+	  
+</html>
