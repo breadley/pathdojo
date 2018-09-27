@@ -10,18 +10,30 @@ app.config.from_object('config.DevelopmentConfig')
 
 # here is how we are handling routing with flask:
 # Format {folder_name:ID,...}
-dictionary_of_files = {}
+list_of_files_with_attibutes = []
+# Inventory needs to only be taken once
+need_to_take_inventory = True
 
 def take_inventory():
-    # This function creates a dictionary of files with name:ID combo from google drive
+    # This function creates a dictionary of files with attributes 
+    # IDs are from google drive
+
+    # [{'name':'blah','google_drive_id':'id','folder_name':'blah','image_ids':['id1','id2','id3']}]
 
     # Get list from API using function that uses PyDrive
-    temp_files = gdrive_api_calls.list_all_files('dummy_folder')
-    for filename,id in temp_files.items():
-        # if file is a disease folder with a correctly formatted name
-        if file.os.startswith('[') and file.os.endswith(']'):
-            # add file to globally acccessible list
-            dictionary_of_files[filename] = id
+    for folder_name,google_drive_id in gdrive_api_calls.list_all_files('dummy_folder').items():
+        # Create disease attributes
+        this_disease={}
+        this_disease['folder_name'] = folder_name
+        this_disease['google_drive_id'] = google_drive_id
+        this_disease['name'] = folder_name.strip(']').strip('*[')
+        this_disease['image_ids'] = gdrive_api_calls.get_file_ids_from_folder(google_drive_id)[0]
+        this_disease['text_file'] = gdrive_api_calls.get_file_ids_from_folder(google_drive_id)[1]  
+
+
+        # Add to globally addressable list
+        list_of_files_with_attibutes.append(this_disease)
+
         
 
 def string_to_html_page(string):
@@ -38,7 +50,7 @@ def string_to_html_page(string):
 
     return page
     
-
+'''
 
 @app.route('/')
 def index():
@@ -85,9 +97,13 @@ def index():
     page = string_to_html_page(message)
 
     return page, 200
+'''
+
+
 
 @app.route('/files/')
 def files():
+    # Deprecated/gdrive test only
     # Homepage/files
     content = ''
 
@@ -107,26 +123,20 @@ def files():
     # use a monospace font so everything lines up as expected
     return page, 200   
 
-@app.route('/photos/',methods=['GET', 'POST'])
-def photos():
+@app.route('/',methods=['GET', 'POST'])
+def index():
     # Homepage/photos
 
     # Take inventory of files (ideally once only)
+    '''
+    if need_to_take_inventory:
+        take_inventory()
+        need_to_take_inventory=False
+    '''
     take_inventory()
-    blobs = []
-    # Create a custom dictionary as a test for blob mania
-    # Takes the inventory, and turns each name/id pair and makes them a list element
-    # [{'name':'blah','google_drive_id':'id','folder_name':'blah','image_ids':['id1','id2','id3']}]
-    for folder_name,google_drive_id in dictionary_of_files:
-        this_blob={}
-        this_blob['folder_name'] = folder_name
-        this_blob['google_drive_id'] = google_drive_id
-        this_blob['name'] = folder_name.strip(']').strip('*[')
-        this_blob['image_ids'] = get_image_ids_from_folder(google_drive_id)
 
-        blobs.append(this_blob)
-
-
+    # Reference the diseases as blobs for testing
+    blobs = list_of_files_with_attibutes
 
     successes = session.get('successes', 0)
     # Get a random disease
@@ -152,7 +162,7 @@ def photos():
 
             return render_template('wrong.html', successes=successes, blob_name=blob['name'])
 
-    return render_template('index.html', image=blob['image'], successes=successes, failed=True)
+    return render_template('index.html', image=gdrive_api_calls.select_an_image_from_list_of_ids(blob['image_ids']), successes=successes, failed=True)
 
 
 '''
@@ -174,3 +184,4 @@ def photos():
 # include this for local dev
 if __name__ == '__main__':
     app.run()
+    

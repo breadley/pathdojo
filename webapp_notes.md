@@ -18,9 +18,9 @@ Turns python code into a web app.
 
 #### Testing
 
-`FLASK_APP=app.py flask run` Will run app.py 
+`FLASK_APP=app.py` `flask run` Will run app.py 
 
-on Windows: `$env:FLASK_APP='app.py' flask run`
+on Windows: `$env:FLASK_APP='app.py'` `flask run`
 
 #### TODO
 
