@@ -16,12 +16,28 @@ def list_all_files(folder):
 	print(results)
 	return results
 
-def get_photo(filename,id):
+def get_image_ids_from_folder(folder_id)
+	# Returns an array of ids for the images within a given folder
+	image_ids = []
+	image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
+	# Create a pydrive object for the folder
+	folder = drive.CreateFile({'id':folder_id})
+	# List the contents of the folder
+	content_list = folder.drive.ListFile(folder).GetList()
+
+	for file_title,file_id in content_list:
+		if 
+		if file_title.endswith(tuple(image_extensions)) and not file.startswith('._'):
+                image_ids.append(file_id)
+	return image_ids
+
+
+def get_images(folder_id):
 	# Returns an array of image names of downloaded images (temporary)
 	# Format ['static/image_index','static/image_index']
 
 	# Create a pydrive object for the folder
-	folder = drive.CreateFile({'id':id})
+	folder = drive.CreateFile({'id':folder_id})
 	# List the contents of the folder
 	content_list = folder.drive.ListFile(folder).GetList()
 	
@@ -39,8 +55,16 @@ def get_photo(filename,id):
 	
 	return image_object_arrary
 
-def clear_static_folder(filename):
-	# TODO Once an image has been used, remove from static filder.
-	pass
+def clear_static_folder(list_of_images_to_be_destroyed):
+	# Clears a set of images in 'static' folder, once they are no longer needed
+	# Accepts list in format ['static/image_index','static/image_index']
+
+	# Go through files we have
+	for file_present in os.scandir('/static'):
+		# If we find a match
+		if file_present in list_of_images_to_be_destroyed:
+			# Remove the file
+			os.remove(f'/static{file_present}')
+	return
 
 # list_all_files('dummy_folder')
