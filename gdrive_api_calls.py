@@ -51,7 +51,7 @@ def select_an_image_from_list_of_ids(image_id_list):
 	image = drive.CreateFile({'id':random_id})
 	filename = f'temporary_image_with_id_{random_id}.jpeg'
 	# download image
-	image.GetContentFile(filename)
+	image.GetContentFile('static/'+filename)
 
 	
 	return filename,id
