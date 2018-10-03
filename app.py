@@ -65,7 +65,7 @@ def take_inventory():
         this_disease={}
         this_disease['folder_name'] = folder_name
         this_disease['google_drive_id'] = google_drive_id
-        this_disease['name'] = folder_name.strip(']').strip('*[') 
+        this_disease['name'] = folder_name.split('][')[5].strip(']')
 
         # Add to globally addressable list
         list_of_files_with_attibutes.append(this_disease)
@@ -115,6 +115,10 @@ def files():
 
 def get_single_image(blob_folder_drive_id):
     # This function randomly chooses an image from a blob's folder and downloads it for display
+
+    # first clear the static folder (a cache for image to be displayed)
+    for old_image in os.listdir('static/'):
+        os.remove('static/'+old_image)
 
     # Get image id's
     blob_folder_image_ids = gdrive_api_calls.get_file_ids_from_folder(blob_folder_drive_id)[0] # 1 is for text, 0 for images
@@ -167,7 +171,9 @@ def index():
     return render_template('index.html', image=get_single_image(blob['google_drive_id']), message=message, successes=successes, failed=True)
 
 
+
 # include this for local dev
 if __name__ == '__main__':
     app.run()
+ 
     
