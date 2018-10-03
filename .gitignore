@@ -25,3 +25,5 @@ client_secrets.json
 token.json
 
 static/*
+
+*.zip
