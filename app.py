@@ -127,7 +127,7 @@ def get_single_image(blob_folder_drive_id):
 @app.route('/',methods=['GET', 'POST'])
 def index():
     # Intro message TODO
-
+    message = string_to_html(dojo_welcome)
 
     # Take inventory of files (ideally once only)
     '''
@@ -164,7 +164,7 @@ def index():
             session['blob'] = random.choice(blobs)
 
             return render_template('wrong.html', successes=successes, blob_name=blob['name'])
-    return render_template('index.html', image=get_single_image(blob['google_drive_id']), successes=successes, failed=True)
+    return render_template('index.html', image=get_single_image(blob['google_drive_id']), message=message, successes=successes, failed=True)
 
 
 # include this for local dev
