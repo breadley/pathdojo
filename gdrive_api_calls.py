@@ -12,16 +12,16 @@ def list_all_files(folder):
 	file_list = drive.ListFile({'q': "'root' in parents"}).GetList()
 	results = {}
 	for file1 in file_list:
-		#print('title: %s, id: %s' % (file1['title'], file1['id']))
-		results[file1['title']] = file1['id']
-	print(results)
+		if file1['title'].startswith('['):
+			results[file1['title']] = file1['id']
+	print(f'There are currently {len(results)} files in the Google Drive folder')
 	return results
 
 def get_file_ids_from_folder(folder_id):
 	# Returns an array of ids for the images within a given folder
 	image_ids = []
 	image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
-
+	print('Getting the files from within one folder...')
 	# Also returns a list containing the google drive id of any .txt files within a given folder
 	# Usually would have only one file
 	text_file_ids = []
@@ -44,17 +44,17 @@ def get_file_ids_from_folder(folder_id):
 
 def select_an_image_from_list_of_ids(image_id_list):
 	# Used to download a single image and return the location for dispaying
-
+	print
 	# pick random id
 	random_id = random.choice(image_id_list)
 	# create pydrive object
 	image = drive.CreateFile({'id':random_id})
+	filename = f'temporary_image_with_id_{random_id}.jpeg'
 	# download image
-	image.GetContentFile(f'static/temporary_image_with_id_{image_id}')
-	# record the location/name
-	file_location=f'static/temporary_image_with_id_{image_id}'
+	image.GetContentFile(filename)
+
 	
-	return file_location
+	return filename,id
 
 
 def get_images(folder_id):
