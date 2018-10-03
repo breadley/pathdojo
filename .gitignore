@@ -23,3 +23,5 @@ credentials.json
 # (a copy of credentials.json, used for PyDrive)
 client_secrets.json
 token.json
+
+static/*
