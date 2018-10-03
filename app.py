@@ -139,23 +139,6 @@ def index():
 
     # Reference the diseases as blobs for testing
     blobs = list_of_files_with_attibutes
-    '''
-    # a temporary list for testing
-    a_few_blobs = {'[thyroid][malignant][tumour][spot_diagnosis][common][papillary_thyroid_carcinoma]': '1m1PUfDjppvv9fs1H9P6M4__qcY-s5vES', 
-    '[lung][malignant][tumour][spot_diagnosis][uncommon][papillary_adenocarcinoma_of_the_lung]': '1FRdtTWqmmuDSZkkfVRD5JcWn4OR8M4cL',
-    '[head_neck][benign][][spot_diagnosis][rare][fibrous_dysplasia]': '1e38fh5DdeB6q28MxU0GNiwEkeuDB6wuK'}
-    # Temporary tiny blob list preparation
-    blobs = []    
-    for folder_name,google_drive_id in a_few_blobs.items():
-        # Create disease attributes
-        this_disease={}
-        this_disease['folder_name'] = folder_name
-        this_disease['google_drive_id'] = google_drive_id
-        this_disease['name'] = folder_name.strip(']').strip('*[')
-        #this_disease['image_ids'] = gdrive_api_calls.get_file_ids_from_folder(google_drive_id)[0]
-        #this_disease['text_file'] = gdrive_api_calls.get_file_ids_from_folder(google_drive_id)[1]
-        blobs.append(this_disease)  
-    '''
 
     successes = session.get('successes', 0)
     # Get a random disease
