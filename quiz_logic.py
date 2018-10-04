@@ -19,8 +19,16 @@ disease_folder_inventory = {}
 # Goes through the list of folders and extracts items for each category from their name
 def get_inventory():
 
+    # USED ONLY FOR LOCAL / NON_GDRIVE application/testing
+
     # get all the files
     files = os.listdir(content_directory)
+    return get_folder_tags(files)
+
+def get_folder_tags(list_of_filenames):
+    # This function takes a list of filenames
+    # From either google drive or locally and returns separate lists
+    # Of the different options available to choose from
 
     # for each file, append it's name elements to a new list
     organ_list = []
@@ -59,6 +67,18 @@ def get_inventory():
                 disease_folder_inventory['disease_name'] = disease # Format {disease:[full][file[name]}
                 
     return organ_list, disease_type_list, subtype_list, complexity_list, incidence_list   
+
+
+def get_options_from_folder_names(google_drive_folder_inventory):
+    # This function is called by the app page where new quizzes are designed
+    # Accepts the list of disease folders
+    # [{'name':'blah blah','underlined_name':'blah_blah','google_drive_id':'id','folder_name':'blah'}]
+
+    list_of_folder_names = []
+    for folder in google_drive_folder_inventory:
+        list_of_folder_names.append(folder['folder_name'])
+    
+    return get_folder_tags(list_of_folder_names)
 
 class Disease():
 
@@ -324,7 +344,11 @@ class Quiz():
                 print('Finished quiz, need to implement option to start new quiz here')
             
 
+
+
+
 def design_new_quiz(first_quiz=False):
+    # THE FIRST HALF OF THIS WILL BE DEPRECATED IN FAVOUR OF OPTIONS AND BUTTONS
     # Asks for parameters and creates a quiz to meet those parameters
     # The quiz is then passed to the quiz executor (designed_quiz_preparer)
 
@@ -385,6 +409,10 @@ def design_new_quiz(first_quiz=False):
     incidence = str(input("\n(To skip, press enter)\nIncidence: "))
     while incidence not in incidence_list and incidence != '':
             incidence = str(input("\n(To skip, press enter)\n*Typo* incidence: "))
+
+    # END DEPRECATION
+    # 
+    # 
             
     quiz_name = organ+disease_type+subtype+complexity+incidence
      

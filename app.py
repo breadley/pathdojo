@@ -3,6 +3,7 @@ import config
 import os
 import gdrive_api_calls
 import random
+import quiz_logic
 
 app = Flask(__name__)
 
@@ -11,8 +12,8 @@ app.config.from_object('config.DevelopmentConfig')
 # Debug mode on/True or off/False
 app.debug=True
 
-# here is how we are handling routing with flask:
-# Format {folder_name:ID,...}
+
+# [{'name':'blah blah','underlined_name':'blah_blah','google_drive_id':'id','folder_name':'blah'}]
 list_of_files_with_attibutes = []
 # Inventory needs to only be taken once
 need_to_take_inventory = True
@@ -60,7 +61,7 @@ def take_inventory():
     # This function creates a dictionary of files with attributes 
     # IDs are from google drive
 
-    # [{'name':'blah','google_drive_id':'id','folder_name':'blah','image_ids':['id1','id2','id3']}]
+    # [{'name':'blah','google_drive_id':'id','folder_name':'blah'}]
 
     # Get list from API using function that uses PyDrive
     for folder_name,google_drive_id in gdrive_api_calls.list_all_files('dummy_folder').items():
@@ -89,29 +90,33 @@ def string_to_html(string):
     return modified_string
 
     
-@app.route('/home')
+@app.route('/design',methods=['GET', 'POST'])
 def home():
     # Homepage 
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
-    return render_template('home.html', message = message)
+
+
+    organ_list, disease_type_list, subtype_list, complexity_list, incidence_list = quiz_logic.get_options_from_folder_names(list_of_files_with_attibutes) 
+
+    # If a button is pressed
+    if request.method == 'POST':
+        guess = request.form['organ']
+        # TEMP TEST REDIRECT
+        return redirect('/random')
+
+    return render_template('home.html', message = message, 
+                            organ_list=organ_list,
+                            disease_type_list=disease_type_list, 
+                            subtype_list=subtype_list, 
+                            complexity_list=complexity_list, 
+                            incidence_list=incidence_list)
 
     
-@app.route('/new_quiz')
-def new_quiz():
-    # Design a new quiz
-    return render_template('new_quiz.html')
-
-
-'''
-@app.route('/home')
-def index():
+@app.route('/')
+def base():
     # Homepage    
-    
-    page = "<html><body style='font-family: mono;'>" + string_to_html(dojo_welcome) + "</body></html>"
-
-    return page, 200
-'''
-
+    message = '''You and Pathdojo form a symbiont circle. \nWhat happens to one of you will affect the other.\nYou must understand this.  '''
+    return render_template('base.html',message = message)
 
 
 @app.route('/files/')
@@ -151,7 +156,7 @@ def get_single_image(blob_folder_drive_id):
     return random_image_filename
 
 
-@app.route('/',methods=['GET', 'POST'])
+@app.route('/random',methods=['GET', 'POST'])
 def index():
     # Intro message TODO
     message = string_to_html(dojo_welcome)
@@ -183,7 +188,7 @@ def index():
             session['successes'] = successes + 1
             session['blob'] = random.choice(blobs)
 
-            return redirect('/')
+            return redirect('/random')
 
         else:
             session['successes'] = 0
