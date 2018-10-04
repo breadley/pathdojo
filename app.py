@@ -8,6 +8,9 @@ app = Flask(__name__)
 
 app.config.from_object('config.DevelopmentConfig')
 
+# Debug mode on/True or off/False
+app.debug=True
+
 # here is how we are handling routing with flask:
 # Format {folder_name:ID,...}
 list_of_files_with_attibutes = []
@@ -15,33 +18,33 @@ list_of_files_with_attibutes = []
 need_to_take_inventory = True
 
 dojo_welcome = """   
-                                                         . /  
-                                                     . /  
-                                                 . /  
-                                             . /  
-                                         . /  
+                                                         . /
+                                                     . /
+                                                 . /
+                                             . /
+                                         . /
                                      . /
                                /-__/   / /_)
-                              /\/\   =/ = /_/         Hello there
+                              /\/\   =/ = /_/     Hello there
                                  /  \,_\_)___(_
                                  \  /    .  .  \_
                                   \___\|\_,   .  /
-                                        \__-\__  .  
-                                         /\// '   . 
+                                        \__-\__  .
+                                         /\// '   .
                                          (/_   .  /
                                         \_,\__.___|
                                        __#######]
                                     __/._  .  . )
                                   _/ .\  .   . <
                                  \.    .   . _/
-                                 /\__.  _.__/  
+                                 /\__.  _.__/
                                 (    \_/ (   /_|
-                                 )/_     /'-`_) 
+                                 )/_     /'-`_)
                                   |     /  (___'_)
                                   '/. __)
-                              ..   \_/ |          . 
+                              ..   \_/ |          .
                                     _\ (    . ..
-                                 (____`_)    
+                                 (____`_)
 
 
 
@@ -65,7 +68,14 @@ def take_inventory():
         this_disease={}
         this_disease['folder_name'] = folder_name
         this_disease['google_drive_id'] = google_drive_id
-        this_disease['name'] = folder_name.split('][')[5].strip(']')
+        this_disease['underlined_name'] = folder_name.split('][')[5].strip(']')
+        # replace underlines with spaces
+        this_disease['name'] = ''
+        for letter in this_disease['underlined_name']:
+            if letter == '_':
+                this_disease['name']+=' '
+            else:
+                this_disease['name']+=letter
 
         # Add to globally addressable list
         list_of_files_with_attibutes.append(this_disease)
@@ -79,8 +89,21 @@ def string_to_html(string):
     return modified_string
 
     
+@app.route('/home')
+def home():
+    # Homepage 
+    message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
+    return render_template('home.html', message = message)
+
+    
+@app.route('/new_quiz')
+def new_quiz():
+    # Design a new quiz
+    return render_template('new_quiz.html')
+
+
 '''
-@app.route('/')
+@app.route('/home')
 def index():
     # Homepage    
     
@@ -117,7 +140,7 @@ def get_single_image(blob_folder_drive_id):
     # This function randomly chooses an image from a blob's folder and downloads it for display
 
     # first clear the static folder (a cache for image to be displayed)
-    for old_image in os.listdir('static/'):
+    for old_image in os.listdir('static'):
         os.remove('static/'+old_image)
 
     # Get image id's
@@ -174,6 +197,6 @@ def index():
 
 # include this for local dev
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)
  
     

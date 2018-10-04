@@ -44,7 +44,18 @@ def get_file_ids_from_folder(folder_id):
 
 def select_an_image_from_list_of_ids(image_id_list):
 	# Used to download a single image and return the location for dispaying
-	print
+	
+	# If the list is empty, return a photo of the ocean
+	if image_id_list == [] or image_id_list == None:
+		filename = 'empty.jpeg'
+		file_list = drive.ListFile({'q': "'root' in parents"}).GetList()
+		for file1 in file_list:
+			if file1['title']==filename:
+				 # test case '1vmTwm2W-8btmifsBG1mkOlvspwkdEW-8'
+				image_id_list.append(file1['id'])
+				image_id_list.append(file1['id'])
+				
+	
 	# pick random id
 	random_id = random.choice(image_id_list)
 	# create pydrive object

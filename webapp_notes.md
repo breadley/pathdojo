@@ -16,6 +16,8 @@ Flask is used to glue everything together, runs app logic, communicates with fro
 
 Turns python code into a web app.
 
+Formatting https://bootswatch.com/litera/
+
 #### Testing
 
 `FLASK_APP=app.py` `flask run` Will run app.py 
