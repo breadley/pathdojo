@@ -1,0 +1,32 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+<div style=" bottom: 0; position: fixed; z-index: 1; background-color: rgba(255,255,255,0.85); padding: 1em 2em; font-family: 'Open Sans';">
+			
+	<h1> Name that blob! </h1>
+
+	<p> It looks nice and pink doesn't it.</p>
+
+	<p> Well?</p>
+
+  <form action="/display" method="POST">
+	  <input type="text" name="blob" value=""><br>
+	  <input type="submit" value="Guess">
+  </form>
+
+  <p><b> Your score: </b>{{ successes }}</p>
+
+</div>
+<img src="{{url_for('static', filename=image)}}"></div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+

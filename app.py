@@ -104,7 +104,7 @@ def home():
         # TEMP TEST REDIRECT
         return redirect('/random')
 
-    return render_template('home.html', message = message, 
+    return render_template('design.html', message = message, 
                             organ_list=organ_list,
                             disease_type_list=disease_type_list, 
                             subtype_list=subtype_list, 
@@ -113,10 +113,10 @@ def home():
 
     
 @app.route('/')
-def base():
+def index():
     # Homepage    
     message = '''You and Pathdojo form a symbiont circle. \nWhat happens to one of you will affect the other.\nYou must understand this.  '''
-    return render_template('base.html',message = message)
+    return render_template('index.html',message = message)
 
 
 @app.route('/files/')
@@ -130,7 +130,7 @@ def files():
     temp_files = gdrive_api_calls.list_all_files('dummy_folder')
     for filename,id in temp_files.items():
         # if file is a disease folder
-        if file.os.startswith('[') and file.os.endswith(']'):
+        if filename.startswith('[') and filname.endswith(']'):
             # add file to globally acccessible list
             dictionary_of_files[filename] = id
             content+=f'\n\nFilename: {filename}\t\t\tFile ID: {id}'
@@ -156,8 +156,8 @@ def get_single_image(blob_folder_drive_id):
     return random_image_filename
 
 
-@app.route('/random',methods=['GET', 'POST'])
-def index():
+@app.route('/display',methods=['GET', 'POST'])
+def display():
     # Intro message TODO
     message = string_to_html(dojo_welcome)
 
@@ -188,7 +188,7 @@ def index():
             session['successes'] = successes + 1
             session['blob'] = random.choice(blobs)
 
-            return redirect('/random')
+            return redirect('/display')
 
         else:
             session['successes'] = 0
@@ -196,7 +196,7 @@ def index():
             session['blob'] = random.choice(blobs)
 
             return render_template('wrong.html', successes=successes, blob_name=blob['name'])
-    return render_template('index.html', image=get_single_image(blob['google_drive_id']), message=message, successes=successes, failed=True)
+    return render_template('display.html', image=get_single_image(blob['google_drive_id']), message=message, successes=successes, failed=True)
 
 
 

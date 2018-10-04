@@ -1,37 +1,14 @@
+{% extends 'layout.html' %}
 
-<!DOCTYPE html>
-<html>
-  	<head>
-    	<title>Name that blob!</title>
-    	<meta name="viewport" content="initial-scale=1.0">
-    	<meta charset="utf-8">
-    	<style>
-			/* Optional: Makes the sample page fill the window. */
-			html, body {
-				height: 100%;
-				margin: 0;
-				padding: 0;
-			}
-    	</style>
-  	</head>
-	  
-	<body>
-		  <div style=" bottom: 0; position: fixed; z-index: 1; background-color: rgba(255,255,255,0.85); padding: 1em 2em; font-family: 'Open Sans';">
-			
-  			<h1> What's this blobby boi called? </h1>
+{% block body %}
+    <div class="jumbotron">
+        <h1 class="display-3">Pathology Dojo</h1>
+        <p class="lead">A quiet, dusty place</p>
+        <hr class="my-4">
+        <p> {{ message }} </p>
+        <p class="lead">
+        </p>
+    </div>
 
- 		 	<p> It looks nice and pink doesn't it. Well?</p>
 
-			<form action="/" method="POST">
-				<input type="text" name="blob" value=""><br>
-				<input type="submit" value="Guess">
-			</form>
-
-    		<p><b> Your score: </b>{{ successes }}</p>
-
-  		</div>
-		<img src="{{url_for('static', filename=image)}}"></div>
-
-	</body>
-	  
-</html>
+{% endblock %}
