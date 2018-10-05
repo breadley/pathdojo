@@ -11,48 +11,48 @@
     </div>
 
     <div>
+        <form action="/design" method="POST">
         <p>
             {% for option in organ_list %}
             
-                <button method="POST" type="button" name='organ' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}} </button>
+                <button method="button" type="button" name='organ' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}} </button>
             {% endfor %}
         </p>
-    </div>    
 
-    <div>
-            <p>
-                {% for option in disease_type_list %}
-                
-                    <button type="button" name='disease_type' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
-                {% endfor %}
-            </p>
-        </div> 
-
-    <div>
-            <p>
-                {% for option in subtype_list %}
-                
-                    <button type="button" name='subtype' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
-                {% endfor %}
-            </p>
-    </div> 
+        <p>
+            {% for option in disease_type_list %}
             
-    <div>
-            <p>
-                {% for option in complexity_list %}
-                
-                    <button type="button" name='complexity' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
-                {% endfor %}
-            </p>
+                <button type="button" name='disease_type' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
+            {% endfor %}
+        </p>
+
+        <p>
+            {% for option in subtype_list %}
+            
+                <button type="button" name='subtype' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
+            {% endfor %}
+        </p>
+
+        <p>
+            {% for option in complexity_list %}
+            
+                <button type="button" name='complexity' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
+            {% endfor %}
+        </p>
+
+        <p>
+            {% for option in incidence_list %}
+            
+                <button type="button" name='incidence' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
+            {% endfor %}
+        </p>
+        <button class="btn btn-secondary btn-lg btn-block btn-sm" type="submit" value='selection_demo'>Submit</button>
+
+
+      
+
+        </form> 
     </div> 
-                
-    <div>
-            <p>
-                {% for option in incidence_list %}
-                
-                    <button type="button" name='incidence' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
-                {% endfor %}
-            </p>
-    </div> 
+
 
 {% endblock %}
