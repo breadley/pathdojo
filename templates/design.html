@@ -9,13 +9,13 @@
         <p class="lead">
         </p>
     </div>
-
+    <form action="/design" method="POST">
     <div>
-        <form action="/design" method="POST">
+        
         <p>
             {% for option in organ_list %}
             
-                <button method="button" type="button" name='organ' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}} </button>
+                <button type="button" name='organ' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}} </button>
             {% endfor %}
         </p>
 
@@ -30,7 +30,7 @@
             {% for option in subtype_list %}
             
                 <button type="button" name='subtype' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
-            {% endfor %}
+            {% endfor %}  
         </p>
 
         <p>
@@ -49,10 +49,12 @@
         <button class="btn btn-secondary btn-lg btn-block btn-sm" type="submit" value='selection_demo'>Submit</button>
 
 
+
       
 
-        </form> 
+        
     </div> 
+</form> 
 
 
 {% endblock %}

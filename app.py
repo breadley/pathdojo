@@ -95,16 +95,16 @@ def design():
     # Homepage 
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
 
-
+    
 
     organ_list, disease_type_list, subtype_list, complexity_list, incidence_list = quiz_logic.get_options_from_folder_names(list_of_files_with_attibutes) 
 
     # If a button is pressed
     if request.method == 'POST':
-  
+        organ = request.form['organ']
         print(request.form)
         # TEMP TEST REDIRECT
-        return redirect('/design')
+        return redirect('test.html',organ=organ)
 
     return render_template('design.html', 
                             message = message,
