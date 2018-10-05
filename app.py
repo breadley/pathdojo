@@ -95,16 +95,25 @@ def design():
     # Homepage 
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
 
-    
+    selections = [] # Currently fails, may need session.get
 
+
+    # Make these lists a dictionary from the start with True/False
     organ_list, disease_type_list, subtype_list, complexity_list, incidence_list = quiz_logic.get_options_from_folder_names(list_of_files_with_attibutes) 
 
     # If a button is pressed
     if request.method == 'POST':
-        organ = request.form['organ']
-        print(request.form)
-        # TEMP TEST REDIRECT
-        return redirect('test.html',organ=organ)
+        button_pressed = request.form
+        # If the submit button is pressed
+        if 'submit_options' in button_pressed: 
+            # and value is 'submitting'
+            
+            return render_template('test.html',selections='submitted')
+        # Any other button pressed
+        else:
+            return render_template('test.html',selections=button_pressed)
+
+
 
     return render_template('design.html', 
                             message = message,
@@ -114,7 +123,8 @@ def design():
                             complexity_list=complexity_list, 
                             incidence_list=incidence_list)
 
-    
+
+
 @app.route('/')
 def index():
     # Homepage    

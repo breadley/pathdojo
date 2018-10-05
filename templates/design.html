@@ -15,7 +15,7 @@
         <p>
             {% for option in organ_list %}
             
-                <button type="button" name='organ' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}} </button>
+                <button type="submit" name='organ' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}} </button>
             {% endfor %}
         </p>
 
@@ -46,10 +46,10 @@
                 <button type="button" name='incidence' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
             {% endfor %}
         </p>
-        <button class="btn btn-secondary btn-lg btn-block btn-sm" type="submit" value='selection_demo'>Submit</button>
+        <button class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="submitting" type="submit" value='selection_demo'>Submit</button>
 
 
-
+        <p>Choices: {{selections}}</p>
       
 
         
