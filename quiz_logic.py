@@ -23,7 +23,7 @@ def get_inventory():
 
     # get all the files
     files = os.listdir(content_directory)
-    return get_folder_tags(files)
+    return get_folder_tags(files).items()
 
 def get_folder_tags(list_of_filenames):
     # This function takes a list of filenames
@@ -37,6 +37,7 @@ def get_folder_tags(list_of_filenames):
     complexity_list = []
     incidence_list = []
     
+  
 
     for disease in os.listdir(content_directory): # disease here is a folder name
         if disease.startswith('[') and disease.endswith(']'): # it's a disease
@@ -65,8 +66,15 @@ def get_folder_tags(list_of_filenames):
             disease_name = category_list[5].strip('[')
             if disease_name !='':
                 disease_folder_inventory['disease_name'] = disease # Format {disease:[full][file[name]}
-                
-    return organ_list, disease_type_list, subtype_list, complexity_list, incidence_list   
+
+    categories = {'organ_list':organ_list, 
+                'disease_type_list':disease_type_list, 
+                'subtype_list':subtype_list, 
+                'complexity_list':complexity_list, 
+                'incidence_list':complexity_list}            
+
+    return categories
+    # return organ_list, disease_type_list, subtype_list, complexity_list, incidence_list   
 
 
 def get_options_from_folder_names(google_drive_folder_inventory):
@@ -78,6 +86,7 @@ def get_options_from_folder_names(google_drive_folder_inventory):
     for folder in google_drive_folder_inventory:
         list_of_folder_names.append(folder['folder_name'])
     
+    # TODO
     return get_folder_tags(list_of_folder_names)
 
 class Disease():

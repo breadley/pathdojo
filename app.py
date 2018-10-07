@@ -94,34 +94,55 @@ def string_to_html(string):
 def design():
     # Homepage 
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
+ 
 
-    selections = [] # Currently fails, may need session.get
+    # DEPRECATED Make these lists a dictionary from the start with True/False
+    # organ_list, disease_type_list, subtype_list, complexity_list, incidence_list = quiz_logic.get_options_from_folder_names(list_of_files_with_attibutes) 
+
+    
+    # Get the categories from the filenames
+    # Format: {'organ_list':[], 'disease_type_list':[], 'subtype_list':[], 'complexity_list':[], 'incidence_list':[]
+    categories = quiz_logic.get_options_from_folder_names(list_of_files_with_attibutes)
+
+    # Make a dicitonary that has the categories, but none of the options
+    # Will add the option in if the button is pressed.
+    selected_categories = {}
+    for category in categories.keys():
+        selected_categories[category]=[]
+
+    # Create a blank dictionary to hold button presses
+    selections = session.get('selections', selected_categories)
+    
 
 
-    # Make these lists a dictionary from the start with True/False
-    organ_list, disease_type_list, subtype_list, complexity_list, incidence_list = quiz_logic.get_options_from_folder_names(list_of_files_with_attibutes) 
 
     # If a button is pressed
     if request.method == 'POST':
-        button_pressed = request.form
+        button_type = request.form.items()[0]
+        button_value = request.form.items()[1]
+        
         # If the submit button is pressed
-        if 'submit_options' in button_pressed: 
+        if button_type == 'submit_options': 
             # and value is 'submitting'
+            #TODO
             
             return render_template('test.html',selections='submitted')
         # Any other button pressed
-        else:
-            return render_template('test.html',selections=button_pressed)
+        else:        
+            session['selections'] = [button_type,button_value]
+            return redirect('/design')
+            #return render_template('test.html',selections=button_pressed)
 
 
 
     return render_template('design.html', 
                             message = message,
-                            organ_list=organ_list,
-                            disease_type_list=disease_type_list, 
-                            subtype_list=subtype_list, 
-                            complexity_list=complexity_list, 
-                            incidence_list=incidence_list)
+                            selections = selections,
+                            organ_list=categories['organ_list'],
+                            disease_type_list=categories['disease_type_list'], 
+                            subtype_list=categories['subtype_list'], 
+                            complexity_list=categories['complexity_list'], 
+                            incidence_list=categories['incidence_list'])
 
 
 

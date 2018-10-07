@@ -22,28 +22,28 @@
         <p>
             {% for option in disease_type_list %}
             
-                <button type="button" name='disease_type' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
+                <button type="submit" name='disease_type' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
             {% endfor %}
         </p>
 
         <p>
             {% for option in subtype_list %}
             
-                <button type="button" name='subtype' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
+                <button type="submit" name='subtype' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
             {% endfor %}  
         </p>
 
         <p>
             {% for option in complexity_list %}
             
-                <button type="button" name='complexity' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
+                <button type="submit" name='complexity' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
             {% endfor %}
         </p>
 
         <p>
             {% for option in incidence_list %}
             
-                <button type="button" name='incidence' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
+                <button type="submit" name='incidence' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
             {% endfor %}
         </p>
         <button class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="submitting" type="submit" value='selection_demo'>Submit</button>
