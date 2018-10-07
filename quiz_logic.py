@@ -74,7 +74,7 @@ def get_folder_tags(list_of_filenames):
                 'incidence_list':complexity_list}            
 
     return categories
-    # return organ_list, disease_type_list, subtype_list, complexity_list, incidence_list   
+    
 
 
 def get_options_from_folder_names(google_drive_folder_inventory):
@@ -86,7 +86,7 @@ def get_options_from_folder_names(google_drive_folder_inventory):
     for folder in google_drive_folder_inventory:
         list_of_folder_names.append(folder['folder_name'])
     
-    # TODO
+    
     return get_folder_tags(list_of_folder_names)
 
 class Disease():
