@@ -71,7 +71,7 @@ def get_folder_tags(list_of_filenames):
                 'disease_type_list':disease_type_list, 
                 'subtype_list':subtype_list, 
                 'complexity_list':complexity_list, 
-                'incidence_list':complexity_list}            
+                'incidence_list':incidence_list}            
 
     return categories
     

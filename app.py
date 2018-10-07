@@ -110,26 +110,33 @@ def design():
     for category in categories.keys():
         selected_categories[category]=[]
 
+    temp_selections = {}
+
     # Create a blank dictionary to hold button presses
-    selections = session.get('selections', selected_categories)
+    selections = session.get('selections', temp_selections)
+
+
     
-
-
-
     # If a button is pressed
     if request.method == 'POST':
-        button_type = request.form.items()[0]
-        button_value = request.form.items()[1]
-        
+        button_pressed = request.form
+
+
         # If the submit button is pressed
-        if button_type == 'submit_options': 
+        if button_pressed == 'submit_options': 
             # and value is 'submitting'
             #TODO
             
             return render_template('test.html',selections='submitted')
+
         # Any other button pressed
-        else:        
-            session['selections'] = [button_type,button_value]
+        else:      
+            # Go through the dictionary of button presses  
+            for category,desired_option in button_pressed.items():   
+                # Record the button selection in selected_categories           
+                temp_selections[category] = desired_option
+                session['selections'] = temp_selections
+                
             return redirect('/design')
             #return render_template('test.html',selections=button_pressed)
 
@@ -138,11 +145,11 @@ def design():
     return render_template('design.html', 
                             message = message,
                             selections = selections,
-                            organ_list=categories['organ_list'],
-                            disease_type_list=categories['disease_type_list'], 
-                            subtype_list=categories['subtype_list'], 
-                            complexity_list=categories['complexity_list'], 
-                            incidence_list=categories['incidence_list'])
+                            organ_list = categories['organ_list'],
+                            disease_type_list = categories['disease_type_list'], 
+                            subtype_list = categories['subtype_list'], 
+                            complexity_list = categories['complexity_list'], 
+                            incidence_list = categories['incidence_list'])
 
 
 
