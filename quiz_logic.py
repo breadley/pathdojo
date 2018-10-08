@@ -28,9 +28,6 @@ def get_inventory():
 
     return get_folder_tags(files)
 
-def get_folder_tags_with_indexes(list_of_filenames, category_indexes):
-    # This function takes a list of filenames and a dictionary of category indexes
-    # It returns a dictionary of categories and their options
 
 def get_folder_tags(list_of_filenames):
     # This function takes a list of filenames
@@ -381,7 +378,7 @@ class Quiz():
             if self.progress == self.total_quiz_length:
                 print('Finished quiz, need to implement option to start new quiz here')
             
-def smart_inventory(filenames=os.listdir(content_directory))
+def smart_inventory(filenames=os.listdir(content_directory)):
     # Takes a list of files
     # By default uses local files, but doesn't have to.
     # finds the disease folders
@@ -389,7 +386,7 @@ def smart_inventory(filenames=os.listdir(content_directory))
     list_of_filenames_as_dictionaries = []
     # format: ['full_name':'','organ':'','disease_type':'']
     for filename in filenames:
-        if filename.startswith('[') and disease.endswith(']'): 
+        if filename.startswith('[') and filename.endswith(']'): 
             filename_dict = filename_breakdown(filename)
             list_of_filenames_as_dictionaries.append(filename_dict)
 
@@ -401,7 +398,10 @@ def filename_breakdown(filename):
     # Returns a dictionary of values about the name
     # Format = {'full_name':'','organ':'','disease_type':'', etc.}
     parts = {}
-    components = filename.split('[').strip(']')
+    components = []
+    for segment in filename.split('['):
+        components.append(segment.strip(']'))
+
     index = {'organ':0,
             'disease_type':1,
             'subtype':2,
@@ -428,7 +428,7 @@ def check_for_filenames_by_category_selections(categories,all_filenames = smart_
             if category != []:
                 # For the part of the filename relevant for this category
                 # If the file category doesn't match, exclude forever. 
-                if file[category] !== category:
+                if file[category] != category:
                     definitely_out = True
         if not definitely_out:
             desired_files.append(file)
@@ -454,17 +454,21 @@ def design_new_quiz(categories_inventory):
     # A list of all the categories, with format:
     # [{'underlined_name':'','pretty_name':'','options_list':[],'user_selections':[],{second category}, etc]
     categories = []
+    name = ''
 
     for list_name,list_of_options in categories_inventory.items():
         this_category = {}
         this_category['underlined_name'] = list_name.strip('_list')
         this_category['options_list'] = list_of_options
+        
+        # TODO THIS PART FAILS. Need to tweak to make th words work correctly.
         for word in list_name.strip('_list').split('_'):
             name = name + word
         name.strip(' ')
         this_category['pretty_name'] = name
+        
         this_category['user_selections'] = []
-        this_category['filename_index'] = index_of_category_in_filename[underlined_name]
+        this_category['filename_index'] = index_of_category_in_filename[list_name.strip('_list')]
         categories.append(this_category)
 
 
@@ -497,12 +501,11 @@ def design_new_quiz(categories_inventory):
     folder_names_of_interest = check_for_filenames_by_category_selection(categories)
 
 
-
-    get_folder_tags_with_indexes(list_of_filenames, category_indexes)                                
-'''
+                                
+    '''
     # Get the parameters to search in the right order
     relevant_filenames = '[[]'+organ+'*'+disease_type+'*'+subtype+'*'+complexity+'*'+incidence+'[]]'
-'''
+    '''
     # List of all diseases
     all_diseases = os.listdir(content_directory)
 
