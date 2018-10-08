@@ -79,7 +79,7 @@ def take_inventory():
                 this_disease['name']+=letter
 
         # Add to globally addressable list
-        rlist_of_files_with_attibutes.append(this_disease)
+        list_of_files_with_attributes.append(this_disease)
 
 def string_to_html(string):
     modified_string = string\
@@ -97,12 +97,12 @@ def design():
  
 
     # DEPRECATED Make these lists a dictionary from the start with True/False
-    # organ_list, disease_type_list, subtype_list, complexity_list, incidence_list = quiz_logic.get_options_from_folder_names(rlist_of_files_with_attibutes) 
+    # organ_list, disease_type_list, subtype_list, complexity_list, incidence_list = quiz_logic.get_options_from_folder_names(list_of_files_with_attributes) 
 
     
     # Get the categories from the filenames
     # Format: {'organ_list':[], 'disease_type_list':[], 'subtype_list':[], 'complexity_list':[], 'incidence_list':[]
-    categories = quiz_logic.get_options_from_folder_names(rlist_of_files_with_attibutes)
+    categories = quiz_logic.get_options_from_folder_names(list_of_files_with_attributes)
 
     # Make a dicitonary that has the categories, but none of the options
     # Will add the option in if the button is pressed.
@@ -211,7 +211,7 @@ def display():
     take_inventory()
 
     # Reference the diseases as blobs for testing
-    blobs = rlist_of_files_with_attibutes
+    blobs = list_of_files_with_attributes
 
     successes = session.get('successes', 0)
     # Get a random disease

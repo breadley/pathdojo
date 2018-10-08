@@ -18,8 +18,7 @@ def main():
     service = build('drive', 'v3', http=creds.authorize(Http()))
 
     # Call the Drive v3 API
-    results = service.files().list(
-        pageSize=10, fields="nextPageToken, files(id, name)").execute()
+    results = service.files().list(pageSize=10, fields="nextPageToken, files(id, name)").execute()
     items = results.get('files', [])
 
     if not items:

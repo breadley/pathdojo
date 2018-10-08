@@ -401,6 +401,8 @@ def design_new_quiz(first_quiz=False):
         print('(Defaulting to 10 elements)\n')
         number_to_quiz = 10
 
+    
+
     #[organ] skin, lung, brain
     print('Organs/systems available:')
     for option in organ_list:
