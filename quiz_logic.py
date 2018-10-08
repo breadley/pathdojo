@@ -28,10 +28,16 @@ def get_inventory():
 
     return get_folder_tags(files)
 
+def get_folder_tags_with_indexes(list_of_filenames, category_indexes):
+    # This function takes a list of filenames and a dictionary of category indexes
+    # It returns a dictionary of categories and their options
+
 def get_folder_tags(list_of_filenames):
     # This function takes a list of filenames
     # From either google drive or locally and returns separate lists
     # Of the different options available to choose from
+
+
 
     # for each file, append it's name elements to a new list
     organ_list = []
@@ -375,24 +381,92 @@ class Quiz():
             if self.progress == self.total_quiz_length:
                 print('Finished quiz, need to implement option to start new quiz here')
             
+def smart_inventory(filenames=os.listdir(content_directory))
+    # Takes a list of files
+    # By default uses local files, but doesn't have to.
+    # finds the disease folders
+    # Builds a new list where the individual components of the filenames are separated
+    list_of_filenames_as_dictionaries = []
+    # format: ['full_name':'','organ':'','disease_type':'']
+    for filename in filenames:
+        if filename.startswith('[') and disease.endswith(']'): 
+            filename_dict = filename_breakdown(filename)
+            list_of_filenames_as_dictionaries.append(filename_dict)
+
+    return list_of_filenames_as_dictionaries
 
 
-
-
-def design_new_quiz(first_quiz=False):
-    # THE FIRST HALF OF THIS WILL BE DEPRECATED IN FAVOUR OF OPTIONS AND BUTTONS
-    # Asks for parameters and creates a quiz to meet those parameters
-    # The quiz is then passed to the quiz executor (designed_quiz_preparer)
-
-    # Take inventory of the categories available (only do this once)
-    if first_quiz == True:
-        categories = get_inventory()
-        organ_list = categories['organ_list']
-        disease_type_list = categories['disease_type_list']
-        subtype_list = categories['subtype_list']
-        complexity_list = categories['complexity_list']
-        incidence_list = categories['incidence_list']
+def filename_breakdown(filename):
+    # Accepts a filename
+    # Returns a dictionary of values about the name
+    # Format = {'full_name':'','organ':'','disease_type':'', etc.}
+    parts = {}
+    components = filename.split('[').strip(']')
+    index = {'organ':0,
+            'disease_type':1,
+            'subtype':2,
+            'complexity':3,
+            'incidence':4}
     
+    for category in index:
+        parts[category] = components[index[category]]
+    
+    return parts
+
+def check_for_filenames_by_category_selections(categories,all_filenames = smart_inventory()):
+    # Accepts the list of categories
+
+    desired_files = []
+
+    # For all files
+    for file in all_filenames:
+        # By default files are inlcluded
+        definitely_out = False
+        # For each category
+        for category in categories:
+            # If the person made a selection
+            if category != []:
+                # For the part of the filename relevant for this category
+                # If the file category doesn't match, exclude forever. 
+                if file[category] !== category:
+                    definitely_out = True
+        if not definitely_out:
+            desired_files.append(file)
+
+    return desired_files
+            
+                
+
+def design_new_quiz(categories_inventory):
+    #creates a new quiz by asking the user
+    # Accepts an inventory of the form:
+    # {'organ_list':organ_list, 'disease_type_list':disease_type_list,'subtype_list':subtype_list,'complexity_list':complexity_list,'incidence_list':incidence_list} 
+
+
+    # Record where the categories are located in the filename
+    # [organ][disease_type][subtype][complexity][incidence][name - excluded here]
+    index_of_category_in_filename = {'organ':0,
+                                     'disease_type':1,
+                                     'subtype':2,
+                                     'complexity':3,
+                                     'incidence':4}
+
+    # A list of all the categories, with format:
+    # [{'underlined_name':'','pretty_name':'','options_list':[],'user_selections':[],{second category}, etc]
+    categories = []
+
+    for list_name,list_of_options in categories_inventory.items():
+        this_category = {}
+        this_category['underlined_name'] = list_name.strip('_list')
+        this_category['options_list'] = list_of_options
+        for word in list_name.strip('_list').split('_'):
+            name = name + word
+        name.strip(' ')
+        this_category['pretty_name'] = name
+        this_category['user_selections'] = []
+        this_category['filename_index'] = index_of_category_in_filename[underlined_name]
+        categories.append(this_category)
+
 
     # number to quiz  
     try:
@@ -400,83 +474,70 @@ def design_new_quiz(first_quiz=False):
     except ValueError:
         print('(Defaulting to 10 elements)\n')
         number_to_quiz = 10
-
     
-
-    #[organ] skin, lung, brain
-    print('Organs/systems available:')
-    for option in organ_list:
-        print('\n\t'+option)
-    organ = str(input('''Please specify what you are interested in:
+    # Ask the user for inputs
+    for category in categories:
+        print(category['pretty_name'], 'options:')
+        for option in category['options_list']:
+            print('\n\t'+option)
+        question = '''Of the above options, please specify what you are interested in:
                         \n(To skip, press enter)
-                        \nOrgan/system '''))
-    while organ not in organ_list and organ != '':
-            organ = str(input("\n(To skip, press enter)\n*Typo* Organ/sysem: "))
-            
-    
-    #[type] inflammatory, benign_tumour, premalignant, malignant, congenital
-    print('Disease types available:')
-    for option in disease_type_list:
-        print('\n\t'+option)
-    disease_type = str(input("\n(To skip, press enter)\nDisease type: "))
-    while disease_type not in disease_type_list and disease_type != '':
-            disease_type = str(input("\n(To skip, press enter)\n*Typo* Disease type: "))
-            
-    
-    #[subtype]     
-    print('Subtypes available:')
-    for option in subtype_list:
-        print('\n\t'+option)
-    subtype = str(input("\n(To skip, press enter)\nSubtype: "))
-    while subtype not in subtype_list and subtype != '':
-            subtype = str(input("\n(To skip, press enter)\n*Typo* Subtype: "))
-            
-    
-    #[complexity] basic, advanced, spot_diagnosis, curiosity
-    print('Complexities available:')
-    for option in complexity_list:
-        print('\n\t'+option)
-    complexity = str(input("\n(To skip, press enter)\nComplexity: "))
-    while complexity not in complexity_list and complexity != '':
-            complexity = str(input("\n(To skip, press enter)\n*Typo* Complexity: "))
-            
-    
-    #[incidence] common, uncommon (moderate), rare
-    print('incidences available: ', incidence_list)
-    for option in incidence_list:
-        print('\n\t'+option)    
-    incidence = str(input("\n(To skip, press enter)\nIncidence: "))
-    while incidence not in incidence_list and incidence != '':
-            incidence = str(input("\n(To skip, press enter)\n*Typo* incidence: "))
+                        \n> '''
+        user_input = None
+        # While we haven't skipped
+        while user_input != '':
+            # Ask the question
+            user_input = str(input(question))
+            # If valid
+            if user_input in category['options_list']:
+                # Record selection
+                category['user_selections'].append(user_input)
 
-    
-    # END DEPRECATION
-    # 
-    # 
-            
-    quiz_name = organ+disease_type+subtype+complexity+incidence
-     
+    # A list of folder names that meet our criteria
+    folder_names_of_interest = check_for_filenames_by_category_selection(categories)
+
+
+
+    get_folder_tags_with_indexes(list_of_filenames, category_indexes)                                
+'''
     # Get the parameters to search in the right order
     relevant_filenames = '[[]'+organ+'*'+disease_type+'*'+subtype+'*'+complexity+'*'+incidence+'[]]'
-
+'''
     # List of all diseases
-    temp = os.listdir(content_directory)
-     # shuffle the list to get a fresh quiz order
-    shuffled_diseases = sample(temp, len(temp))
-    # Filter out the ones that don't match our criteria
-    filtered_diseases = fnmatch.filter(shuffled_diseases, relevant_filenames)
+    all_diseases = os.listdir(content_directory)
 
-   
-    # Only use the number of diseases we want to quiz
-    selected_diseases = filtered_diseases[:number_to_quiz]
+
+    start_quiz(list_of_all_folder_names = all_diseases, 
+                list_of_desired_folder_names = folder_names_of_interest,
+                quiz_length = number_to_quiz,
+                name = 'local quiz, name to be decided') 
+
+
+def start_quiz(list_of_all_folder_names, list_of_desired_folder_names, quiz_length, name):
+    # This function accepts a list of folder names and a quiz length and commences a new quiz based on them
+    
+    # Shuffle list
+    big_shuffled = sample(list_of_all_folder_names,len(list_of_all_folder_names))
+
+    # Filter out the ones that don't match our criteria
+    filtered_diseases = fnmatch.filter(big_shuffled, list_of_desired_folder_names)
+
+    # Remove the extras
+    disease_shortlist = filtered_diseases[:quiz_length]
+    
+
+    # make a quiz name
+    name = "A quiz of something!1!1!"
+
 
     # Make a new quiz using this list of diseases
-    new_quiz = Quiz(selected_diseases, quiz_name)
+    new_quiz = Quiz(disease_shortlist, name)
+
 
     # Step through the quiz
     new_quiz.step_through_quiz()
 
 
-
-if __name__=="__main__":        
-    design_new_quiz(first_quiz=True)
+if __name__=="__main__":       
+    # Start a new quiz, manually calling the inventory the first time only.
+    design_new_quiz(get_inventory())
