@@ -1,5 +1,7 @@
 {% extends 'layout.html' %}
 
+
+
 {% block body %}
     <div class="jumbotron">
         <h1 class="display-3">Drawing Board</h1>
@@ -15,7 +17,7 @@
         <p>
             {% for option in organ_list %}
             
-                <button type="submit" name='organ' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}} </button>
+                <button type="button" name='organ' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}} </button>
             {% endfor %}
         </p>
 
@@ -29,7 +31,7 @@
         <p>
             {% for option in subtype_list %}
             
-                <button type="submit" name='subtype' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
+                <button type="submit" id='delete_me' name='subtype' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
             {% endfor %}  
         </p>
 
@@ -54,7 +56,16 @@
 
         
     </div> 
+
+
 </form> 
 
+
+
+<div>    
+    <p>
+        Test_value: {{test_value}} 
+    </p>
+</div>
 
 {% endblock %}

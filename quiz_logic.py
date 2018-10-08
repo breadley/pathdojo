@@ -14,7 +14,9 @@ image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
 # The this file and the content_directory (which contains diseases) should be within one folder
 content_directory = './folder_based_dojo/'
 # Dictionary for diseases and their folder names {'disease':'foldername'}. Populated on start-up.
-disease_folder_inventory = {}
+
+# [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., ...]
+disease_folder_inventory = []
 
 # Goes through the list of folders and extracts items for each category from their name
 def get_inventory():
@@ -23,7 +25,8 @@ def get_inventory():
 
     # get all the files
     files = os.listdir(content_directory)
-    return get_folder_tags(files).items()
+
+    return get_folder_tags(files)
 
 def get_folder_tags(list_of_filenames):
     # This function takes a list of filenames
@@ -63,9 +66,12 @@ def get_folder_tags(list_of_filenames):
             if incidence not in incidence_list and incidence !='':
                 incidence_list.append(incidence)      
 
-            disease_name = category_list[5].strip('[')
+            disease_name = category_list[5].strip(']')
             if disease_name !='':
-                disease_folder_inventory['disease_name'] = disease # Format {disease:[full][file[name]}
+                # Format: {disease_name:disease_folder_name}
+                this_disease = {'underlined_name':disease_name,'folder_name':disease}
+                disease_folder_inventory.append(this_disease)
+                
 
     categories = {'organ_list':organ_list, 
                 'disease_type_list':disease_type_list, 
@@ -144,9 +150,14 @@ class Disease():
         return description_text
 
     def get_clue(self):
-        partial_folder_name = self.folder_name.strip(']').strip('[*').strip('[')
-        print(f'This might help: [{partial_folder_name}]')
-
+        
+        split_name = self.folder_name.rsplit('[')
+        hints = []
+        for hint in split_name:
+            if hint != '':
+                hints.append(hint.strip(']'))
+        hints.pop()
+        print(f'From the {hints[0]}, this is a {hints[1]} {hints[2]} thingy, considered a {hints[3]} and relatively {hints[4]}')
 
     def show_all_images(self):
         try:
@@ -186,10 +197,10 @@ class Disease():
         return ihc_dictionary
 
     def display_immunohistochemistry(self):  
-        if self.immunohistochemistry==[]:
+        if self.immunohistochemistry=={}:
             print("No IHC available")
 
-        for ihc_name in self.immunohistochemistry:
+        for ihc_name in self.immunohistochemistry.items():
             print('The %s is %s'%(ihc_name, self.immunohistochemistry[ihc_name]))
 
 
@@ -207,8 +218,12 @@ class Disease():
         ddx_folder_names = []
         
         for differential in self.differentials:
-            if differential in disease_folder_inventory: # global dictionary of all disease names (as per last bracket of folder name [disease]) and folder name
-                ddx_folder_names.append(disease_folder_inventory[differential])    
+            # Go through all disease names and select if they match.
+            for disease in disease_folder_inventory:
+                # If the disease name in the inventory matches the name in the differentials
+                if disease["underlined_name"] == differential:
+                    # add the full filename to the list. 
+                    ddx_folder_names.append(disease["folder_name"])    
 
         return dxx_folder_names
 
@@ -221,8 +236,15 @@ class Quiz():
 
         for disease_folder_name in list_of_folder_names: # TODO this fails when startig a differentials quiz.
             # Check if desired folder name actually a disease 
-            if disease_folder_name in disease_folder_inventory: # TODO make this work with correct format
-                self.diseases.append(Disease(disease_folder_name))
+            for disease in disease_folder_inventory:
+                # If the disease full folder name in our inventory matches the one in the list provided
+
+                if disease["folder_name"] == disease_folder_name:                    
+                    # Add the disease as a Disease object
+                    disease_as_object = Disease(disease_folder_name)
+                    self.diseases.append(disease_as_object)
+ 
+                
         # create quiz name (if designed, call it those parameters, if ddx quiz, call it that)
         self.name = quiz_name
         # get quiz length
@@ -255,11 +277,11 @@ class Quiz():
 
     def start_a_nested_quiz(self):
         # In the event new differentials-based quiz was start this function ensures that the disease left behind is properly handled
-        if len(self.differentials)==0:
+        if len(self.current_disease.differentials)==0:
             return print('This disease has no differentials to base a new quiz on.')
 
         # Create a new quiz as a child of the current quiz
-        self.child_quiz = Quiz(self.curent_disease.get_folder_names_of_differentials,'Differentials quiz, started during {self.name} quiz.')
+        self.child_quiz = Quiz(self.current_disease.get_folder_names_of_differentials,'Differentials quiz, started during {self.name} quiz.')
         
         # If the child quiz length is zero, cancel quiz
         if len(self.child_quiz.total_quiz_length):
@@ -270,9 +292,9 @@ class Quiz():
         # Go through child quiz
         self.child_quiz.step_through_quiz()
         # when done, display the current quiz name
-        print('------\n------\n------\nNow returning to',self.curent_disease)
+        print('------\n------\n------\nNow returning to',self.current_disease)
         # Then display the current disease images
-        self.curent_disease.show_all_images()
+        self.current_disease.show_all_images()
 
     def terminate_quiz(self):
         # This is used to exit the current quiz, but it will no destroy any parent quizzes.
@@ -288,8 +310,6 @@ class Quiz():
 
         return response
 
-
-
     def present_next_disease(self,disease):
         # Steps through the process of quizzing the user on a given disease
         print('DØJo!1------------------\n------DØJo!1------------\n------------DØJo!1------\n------------------DØJo!1')
@@ -299,7 +319,7 @@ class Quiz():
             print(f'This quiz has a parent quiz: ',self.parent_quiz,', which was paused to start the current quiz: self')
         
         # make the current disease available to other functions
-        self.curent_disease = disease
+        self.current_disease = disease
 
         options={'i':disease.display_immunohistochemistry, # property of disease
                 'd':disease.display_differentials, # property of disease
@@ -309,7 +329,7 @@ class Quiz():
                 'q':self.terminate_quiz, # property of the quiz       -> return self.remaining_diseases=[]
                 's':self.skip_answer # prpoerty of the quiz        -> return                 
                 }  
-        options_where_we_repeat_the_question = ['i','d','?','c','v']
+        options_where_we_repeat_the_question = ['i','d','?','c','v','']
         options_where_we_dont_need_to_see_the_answer = ['q','s']
 
         # Display images (Calls function of the disease to show_all_images)
@@ -336,8 +356,11 @@ class Quiz():
 
     def step_through_quiz(self):
         # This function steps through the quiz
-
         # Goes through the list to see what disease is next
+        if self.remaining_diseases == 0:
+            print('thanks for playing')
+            return
+
         for disease in self.remaining_diseases:
             self.present_next_disease(disease)
 
@@ -363,7 +386,12 @@ def design_new_quiz(first_quiz=False):
 
     # Take inventory of the categories available (only do this once)
     if first_quiz == True:
-        organ_list, disease_type_list, subtype_list, complexity_list, incidence_list  = get_inventory()
+        categories = get_inventory()
+        organ_list = categories['organ_list']
+        disease_type_list = categories['disease_type_list']
+        subtype_list = categories['subtype_list']
+        complexity_list = categories['complexity_list']
+        incidence_list = categories['incidence_list']
     
 
     # number to quiz  
@@ -419,6 +447,7 @@ def design_new_quiz(first_quiz=False):
     while incidence not in incidence_list and incidence != '':
             incidence = str(input("\n(To skip, press enter)\n*Typo* incidence: "))
 
+    
     # END DEPRECATION
     # 
     # 
@@ -427,7 +456,7 @@ def design_new_quiz(first_quiz=False):
      
     # Get the parameters to search in the right order
     relevant_filenames = '[[]'+organ+'*'+disease_type+'*'+subtype+'*'+complexity+'*'+incidence+'[]]'
-    
+
     # List of all diseases
     temp = os.listdir(content_directory)
      # shuffle the list to get a fresh quiz order
@@ -445,45 +474,7 @@ def design_new_quiz(first_quiz=False):
     # Step through the quiz
     new_quiz.step_through_quiz()
 
-# An example dynamically adjusting tkinter window with blocks
-class DynamicGrid(tk.Frame):
-    def __init__(self, parent, *args, **kwargs):
-        tk.Frame.__init__(self, parent, *args, **kwargs)
-        self.text = tk.Text(self, wrap="char", borderwidth=0, highlightthickness=0,
-                            state="disabled")
-        self.text.pack(fill="both", expand=True)
-        self.boxes = []
-
-    def add_box(self, color=None):
-        bg = "blue"
-        box = tk.Frame(self.text, bd=1, relief="sunken", background=bg,
-                       width=100, height=100)
-        self.boxes.append(box)
-        self.text.configure(state="normal")
-        self.text.window_create("end", window=box)
-        self.text.configure(state="disabled")
-
-class Window(object):
-    def __init__(self):
-        self.root = tk.Tk()
-        self.dg = DynamicGrid(self.root, width=500, height=200)
-        add_button  = tk.Button(self.root, text="Add", command=self.dg.add_box)
-
-        add_button.pack()
-        self.dg.pack(side="top", fill="both", expand=True)
-
-        # add a few boxes to start
-        for i in range(10):
-            self.dg.add_box()
-
-    def start(self):
-        self.root.mainloop()
 
 
-
-
-
-
-if __name__=="__main__":    
-    #Window().start()
+if __name__=="__main__":        
     design_new_quiz(first_quiz=True)
