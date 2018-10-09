@@ -7,96 +7,320 @@ from random import sample
 import toml
 import tkinter as tk
 import pdb
+# import gdrive_api_calls
 
 # Allowbale files to be read
 image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
+
+# The location of the elements in the disease folder names
+# [organ][disease_type][subtype][complexity][incidence][name - excluded here]
+index_of_category_in_filename = {'organ':0,
+                                'disease_type':1,
+                                'subtype':2,
+                                'complexity':3,
+                                'incidence':4,
+                                'name':5}
 
 # The this file and the content_directory (which contains diseases) should be within one folder
 content_directory = './folder_based_dojo/'
 # Dictionary for diseases and their folder names {'disease':'foldername'}. Populated on start-up.
 
 # [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., ...]
-disease_folder_inventory = []
-
-# Goes through the list of folders and extracts items for each category from their name
-def get_inventory():
-
-    # USED ONLY FOR LOCAL / NON_GDRIVE application/testing
-
-    # get all the files
-    files = os.listdir(content_directory)
-
-    return get_folder_tags(files)
-
-
-def get_folder_tags(list_of_filenames):
-    # This function takes a list of filenames
-    # From either google drive or locally and returns separate lists
-    # Of the different options available to choose from
+available_files = []
 
 
 
-    # for each file, append it's name elements to a new list
-    organ_list = []
-    disease_type_list = []
-    subtype_list = []
-    complexity_list = []
-    incidence_list = []
+def filename_breakdown(filename): # FINISHED
+    # Accepts a filename as a string: 'blah'
+    # Returns a dictionary of values about the name
+
+    parts = {}
+    components = []
+    for segment in filename.split('['):
+        if segment != '':
+            components.append(segment.strip(']'))
     
-  
+    for category,index in index_of_category_in_filename.items():
+        parts[category] = components[index]
+    
+    # output format:
+    # parts =  {'full_name':'','organ':'','disease_type':'', etc.}
+    return parts
 
-    for disease in os.listdir(content_directory): # disease here is a folder name
-        if disease.startswith('[') and disease.endswith(']'): # it's a disease
-            category_list = disease.split('][')
 
-            organ = category_list[0].strip('[')
-            if organ not in organ_list and organ !='':
-                organ_list.append(organ)
 
-            disease_type = category_list[1].strip('[')
-            if disease_type not in disease_type_list and disease_type !='':
-                disease_type_list.append(disease_type)                        
+def record_available_files(google_drive=False): # FINISHED
+    # input format: No input data required
+    # output format:
+    # available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
 
-            subtype = category_list[2].strip('[')
-            if subtype not in subtype_list and subtype !='':
-                subtype_list.append(subtype)
+    # Temporary variable
+    unprocessed_files = {}     
+    # Clear global inventory
+    available_files = []
 
-            complexity = category_list[3].strip('[')
-            if complexity not in complexity_list and complexity !='':
-                complexity_list.append(complexity)
+    # if local files, record the files in dictionary format
+    if not google_drive: 
+        for file in os.listdir(content_directory):
+            # A dictionary where the google drive ID is None
+            unprocessed_files[file] = None 
+    
+    else:
+        # By default, the home folder of the google drive is used
+        print('need to import gdrive api here')
+        pass
+        # unprocessed_files = gdrive_api_calls.list_all_files('dummy_folder')
+        
+    for folder_name,google_drive_id in unprocessed_files.items():
+        # If a completed disease folder
+        if folder_name.startswith('[') and folder_name.endswith(']'): 
+            this_disease={}
+            this_disease['folder_name'] = folder_name
+            this_disease['google_drive_id'] = google_drive_id                
+            
+            # get {'full_name':'','organ':'','disease_type':'', etc.}
+            filename_dict = filename_breakdown(folder_name)
+            for category,value in filename_dict.items():
+                this_disease[category] = value
+            
+            this_disease['printable_name'] = ''
+            for letter in this_disease['name']:
+                if letter == '_':
+                    this_disease['printable_name']+=' '
+                else:
+                    this_disease['printable_name']+=letter
 
-            incidence = category_list[4].strip('[')
-            if incidence not in incidence_list and incidence !='':
-                incidence_list.append(incidence)      
+            available_files.append(this_disease)
 
-            disease_name = category_list[5].strip(']')
-            if disease_name !='':
-                # Format: {disease_name:disease_folder_name}
-                this_disease = {'underlined_name':disease_name,'folder_name':disease}
-                disease_folder_inventory.append(this_disease)
+
+
+    
+    # output format:
+    # available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
+    return available_files
+
+
+def get_category_options(available_files_with_categories):
+    # input format: a list of diseases with format:
+    # [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
+    
+    available_category_options = {}
+
+    # Create a blank list of categories
+    for category,index in index_of_category_in_filename.items():
+        available_category_options[category] = []
+
+    # For each disease
+    for disease in available_files_with_categories:
+        # For each aspect of the disease
+        for field, value in disease.items():
+            # If the field is a category (rather than an ID or something else)
+            if field in index_of_category_in_filename:
+                # If value not already there:
+                if value not in available_category_options[field]:
+                    # Assign the value of the category to the list for that category                
+                    available_category_options[field].append(value)
+
+    # output format:
+    '''
+    available_category_options = {'organ':organ_list, 
+                'disease_type':disease_type_list, 
+                'subtype':subtype_list, 
+                'complexity':complexity_list, 
+                'incidence':incidence_list,
+                'name':name_list} 
+                '''
+    return available_category_options
+
+def get_options_from_user(available_category_options):
+    # input format:
+
+    selected_category_options = {}
+
+    '''
+    available_category_options = {'organ':organ_list, 
+                'disease_type':disease_type_list, 
+                'subtype':subtype_list, 
+                'complexity':complexity_list, 
+                'incidence':incidence_list,
+                'name':name_list} 
+                '''
+
+    # for each category
+    for category, options in available_category_options.items():
+        # Initialise selection for that category to an empty list
+        selected_category_options[category] = []
+        
+        if category != 'name':
                 
+            # Get user inputs
+            question = '''Of the options below, Please specify what you are interested in:
+                            \n(To skip, press enter)
+                            \n> '''
+            user_input = None
+            # While we haven't skipped
+            while user_input != '':
+                print(category, 'options:')
+                for option in options:
+                    print('\n\t'+option)
+                # Ask the question
+                user_input = str(input(question))
+                # If valid
+                if user_input in options:
+                    # Record selection
+                    selected_category_options[category].append(user_input)
+                    # Allow loop to exit
+                    user_input = ''
 
-    categories = {'organ_list':organ_list, 
+
+
+    # output format:
+    '''
+    selected_category_options = {'organ':organ_list, 
+                'disease_type':disease_type_list, 
+                'subtype':subtype_list, 
+                'complexity':complexity_list, 
+                'incidence':incidence_list,
+                'name':name_list}
+                '''
+    return selected_category_options
+
+def get_filenames_that_match(available_files,selected_category_options):
+    # input format: list of available files, dictionary of category selections
+
+    # Accepts the a dictionary of category options that were selected
+    # Returns a list of all filenames that meet the criteria
+
+    selected_files = []
+
+    # For all files
+    for file in available_files:
+        # By default files are inlcluded
+        definitely_out = False
+        # For each category
+        for category,selections in selected_category_options.items():
+            # If the person made a selection
+            if selections != [] and selections != ['']:
+                # For the part of the filename relevant for this category
+                # If the file category is not in the selections. 
+                if file[category] not in selections:
+                    definitely_out = True
+        if not definitely_out:
+            selected_files.append(file)
+
+
+    # output format: list of files, same format as others but shorter
+    return selected_files
+
+def construct_quiz(selected_files,quiz_length,quiz_name):
+    # input format: list of files, a number and string
+        
+    # Shuffle list
+    shuffled_files = sample(selected_files,len(selected_files))
+
+    # Remove the extras
+    disease_shortlist = shuffled_files[:quiz_length]
+
+    
+
+
+    # Make a new quiz using this list of diseases
+    fully_formed_quiz = Quiz(disease_shortlist, quiz_name)
+
+    # output format:
+    return fully_formed_quiz
+
+
+
+
+def coordinate_quiz(google_drive = False, first_time = False):
+    # Called by app.py for google drive files
+    # Called by directly as python file for local files
+
+    
+    '''
+    1. Record files available in a list:
+        - record_available_files()
+        - Each file has characteristics, same for google drice and local files
+        - Google drive files will have additional parameter the: drive ID
+            - available_files = [{'underlined_name':'blah_blah',
+                                            'folder_name':'[blah][blah][blah]'},
+                                            'organ':'some_organ',
+                                            'incidence':some_incidence,
+                                            'name':some_name 
+                                            ..., etc. ]
+    '''
+    if first_time:
+        available_files = record_available_files(google_drive = google_drive)
+
+    '''
+    3. Go through all the files and record the options available at each category
+        - get_category_options()
+        - available_category_options = {'organ_list':organ_list, 
                 'disease_type_list':disease_type_list, 
                 'subtype_list':subtype_list, 
                 'complexity_list':complexity_list, 
-                'incidence_list':incidence_list}            
+                'incidence_list':incidence_list,
+                'name_list':name_list} 
+    '''
+    
+    available_category_options = get_category_options(available_files)
 
-    return categories
+    # get number to quiz  
+    try:
+        quiz_length = int(input("\n(To skip, press enter)\nMaximum number of diseases in the quiz: "))
+    except ValueError:
+        print('(Defaulting to 10 elements)\n')
+        quiz_length = 10
+    '''
+    4. Present the options to the user ask for selections
+        - get_options_from_user()
+        - selected_category_options = {'organ_list':organ_list, 
+                'disease_type_list':disease_type_list, 
+                'subtype_list':subtype_list, 
+                'complexity_list':complexity_list, 
+                'incidence_list':incidence_list,
+                'name_list':name_list}
+    '''
+    selected_category_options = get_options_from_user(available_category_options)
+
+
+    '''
+    5. Go through all the files and eliminate files that the user excluded
+        - check_for_filenames_by_category_selections()
+        - selected_files = [{'underlined_name':'blah_blah',
+                                            'folder_name':'[blah][blah][blah]'},
+                                            'organ':'some_organ',
+                                            'incidence':some_incidence,
+                                            'name':some_name 
+                                            ..., etc. ]
+    '''
+    selected_files = get_filenames_that_match(available_files,selected_category_options)
+    
+
+    '''
+    
+    6. Design a quiz based on selected folders
+        - construct_quiz()
+
+        
+    '''
+    # make a quiz name
+    quiz_name = "A quiz of something!1!1!"
+    
+    fully_formed_quiz = construct_quiz(selected_files,quiz_length,quiz_name)
+
+
+    '''
+    7. Commence quiz
+ 
+    '''
+    pdb.set_trace()
+    # Step through the quiz
+    fully_formed_quiz.step_through_quiz()
     
 
 
-def get_options_from_folder_names(google_drive_folder_inventory):
-    # This function is called by the app page where new quizzes are designed
-    # Accepts the list of disease folders
-    # [{'name':'blah blah','underlined_name':'blah_blah','google_drive_id':'id','folder_name':'blah'}]
-
-    list_of_folder_names = []
-    for folder in google_drive_folder_inventory:
-        list_of_folder_names.append(folder['folder_name'])
-    
-    
-    return get_folder_tags(list_of_folder_names)
 
 class Disease():
 
@@ -377,170 +601,59 @@ class Quiz():
             # If the quiz is at the end, ask the user if they want to design_new_quiz
             if self.progress == self.total_quiz_length:
                 print('Finished quiz, need to implement option to start new quiz here')
+                 
+
+    
+
+def unit_tests(test):
+
+    if test == 1 or test == 'all':
+        print('--------------------------------------------------------------------------')
+        print('testing: record_available_files()')
+        filenames = record_available_files(google_drive = False)
+        for index,file in enumerate(filenames):
             
-def smart_inventory(filenames=os.listdir(content_directory)):
-    # Takes a list of files
-    # By default uses local files, but doesn't have to.
-    # finds the disease folders
-    # Builds a new list where the individual components of the filenames are separated
-    list_of_filenames_as_dictionaries = []
-    # format: ['full_name':'','organ':'','disease_type':'']
-    for filename in filenames:
-        if filename.startswith('[') and filename.endswith(']'): 
-            filename_dict = filename_breakdown(filename)
-            list_of_filenames_as_dictionaries.append(filename_dict)
-
-    return list_of_filenames_as_dictionaries
-
-
-def filename_breakdown(filename):
-    # Accepts a filename
-    # Returns a dictionary of values about the name
-    # Format = {'full_name':'','organ':'','disease_type':'', etc.}
-    parts = {}
-    components = []
-    for segment in filename.split('['):
-        components.append(segment.strip(']'))
-
-    index = {'organ':0,
-            'disease_type':1,
-            'subtype':2,
-            'complexity':3,
-            'incidence':4}
+            if index < 2:
+                for item,value in file.items():
+                    print(f'The {item} is {value}\n\t\t')
     
-    for category in index:
-        parts[category] = components[index[category]]
-    
-    return parts
+    test_inventory = [{'folder_name': '[thyroid][malignant][tumour][spot_diagnosis][uncommon][papillary_thyroid_carcinoma_tall_cell_variant]', 'google_drive_id': None, 'organ': 'thyroid', 'disease_type': 'malignant', 'subtype': 'tumour', 'complexity': 'spot_diagnosis', 'incidence': 'uncommon', 'name': 'papillary_thyroid_carcinoma_tall_cell_variant', 'printable_name': 'papillary thyroid carcinoma tall cell variant'}
+                    ,{'folder_name': '[thyroid][benign][inflammatory][spot_diagnosis][rare][de_quervains_thyroiditis]', 'google_drive_id': None, 'organ': 'thyroid', 'disease_type': 'benign', 'subtype': 'inflammatory', 'complexity': 'spot_diagnosis', 'incidence': 'rare', 'name': 'de_quervains_thyroiditis', 'printable_name': 'de quervains thyroiditis'}]
 
-def check_for_filenames_by_category_selections(categories,all_filenames = smart_inventory()):
-    # Accepts the list of categories
+    if test == 2 or test == 'all':
+        print('--------------------------------------------------------------------------')
+        print('testing: get_category_options()')
+        result = get_category_options(test_inventory)
+        for key,value in result.items():
+            print(f'The {key} is {value}')
+        print(result)
 
-    desired_files = []
-
-    # For all files
-    for file in all_filenames:
-        # By default files are inlcluded
-        definitely_out = False
-        # For each category
-        for category in categories:
-            # If the person made a selection
-            if category != []:
-                # For the part of the filename relevant for this category
-                # If the file category doesn't match, exclude forever. 
-                if file[category] != category:
-                    definitely_out = True
-        if not definitely_out:
-            desired_files.append(file)
-
-    return desired_files
-            
-                
-
-def design_new_quiz(categories_inventory):
-    #creates a new quiz by asking the user
-    # Accepts an inventory of the form:
-    # {'organ_list':organ_list, 'disease_type_list':disease_type_list,'subtype_list':subtype_list,'complexity_list':complexity_list,'incidence_list':incidence_list} 
+    test_category_list_available = {'organ': ['thyroid', 'thyroid'], 'disease_type': ['malignant', 'benign'], 'subtype': ['tumour', 'inflammatory'], 'complexity': ['spot_diagnosis', 'spot_diagnosis'], 'incidence': ['uncommon', 'rare'], 'name': ['papillary_thyroid_carcinoma_tall_cell_variant', 'de_quervains_thyroiditis']}
 
 
-    # Record where the categories are located in the filename
-    # [organ][disease_type][subtype][complexity][incidence][name - excluded here]
-    index_of_category_in_filename = {'organ':0,
-                                     'disease_type':1,
-                                     'subtype':2,
-                                     'complexity':3,
-                                     'incidence':4}
+    if test == 3 or test == 'all':
+        print('--------------------------------------------------------------------------')
+        print('testing: get_options_from_user()')
+        result = get_options_from_user(test_category_list_available)
+        print(result)
 
-    # A list of all the categories, with format:
-    # [{'underlined_name':'','pretty_name':'','options_list':[],'user_selections':[],{second category}, etc]
-    categories = []
-    name = ''
+    test_category_list_selection = {'organ': [], 'disease_type': ['benign'], 'subtype': [], 'complexity': [], 'incidence': [], 'name': []}
 
-    for list_name,list_of_options in categories_inventory.items():
-        this_category = {}
-        this_category['underlined_name'] = list_name.strip('_list')
-        this_category['options_list'] = list_of_options
-        
-        # TODO THIS PART FAILS. Need to tweak to make th words work correctly.
-        for word in list_name.strip('_list').split('_'):
-            name = name + word
-        name.strip(' ')
-        this_category['pretty_name'] = name
-        
-        this_category['user_selections'] = []
-        this_category['filename_index'] = index_of_category_in_filename[list_name.strip('_list')]
-        categories.append(this_category)
-
-
-    # number to quiz  
-    try:
-        number_to_quiz = int(input("\n(To skip, press enter)\nMaximum number of diseases in the quiz: "))
-    except ValueError:
-        print('(Defaulting to 10 elements)\n')
-        number_to_quiz = 10
-    
-    # Ask the user for inputs
-    for category in categories:
-        print(category['pretty_name'], 'options:')
-        for option in category['options_list']:
-            print('\n\t'+option)
-        question = '''Of the above options, please specify what you are interested in:
-                        \n(To skip, press enter)
-                        \n> '''
-        user_input = None
-        # While we haven't skipped
-        while user_input != '':
-            # Ask the question
-            user_input = str(input(question))
-            # If valid
-            if user_input in category['options_list']:
-                # Record selection
-                category['user_selections'].append(user_input)
-
-    # A list of folder names that meet our criteria
-    folder_names_of_interest = check_for_filenames_by_category_selection(categories)
-
-
-                                
-    '''
-    # Get the parameters to search in the right order
-    relevant_filenames = '[[]'+organ+'*'+disease_type+'*'+subtype+'*'+complexity+'*'+incidence+'[]]'
-    '''
-    # List of all diseases
-    all_diseases = os.listdir(content_directory)
-
-
-    start_quiz(list_of_all_folder_names = all_diseases, 
-                list_of_desired_folder_names = folder_names_of_interest,
-                quiz_length = number_to_quiz,
-                name = 'local quiz, name to be decided') 
-
-
-def start_quiz(list_of_all_folder_names, list_of_desired_folder_names, quiz_length, name):
-    # This function accepts a list of folder names and a quiz length and commences a new quiz based on them
-    
-    # Shuffle list
-    big_shuffled = sample(list_of_all_folder_names,len(list_of_all_folder_names))
-
-    # Filter out the ones that don't match our criteria
-    filtered_diseases = fnmatch.filter(big_shuffled, list_of_desired_folder_names)
-
-    # Remove the extras
-    disease_shortlist = filtered_diseases[:quiz_length]
-    
-
-    # make a quiz name
-    name = "A quiz of something!1!1!"
-
-
-    # Make a new quiz using this list of diseases
-    new_quiz = Quiz(disease_shortlist, name)
-
-
-    # Step through the quiz
-    new_quiz.step_through_quiz()
-
+    if test == 4 or test == 'all':
+        print('--------------------------------------------------------------------------')
+        print('testing: get_filenames_that_match()')
+        result = get_filenames_that_match(available_files = test_inventory,
+                                            selected_category_options = test_category_list_selection)
+        print(result)
 
 if __name__=="__main__":       
     # Start a new quiz, manually calling the inventory the first time only.
-    design_new_quiz(get_inventory())
+
+    coordinate_quiz(google_drive = False, first_time = True)
+    # Flask app should set google_drive to True
+   
+    
+    #unit_tests(test=4)
+    
+    
+    
