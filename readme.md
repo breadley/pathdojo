@@ -35,6 +35,7 @@ Turns python code into a web app using [litera](https://bootswatch.com/litera/) 
 
 on Windows: `$env:FLASK_APP='app.py'` `flask run`
 
+Will be using html bootstrap for all [forms](https://getbootstrap.com/docs/4.0/components/forms/) and [buttons](https://getbootstrap.com/docs/4.0/components/buttons/)
 
 #### Zappa
 

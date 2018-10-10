@@ -12,31 +12,37 @@
         </p>
     </div>
     <form action="/design" method="POST">
-    <div>
-        
-        <div>
-            {% for category,options_list in available_category_options.items() %}
-                <p>
-                {% for option in options_list %}
-                <input type="button" class="btn btn-outline-secondary" name="{{category}}" value="{{option}}" >{{option}} </button>
+        <div class="form-group">
+            
+            <div>
+                {% for category,options_list in available_category_options.items() %}
+                    <p>
+                    {% for option in options_list %}
+                    <input type="button" class="btn btn-outline-secondary" name="{{category}}" value="{{option}}" ></button>
 
-                <!--  
-                <button type="button" class="btn btn-outline-secondary" name="{{category}}" value="{{option}}" onclick=remember_selection(category,option) >{{option}} </button>
-                -->
+                    <!--  
+                    <button type="button" class="btn btn-outline-secondary" name="{{category}}" value="{{option}}" onclick=remember_selection(category,option) >{{option}} </button>
+                    -->
+                    {% endfor %}
+                    </p>
                 {% endfor %}
-                </p>
-            {% endfor %}
-        </div>
+            </div>
 
-        <div>
-        <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="submitting" >Submit</button>
-        </div>
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                <label class="form-check-label" for="exampleCheck1">test checkbox</label>
+            </div>
 
-        <p>Choices: {{selections}}</p>
-      
 
+            <div>
+            <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="{{request.form}}" >Submit</button>
+            </div>
+
+            <p>Choices: {{selections}}</p>
         
-    </div> 
+
+            
+        </div> 
 
 
 </form> 
@@ -47,7 +53,9 @@
     <p>
         Test_value: need to somehow record the button values with javascript code in layout.html
         then grab those values all together and submit them all using the submit button as POST event.
-
+        
+        
+        {{request.form}}
     </p>
 </div>
 
