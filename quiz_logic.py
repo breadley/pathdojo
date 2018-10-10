@@ -7,7 +7,7 @@ from random import sample, choice
 import toml
 import tkinter as tk
 import pdb
-# import gdrive_api_calls
+import gdrive_api_calls
 
 # Allowbale files to be read
 image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
@@ -68,9 +68,7 @@ def record_available_files(google_drive=False): # FINISHED
     
     else:
         # By default, the home folder of the google drive is used
-        print('need to import gdrive api here')
-        pass
-        # unprocessed_files = gdrive_api_calls.list_all_files('dummy_folder')
+        unprocessed_fies = gdrive_api_calls.list_all_files('dummy_folder').items()             
         
     for folder_name,google_drive_id in unprocessed_files.items():
         # If a completed disease folder
@@ -157,6 +155,7 @@ def get_category_options(available_files_with_categories):
     return available_category_options
 
 def get_options_from_user(available_category_options):
+    # Not used by app.py
     # input format:
 
     selected_category_options = {}
@@ -263,8 +262,8 @@ def delete_all_files_in_cache_folder():
 
 
 def coordinate_quiz(google_drive = False, first_time = False):
-    # Called by app.py for google drive files
     # Called by directly as python file for local files
+    # app.py will be calling these functions individually, not coordinate_quiz()
 
     
 
@@ -289,12 +288,12 @@ def coordinate_quiz(google_drive = False, first_time = False):
     '''
     3. Go through all the files and record the options available at each category
         - get_category_options()
-        - available_category_options = {'organ_list':organ_list, 
-                'disease_type_list':disease_type_list, 
-                'subtype_list':subtype_list, 
-                'complexity_list':complexity_list, 
-                'incidence_list':incidence_list,
-                'name_list':name_list} 
+    -     available_category_options = {'organ':organ_list, 
+                'disease_type':disease_type_list, 
+                'subtype':subtype_list, 
+                'complexity':complexity_list, 
+                'incidence':incidence_list,
+                'name':name_list}                 
     '''
     
     available_category_options = get_category_options(available_files)
@@ -308,12 +307,12 @@ def coordinate_quiz(google_drive = False, first_time = False):
     '''
     4. Present the options to the user ask for selections
         - get_options_from_user()
-        - selected_category_options = {'organ_list':organ_list, 
-                'disease_type_list':disease_type_list, 
-                'subtype_list':subtype_list, 
-                'complexity_list':complexity_list, 
-                'incidence_list':incidence_list,
-                'name_list':name_list}
+        - selected_category_options = = {'organ':organ_list, 
+                'disease_type':disease_type_list, 
+                'subtype':subtype_list, 
+                'complexity':complexity_list, 
+                'incidence':incidence_list,
+                'name':name_list}    
     '''
     selected_category_options = get_options_from_user(available_category_options)
 

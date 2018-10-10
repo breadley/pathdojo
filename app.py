@@ -58,6 +58,7 @@ dojo_welcome = """
 
 
 def take_inventory():
+    # TO BE DEPRECATED
     # This function creates a dictionary of files with attributes 
     # IDs are from google drive
 
@@ -95,39 +96,36 @@ def design():
     # Homepage 
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
  
+    # Get inventory (ideally we would only do this the first time)
+    # We will use local files for the moment
+    available_files = quiz_logic.record_available_files(google_drive = False)
 
-    # DEPRECATED Make these lists a dictionary from the start with True/False
-    # organ_list, disease_type_list, subtype_list, complexity_list, incidence_list = quiz_logic.get_options_from_folder_names(list_of_files_with_attributes) 
+    available_category_options = quiz_logic.get_category_options(available_files)
 
-    
-    # Get the categories from the filenames
-    # Format: {'organ_list':[], 'disease_type_list':[], 'subtype_list':[], 'complexity_list':[], 'incidence_list':[]
-    categories = quiz_logic.get_options_from_folder_names(list_of_files_with_attributes)
+    selected_category_options = {}
+    for category in available_category_options.keys():
+        selected_category_options[category]=[]
 
-    # Make a dicitonary that has the categories, but none of the options
-    # Will add the option in if the button is pressed.
-    selected_categories = {}
-    for category in categories.keys():
-        selected_categories[category]=[]
-
-    temp_selections = {}
+    temp_selections = []
 
     # Create a blank dictionary to hold button presses
     selections = session.get('selections', temp_selections)
-
-
+    print(f'available files {available_files}')
+    print(f'hello, your available categories are {available_category_options}')
+    print(f'and your selections are {selections}')
     
     # If a button is pressed
     if request.method == 'POST':
         button_pressed = request.form
-
+        temp_selections.append(button_pressed)
+        selections = request.form
 
         # If the submit button is pressed
-        if button_pressed == 'submit_options': 
+        if button_pressed == 'submitting': 
             # and value is 'submitting'
             #TODO
             
-            return render_template('test.html',selections='submitted')
+            return render_template('test.html',selections=selections)
 
         # Any other button pressed
         else:      
@@ -145,11 +143,7 @@ def design():
     return render_template('design.html', 
                             message = message,
                             selections = selections,
-                            organ_list = categories['organ_list'],
-                            disease_type_list = categories['disease_type_list'], 
-                            subtype_list = categories['subtype_list'], 
-                            complexity_list = categories['complexity_list'], 
-                            incidence_list = categories['incidence_list'])
+                            available_category_options = available_category_options)
 
 
 

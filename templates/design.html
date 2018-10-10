@@ -14,42 +14,19 @@
     <form action="/design" method="POST">
     <div>
         
-        <p>
-            {% for option in organ_list %}
-            
-                <button type="button" name='organ' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}} </button>
+        <div>
+            {% for category,options_list in available_category_options.items() %}
+                <p>
+                {% for option in options_list %}
+                    <button type="button" class="btn btn-outline-secondary" name="{{category}}" value="{{option}}" onclick=remember_selection(category,option) >{{option}} </button>
+                {% endfor %}
+                </p>
             {% endfor %}
-        </p>
+        </div>
 
-        <p>
-            {% for option in disease_type_list %}
-            
-                <button type="submit" name='disease_type' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
-            {% endfor %}
-        </p>
-
-        <p>
-            {% for option in subtype_list %}
-            
-                <button type="submit" id='delete_me' name='subtype' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
-            {% endfor %}  
-        </p>
-
-        <p>
-            {% for option in complexity_list %}
-            
-                <button type="submit" name='complexity' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
-            {% endfor %}
-        </p>
-
-        <p>
-            {% for option in incidence_list %}
-            
-                <button type="submit" name='incidence' value={{option}} class="btn btn-outline-secondary btn-sm">{{option}}</button>
-            {% endfor %}
-        </p>
-        <button class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="submitting" type="submit" value='selection_demo'>Submit</button>
-
+        <div>
+        <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="submitting" >Submit</button>
+        </div>
 
         <p>Choices: {{selections}}</p>
       
@@ -64,7 +41,9 @@
 
 <div>    
     <p>
-        Test_value: {{test_value}} 
+        Test_value: need to somehow record the button values with javascript code in layout.html
+        then grab those values all together and submit them all using the submit button as POST event.
+
     </p>
 </div>
 
