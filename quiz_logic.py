@@ -3,7 +3,7 @@
 
 from PIL import Image
 import glob, os, fnmatch
-from random import sample
+from random import sample, choice
 import toml
 import tkinter as tk
 import pdb
@@ -23,6 +23,7 @@ index_of_category_in_filename = {'organ':0,
 
 # The this file and the content_directory (which contains diseases) should be within one folder
 content_directory = './folder_based_dojo/'
+google_drive_download_directory = './static/'
 # Dictionary for diseases and their folder names {'disease':'foldername'}. Populated on start-up.
 
 # [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., ...]
@@ -90,6 +91,29 @@ def record_available_files(google_drive=False): # FINISHED
                 else:
                     this_disease['printable_name']+=letter
 
+            # Record folder contents, which will be useful later on when caching
+            if google_drive:
+                # Get list of files within the folder
+                # Format ['name':'id','name':'id']
+                files_inside = []
+                # for file in folder:
+                    #this_file = {}
+                    #this_file['name'] = 'blah'
+                    #this_file['id'] = 'blahblah'
+                    #files_inside.append(this_file)
+                #this_disease["files_within_folder"] = files_inside
+
+            if not google_drive:
+                files_inside = []
+                for file in os.listdir('content_directory'):
+                    this_file = {}
+                    this_file['name'] = file
+                    this_file['id'] = None
+                    files_inside.append(this_file)
+                this_disease['files_within_folder'] = files_inside
+
+
+
             available_files.append(this_disease)
 
 
@@ -117,7 +141,7 @@ def get_category_options(available_files_with_categories):
             # If the field is a category (rather than an ID or something else)
             if field in index_of_category_in_filename:
                 # If value not already there:
-                if value not in available_category_options[field]:
+                if value not in available_category_options[field] and value != '' and value != ' ':
                     # Assign the value of the category to the list for that category                
                     available_category_options[field].append(value)
 
@@ -231,6 +255,11 @@ def construct_quiz(selected_files,quiz_length,quiz_name):
     return fully_formed_quiz
 
 
+def delete_all_files_in_static_folder():
+    # When a new session is started
+    for file_present in os.scandir(google_drive_download_directory):        
+        # Remove the file
+        os.remove(f'/static{file_present}')
 
 
 def coordinate_quiz(google_drive = False, first_time = False):
@@ -238,6 +267,7 @@ def coordinate_quiz(google_drive = False, first_time = False):
     # Called by directly as python file for local files
 
     
+
     '''
     1. Record files available in a list:
         - record_available_files()
@@ -252,6 +282,9 @@ def coordinate_quiz(google_drive = False, first_time = False):
     '''
     if first_time:
         available_files = record_available_files(google_drive = google_drive)
+        # Delete any files left around from previous sessions or users
+        # If two users are using the app concurrenlty, this may destroy the cache of the other person.
+        delete_all_files_in_static_folder()
 
     '''
     3. Go through all the files and record the options available at each category
@@ -268,10 +301,10 @@ def coordinate_quiz(google_drive = False, first_time = False):
 
     # get number to quiz  
     try:
-        quiz_length = int(input("\n(To skip, press enter)\nMaximum number of diseases in the quiz: "))
+        max_quiz_length = int(input("\n(To skip, press enter)\nMaximum number of diseases in the quiz: "))
     except ValueError:
-        print('(Defaulting to 10 elements)\n')
-        quiz_length = 10
+        print('(Defaulting to 5 elements)\n')
+        max_quiz_length = 5
     '''
     4. Present the options to the user ask for selections
         - get_options_from_user()
@@ -308,30 +341,43 @@ def coordinate_quiz(google_drive = False, first_time = False):
     # make a quiz name
     quiz_name = "A quiz of something!1!1!"
     
-    fully_formed_quiz = construct_quiz(selected_files,quiz_length,quiz_name)
+    fully_formed_quiz = Quiz(selected_files,max_quiz_length,quiz_name,google_drive = google_drive)
 
 
     '''
     7. Commence quiz
  
     '''
-    pdb.set_trace()
     # Step through the quiz
     fully_formed_quiz.step_through_quiz()
     
 
-
+def download_file_using_id(google_drive_id):
+    # TODO
+    pass
 
 class Disease():
 
-    def __init__(self, disease_folder_name):
-        self.folder_name = disease_folder_name 
+    def __init__(self, disease_file,google_drive):
+        
+        # Check if google_drive is used (True or False)
+        if google_drive:
+            self.content_directory = google_drive_download_directory
+            # See if the file has been correctly cached, if not, download
+            self.check_file_download_status()
+            self.google_drive_id = disease_file["google_drive_id"]
+
+        else:
+            self.content_directory = content_directory
+
+        self.folder_name = disease_file["folder_name"] 
         self.images = self.get_list_of_images()   
-        self.text_file_contents = self.load_text_file()[0]
-        self.name = self.load_text_file()[1]   
+        self.text_file_contents = self.load_text_file()
+        self.name = self.disease_file["name"]   
         self.description = self.get_description()
         self.differentials = self.get_differentials()
         self.immunohistochemistry = self.get_immunohistochemistry()
+        self.files_within_folder = disease_file['files_within_folder']
         
     def __repr__(self):
         return f'{self.name} with {len(self.images)} images'
@@ -341,12 +387,11 @@ class Disease():
 
     def load_text_file(self):
         contents = {} # start with blank dictionary to populate with toml data
-        name = ''
+
         for file in os.listdir(content_directory+self.folder_name): 
 
             # if it is a text file
             if file.endswith('.txt') and not file.startswith('._') and not file.startswith('_'):                                        
-                name = str(file).replace('.txt','')    
                 try:
                     contents = toml.load(content_directory+self.folder_name+'/'+file) # load .txt as .toml
                 except FileNotFoundError:
@@ -354,7 +399,7 @@ class Disease():
                 except:
                     print('There are formatting errors in the %s file'%(content_directory+self.folder_name+'/'+file))
 
-        return contents, name
+        return contents
 
 
     def get_list_of_images(self):
@@ -454,28 +499,37 @@ class Disease():
 
         return dxx_folder_names
 
+    def check_file_download_status(self):
+        if disease_folder_name not in self.content_directory:
+            folder_id = disease['google_drive_id']
+            # download the file
+        # Check to see if all the files are there
+        files_needed = self.files_within_folder
+        for file in files_needed:
+            filename = file['name']
+            file_id = file['id']
+            #while filename not in os.scandir(self.content_directory):
+                #download_file_using_id(google_drive_id):
+                # delay(100)
+
+
 class Quiz():
     # Creates quiz objects
-
-    def __init__(self,list_of_folder_names,quiz_name):
+            
+    def __init__(self, list_of_eligible_folders, max_quiz_length, quiz_name, google_drive):
+        # Make a list of disease files
+        self.disease_files = self.shuffle_and_trim_diseases(list_of_eligible_folders,max_quiz_length)
         # Make a list of disease objects
         self.diseases = []
-
-        for disease_folder_name in list_of_folder_names: # TODO this fails when startig a differentials quiz.
+        for file in self.disease_files:
             # Check if desired folder name actually a disease 
-            for disease in disease_folder_inventory:
-                # If the disease full folder name in our inventory matches the one in the list provided
-
-                if disease["folder_name"] == disease_folder_name:                    
-                    # Add the disease as a Disease object
-                    disease_as_object = Disease(disease_folder_name)
-                    self.diseases.append(disease_as_object)
- 
+            disease_as_object = Disease(file,google_drive)
+            self.diseases.append(disease_as_object)
                 
         # create quiz name (if designed, call it those parameters, if ddx quiz, call it that)
         self.name = quiz_name
         # get quiz length
-        self.total_quiz_length = len(list_of_folder_names)
+        self.total_quiz_length = len(self.disease_files)
         # Current progress. 1 = first disease
         self.progress = 1
         # remaining diseases
@@ -484,12 +538,73 @@ class Quiz():
         self.child_quiz = None
         # A parent quiz (a quiz that was paused to create this quiz)
         self.parent_quiz = None
+        # Make name
+        self.name = self.get_name()
+        # Cache all files for the quiz
+        if google_drive:
+            self.cache_files() 
+
+        
+        
 
     def __repr__(self):
         return f'"{self.name}" quiz with {self.total_quiz_length} items'
 
     def __str__(self):
         return f'"{self.name}" quiz, currently on disease {self.progress}/{self.total_quiz_length}'
+
+    def shuffle_and_trim_diseases(self,list_of_eligible_folders,max_quiz_length):
+        # Gets possible diseases and returns a shuffled list of the right length
+        
+        # Shuffle list
+        shuffled_files = sample(list_of_eligible_folders,len(list_of_eligible_folders))
+
+        # If no maximum
+        if max_quiz_length == 0:
+            disease_shortlist = shuffled_files
+        else:
+            # Remove the extras
+            disease_shortlist = shuffled_files[:max_quiz_length]
+        
+        return disease_shortlist
+    
+    def get_name(self):
+        # Creates a name to identify the quiz easily
+        
+        rank = ['hanshi','kaicho','kancho','kyoshi','master','meijin','mudansha','o-sensei','renshi','sempai','sensei','shihan','sosei','tashi','yudansha']
+        thing = ['slide','frozen','haematoxylin','eosin','schiff','glass','recut','levels','of uncertain significance','cut up','formalin','decal','immuno','casette','membrane','nucleus','nucleolus','mitosis','chromatin','cytoplasm','grocott','congo red','trichrome','fite','reticulin','helicobacter']
+        creatures = ['dragon kings','mermaids','bashe','golden adders','wasp queens','unicorns','amarok','bunyips','chtuhlu','night wolves','invisible swarms','sleeping hippopotami','honey bees','blue dinosaurs','giant pandas','peregrine falcons','baby wildebeest','battletoads','bionic cats','electric owls']
+
+        name = f'{choice(rank).title()} {choice(thing).title()} and the {self.total_quiz_length.title()} {choice(creatures).title()}'
+
+        return name
+
+    def cache_files(self):
+        # Gets the files at the start of a quiz so there's no waiting
+        self.list_of_cached_files = []
+
+        
+        for disease in self.disease_files:
+            folder_id = disease['google_drive_id']
+            # Get list of files to download
+
+            # get list of ids within the folder
+            # get list of names of the expected files
+            # download the files to the static directory
+            # record the names of the files for later destruction
+            # list_of_ids_within_folder = gdrive_api_calls.get_file_ids_from_folder(folder_id)
+
+            list_of_ids_within_folder = []
+            for file_name in list_of_ids_within_folder:          
+                self.list_of_cached_files.append(file_name)                    
+
+    def clear_cached_files(self):
+        # After a quiz has finished
+        for file in self.content_directory:
+            # Go through the files that were cached
+            if file in self.list_of_cached_files:
+                # Delete them from /static
+                os.remove(self.content_directory+'file')
 
     def get_quiz_diseases(self):
         # Gives a list of what diseases are in this quiz
@@ -524,7 +639,7 @@ class Quiz():
         self.current_disease.show_all_images()
 
     def terminate_quiz(self):
-        # This is used to exit the current quiz, but it will no destroy any parent quizzes.
+        # This is used to exit the current quiz, but it will not destroy any parent quizzes.
         self.remaining_diseases=[]
 
     def skip_answer(self):
@@ -556,7 +671,7 @@ class Quiz():
                 'q':self.terminate_quiz, # property of the quiz       -> return self.remaining_diseases=[]
                 's':self.skip_answer # prpoerty of the quiz        -> return                 
                 }  
-        options_where_we_repeat_the_question = ['i','d','?','c','v','']
+        options_where_we_repeat_the_question = ['i','d','?','c','v','','e']
         options_where_we_dont_need_to_see_the_answer = ['q','s']
 
         # Display images (Calls function of the disease to show_all_images)
@@ -584,8 +699,10 @@ class Quiz():
     def step_through_quiz(self):
         # This function steps through the quiz
         # Goes through the list to see what disease is next
-        if self.remaining_diseases == 0:
+        if len(self.remaining_diseases) == 0:
             print('thanks for playing')
+            # Clear cache
+            self.clear_cached_files()
             return
 
         for disease in self.remaining_diseases:
@@ -601,9 +718,10 @@ class Quiz():
             # If the quiz is at the end, ask the user if they want to design_new_quiz
             if self.progress == self.total_quiz_length:
                 print('Finished quiz, need to implement option to start new quiz here')
+                # Clear cache
+                self.clear_cached_files()
                  
-
-    
+  
 
 def unit_tests(test):
 
@@ -649,11 +767,20 @@ def unit_tests(test):
 if __name__=="__main__":       
     # Start a new quiz, manually calling the inventory the first time only.
 
-    coordinate_quiz(google_drive = False, first_time = True)
+    #coordinate_quiz(google_drive = False, first_time = True)
     # Flask app should set google_drive to True
    
     
     #unit_tests(test=4)
+
+    rank = ['hanshi','kaicho','kancho','kyoshi','master','meijin','mudansha','o-sensei','renshi','sempai','sensei','shihan','sosei','tashi','yudansha']
+    thing = ['slide','frozen','haematoxylin','eosin','schiff','glass','recut','levels','of uncertain significance','cut up','formalin','decal','immuno','casette','membrane','nucleus','nucleolus','mitosis','chromatin','cytoplasm','grocott','congo red','trichrome','fite','reticulin','helicobacter']
+    creatures = ['dragon kings','mermaids','bashe','golden adders','wasp queens','unicorns','amarok','bunyips','chtuhlu','night wolves','invisible swarms','sleeping hippopotami','honey bees','blue dinosaurs','giant pandas','peregrine falcons','baby wildebeest','battletoads','bionic cats','electric owls']
+    number = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
+    
+
+    name = f'{choice(rank).title()} {choice(thing).title()} and the {choice(number)} {choice(creatures).title()}'
+    print(name)
     
     
     
