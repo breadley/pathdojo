@@ -1,26 +1,26 @@
 
 ## Motivation
 
-Histology is pattern recognition with reinforcement
+Histology is pattern recognition with reinforcement. This is a tool to create bite-sized custom image quizzes. 
 
-Strategy:
+###### Strategy
 
-This is a tool to create bite-sized custom image quizzes. 
+Curate a library of notes and images and view them with a website dynamically.
 
-Additional functions: 
+###### Additional functions: 
 - Read simple disease refreshers
 - Inspect immunohistochemistry and differentials
 - Generate a differentials quiz-within-a-quiz for comparing like-diseases instantly
 
 ## Goal: Study histology on any device through the browser
 
-###Structure:
+### Structure:
 
 - Python code / app logic: Hosted on cloud server (e.g. AWS)
 
 - Zappa.io packages code so that it can be hosted on AWS lambda
 
-- Wwhen the user sends a request, it spins up an instance on AWS lambda which executes the code then closes down
+- When the user sends a request, it spins up an instance on AWS lambda which executes the code then closes down
 
 - Code will retrieve file from google drive using the google drive API
 
@@ -42,15 +42,11 @@ on Windows: `$env:FLASK_APP='app.py'` `flask run`
 
 Creates serverless web app architecture.
 
-Deploy Zappa [tutorial](https://www.viget.com/articles/building-a-simple-api-with-amazon-lambda-and-zappa/)
+Deploy Zappa using [tutorial](https://www.viget.com/articles/building-a-simple-api-with-amazon-lambda-and-zappa/)
 
-Called the project 'dev'
+Called the project 'dev'. Deploy with: `zappa deploy dev`. Currently about 40MB. Porbably need to trim down unused packages.
 
-Usage: `zappa deploy dev` 
-
-Currently about 40MB. Porbably need to trim down unused packages.
-
-Upload new code: `zappa update dev`
+To upload new code: `zappa update dev`
 
 
 #### AWS Lambda
