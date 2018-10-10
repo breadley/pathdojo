@@ -23,7 +23,7 @@ index_of_category_in_filename = {'organ':0,
 
 # The this file and the content_directory (which contains diseases) should be within one folder
 content_directory = './folder_based_dojo/'
-google_drive_download_directory = './static/'
+google_drive_download_directory = './cache/'
 # Dictionary for diseases and their folder names {'disease':'foldername'}. Populated on start-up.
 
 # [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., ...]
@@ -105,7 +105,7 @@ def record_available_files(google_drive=False): # FINISHED
 
             if not google_drive:
                 files_inside = []
-                for file in os.listdir('content_directory'):
+                for file in os.listdir(content_directory):
                     this_file = {}
                     this_file['name'] = file
                     this_file['id'] = None
@@ -255,11 +255,11 @@ def construct_quiz(selected_files,quiz_length,quiz_name):
     return fully_formed_quiz
 
 
-def delete_all_files_in_static_folder():
+def delete_all_files_in_cache_folder():
     # When a new session is started
     for file_present in os.scandir(google_drive_download_directory):        
         # Remove the file
-        os.remove(f'/static{file_present}')
+        os.remove(google_drive_download_directory+file_present)
 
 
 def coordinate_quiz(google_drive = False, first_time = False):
@@ -284,7 +284,7 @@ def coordinate_quiz(google_drive = False, first_time = False):
         available_files = record_available_files(google_drive = google_drive)
         # Delete any files left around from previous sessions or users
         # If two users are using the app concurrenlty, this may destroy the cache of the other person.
-        delete_all_files_in_static_folder()
+        delete_all_files_in_cache_folder()
 
     '''
     3. Go through all the files and record the options available at each category
@@ -369,11 +369,11 @@ class Disease():
 
         else:
             self.content_directory = content_directory
-
+        
         self.folder_name = disease_file["folder_name"] 
         self.images = self.get_list_of_images()   
         self.text_file_contents = self.load_text_file()
-        self.name = self.disease_file["name"]   
+        self.name = disease_file["name"]   
         self.description = self.get_description()
         self.differentials = self.get_differentials()
         self.immunohistochemistry = self.get_immunohistochemistry()
@@ -575,7 +575,7 @@ class Quiz():
         thing = ['slide','frozen','haematoxylin','eosin','schiff','glass','recut','levels','of uncertain significance','cut up','formalin','decal','immuno','casette','membrane','nucleus','nucleolus','mitosis','chromatin','cytoplasm','grocott','congo red','trichrome','fite','reticulin','helicobacter']
         creatures = ['dragon kings','mermaids','bashe','golden adders','wasp queens','unicorns','amarok','bunyips','chtuhlu','night wolves','invisible swarms','sleeping hippopotami','honey bees','blue dinosaurs','giant pandas','peregrine falcons','baby wildebeest','battletoads','bionic cats','electric owls']
 
-        name = f'{choice(rank).title()} {choice(thing).title()} and the {self.total_quiz_length.title()} {choice(creatures).title()}'
+        name = f'{choice(rank).title()} {choice(thing).title()} and the {self.total_quiz_length} {choice(creatures).title()}'
 
         return name
 
@@ -590,7 +590,7 @@ class Quiz():
 
             # get list of ids within the folder
             # get list of names of the expected files
-            # download the files to the static directory
+            # download the files to the cache directory
             # record the names of the files for later destruction
             # list_of_ids_within_folder = gdrive_api_calls.get_file_ids_from_folder(folder_id)
 
@@ -603,7 +603,7 @@ class Quiz():
         for file in self.content_directory:
             # Go through the files that were cached
             if file in self.list_of_cached_files:
-                # Delete them from /static
+                # Delete them from cache
                 os.remove(self.content_directory+'file')
 
     def get_quiz_diseases(self):
@@ -767,20 +767,12 @@ def unit_tests(test):
 if __name__=="__main__":       
     # Start a new quiz, manually calling the inventory the first time only.
 
-    #coordinate_quiz(google_drive = False, first_time = True)
+    coordinate_quiz(google_drive = False, first_time = True)
     # Flask app should set google_drive to True
    
     
     #unit_tests(test=4)
 
-    rank = ['hanshi','kaicho','kancho','kyoshi','master','meijin','mudansha','o-sensei','renshi','sempai','sensei','shihan','sosei','tashi','yudansha']
-    thing = ['slide','frozen','haematoxylin','eosin','schiff','glass','recut','levels','of uncertain significance','cut up','formalin','decal','immuno','casette','membrane','nucleus','nucleolus','mitosis','chromatin','cytoplasm','grocott','congo red','trichrome','fite','reticulin','helicobacter']
-    creatures = ['dragon kings','mermaids','bashe','golden adders','wasp queens','unicorns','amarok','bunyips','chtuhlu','night wolves','invisible swarms','sleeping hippopotami','honey bees','blue dinosaurs','giant pandas','peregrine falcons','baby wildebeest','battletoads','bionic cats','electric owls']
-    number = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
-    
-
-    name = f'{choice(rank).title()} {choice(thing).title()} and the {choice(number)} {choice(creatures).title()}'
-    print(name)
     
     
     

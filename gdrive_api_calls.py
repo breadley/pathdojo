@@ -3,7 +3,10 @@ from pydrive.drive import GoogleDrive
 import random
 
 gauth = GoogleAuth()
+
+# TODO: This seems to be for single app use, not server deployment. 
 gauth.LocalWebserverAuth()
+
 
 drive = GoogleDrive(gauth)
 

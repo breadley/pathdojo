@@ -31,9 +31,7 @@ Curate a library of notes and images and view them with a website dynamically.
 
 Turns python code into a web app using [litera](https://bootswatch.com/litera/) formatting
 
-###### Testing
-
-`FLASK_APP=app.py` `flask run` Will run `app.py`
+ Run `FLASK_APP=app.py` then `flask run` to execute `app.py`, which will be available at a localhost IP address.
 
 on Windows: `$env:FLASK_APP='app.py'` `flask run`
 
@@ -60,6 +58,8 @@ When deploying/updating to AWS with zappa on a new computer `zappa update dev`, 
 Hosting images with each disease in separate folder.
 
 API calls to be made by PyDrive for simplicity.
+
+TODO: Allow the lambda instance API access, as per [stackoverflow comment](https://stackoverflow.com/questions/42170504/how-to-oauth-google-api-from-lambda-aws) and [google documentation](https://developers.google.com/identity/protocols/OAuth2ServiceAccount)
 
 ## Structure and relationship of components
 
