@@ -24,9 +24,6 @@ Formatting https://bootswatch.com/litera/
 
 on Windows: `$env:FLASK_APP='app.py'` `flask run`
 
-#### TODO
-
-Flaskify the quiz
 
 ### Zappa
 
@@ -55,10 +52,39 @@ Hosting images with each disease in separate folder.
 
 API calls to be made by PyDrive for simplicity.
 
-#### TODO
+### Structure and relationship of components
 
-Replace local file calls in quiz code with API calls to drive.
+######################################
+############  app.py  ################
+######################################
+0. If first time running, clears /cache folder, gets file inventory and passes to design.html for the user to input selections
+2. Reqeives POSTed list of selections, passes parameters to quiz.py to get quiz objects
+4. Records quiz object in dictionary of quizzes and caches all files required for the quiz
+5. Checks what the current quiz is and, sends the current disease of that quiz to display.html
+7. If POST message received, take appropriate action:
+    - display_differentials: send list of differentials to display.html
+    - get_clue: send clue text to display.html
+    - start_a_nested_quiz: 
+    - show_name_and_description: return list to display.html
+    - terminate_quiz: clears cache of current quiz and then removes quiz from quiz dictionary
+    - skip_answer: get next disease with disease.step_through_quiz()
 
+
+######################################
+############  *.html  ################
+######################################
+1. design.html accepts inventory, displays options, gets user inputs, POSTs list to app.py 
+6. Receives a disease object, displays images, asks user for answer/options, POSTs answer/options to app.py
+
+######################################
+############ quiz.py  ################
+######################################
+3. Accpts selections, creates quiz object, sends list to app.py
+
+######################################
+########## api_calls.py ##############
+######################################
+May be used for google drive calls, may be incoroporated into app.py
 
 
 
