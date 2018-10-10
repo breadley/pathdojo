@@ -14,27 +14,26 @@ Additional functions:
 
 ## Goal: Study histology on any device through the browser
 
-Structure:
-python code / app logic: Hosted on cloud server (e.g. AWS)
+###Structure:
 
-zappa.io packages code so that it can be hosted on AWS lambda
+- Python code / app logic: Hosted on cloud server (e.g. AWS)
 
-when the user sends a request, it spins up an instance on AWS lambda which executes the code then closes down
+- Zappa.io packages code so that it can be hosted on AWS lambda
 
-code will retrieve file from google drive using the google drive API
+- Wwhen the user sends a request, it spins up an instance on AWS lambda which executes the code then closes down
 
-Flask is used to glue everything together, runs app logic, communicates with frontend. Flask is what will be deployed with Zappa.
+- Code will retrieve file from google drive using the google drive API
+
+- Flask is used to glue everything together, runs app logic, communicates with frontend. Flask is what will be deployed with Zappa.
 
 
 #### Flask component
 
-Turns python code into a web app.
-
-Formatting https://bootswatch.com/litera/
+Turns python code into a web app using [litera](https://bootswatch.com/litera/) formatting
 
 ###### Testing
 
-`FLASK_APP=app.py` `flask run` Will run app.py 
+`FLASK_APP=app.py` `flask run` Will run `app.py`
 
 on Windows: `$env:FLASK_APP='app.py'` `flask run`
 
@@ -43,7 +42,7 @@ on Windows: `$env:FLASK_APP='app.py'` `flask run`
 
 Creates serverless web app architecture.
 
-Deploy Zappa tutorial: https://www.viget.com/articles/building-a-simple-api-with-amazon-lambda-and-zappa/
+Deploy Zappa [tutorial](https://www.viget.com/articles/building-a-simple-api-with-amazon-lambda-and-zappa/)
 
 Called the project 'dev'
 
@@ -78,7 +77,7 @@ API calls to be made by PyDrive for simplicity.
 
 5. Checks what the current quiz is and, sends the current disease of that quiz to `display.html`
 
-7. If POST message received, take appropriate action:
+7. If `POST` message received, take appropriate action:
 
     - display_differentials: send list of differentials to `display.html`
 
@@ -105,7 +104,7 @@ API calls to be made by PyDrive for simplicity.
 
 ##### api_calls.py 
 
-May be used for google drive calls, may be incoroporated into `app.p`y
+May be used for google drive calls, may be incoroporated into `app.py`
 
 
 
