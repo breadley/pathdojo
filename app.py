@@ -131,9 +131,11 @@ def design():
         else:      
             # Go through the dictionary of button presses  
             for category,desired_option in button_pressed.items():   
-                # Record the button selection in selected_categories           
-                temp_selections[category] = desired_option
-                session['selections'] = temp_selections
+                # Record the button selection in selected_categories  
+                latest_button = {}  
+                latest_button[category] = desired_option       
+                temp_selections.append(latest_button)
+            session['selections'] = temp_selections
                 
             return redirect('/design')
             #return render_template('test.html',selections=button_pressed)
