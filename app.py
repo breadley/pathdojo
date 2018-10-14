@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, session
+from flask import Flask, render_template, redirect, request, session, url_for
 import config
 import os
 import gdrive_api_calls
@@ -110,8 +110,8 @@ def design():
 
     # Create a blank dictionary to hold button presses
     selections = session.get('selections', temp_selections)
-    print(f'available files {available_files}')
-    print(f'hello, your available categories are {available_category_options}')
+    print(f'Inventory taken: Available files {len(available_files)}')
+    print(f'hello, your there are {len(available_category_options)} available categories')
     print(f'and your selections are {selections}')
     
     # If a button is pressed
@@ -125,7 +125,7 @@ def design():
             # and value is 'submitting'
             #TODO
             
-            return render_template('test.html',selections=selections)
+            return redirect(url_for('design'),selections=button_pressed)
 
         # Any other button pressed
         else:      
@@ -135,9 +135,8 @@ def design():
                 latest_button = {}  
                 latest_button[category] = desired_option       
                 temp_selections.append(latest_button)
-            session['selections'] = temp_selections
-                
-            return redirect('/design')
+            session['selections'] = temp_selections                
+            return redirect(url_for('design'))
             #return render_template('test.html',selections=button_pressed)
 
 

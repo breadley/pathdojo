@@ -16,6 +16,7 @@ google-api-python-client = "*"
 pydrive = "*"
 "boto3" = "*"
 requests = "*"
+flask-wtf = "*"
 
 [dev-packages]
 awscli = "*"
