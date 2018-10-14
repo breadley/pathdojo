@@ -23,7 +23,18 @@
                     </p>
                 {% endfor %}
             </div>
+
         </fieldset>
+
+        <div class="form-group">
+            <label class="col-form-label" for="inputDefault">input 1</label>
+            <input type="text" class="form-control" placeholder="Default input" id="inputDefault">
+        </div>
+
+        <div class="form-group">
+            <label class="col-form-label" for="inputDefault">input 2</label>
+            <input type="text" class="form-control" placeholder="Default input" id="inputDefault">
+        </div>
 
         <div>
             <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="{{request.form}}" >Submit</button>
@@ -44,6 +55,10 @@
 
     <p>
         selections: {{selections}}
+    </p>
+
+    <p>
+        form: {{form}}
     </p>
 </div>
 

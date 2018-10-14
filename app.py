@@ -4,6 +4,7 @@ import os
 import gdrive_api_calls
 import random
 import quiz_logic
+from wtforms import Form, fields
 
 app = Flask(__name__)
 
@@ -91,8 +92,28 @@ def string_to_html(string):
     return modified_string
 
     
+# A class that uses Form from WTForms
+class Quiz_Design_Form(Form):
+    input_1 = TextField('field 1')
+    input_2 = TextField('field 2')
+
 @app.route('/design',methods=['GET', 'POST'])
 def design():
+
+    try:
+        # Pass the request.form to the wtforms class for processing
+        form = Quiz_Design_Form(request.form)
+        if request.method == 'POST':
+            first_input = form.input_1.data
+            second_input = form.input_2.data
+            return redirect(url_for('test.html', form=form))
+            
+
+
+    except Exception:
+        return str(e)
+
+
     # Homepage 
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
  
@@ -233,6 +254,7 @@ def display():
 
             return render_template('wrong.html', successes=successes, blob_name=blob['name'])
     return render_template('display.html', image=get_single_image(blob['google_drive_id']), message=message, successes=successes, failed=True)
+
 
 
 
