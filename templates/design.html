@@ -12,14 +12,13 @@
 
 <form action="{{ url_for('design') }}" method="POST">
     <fieldset class="form-group">
-
+            <div>
+                Number of cases:
+            </div>
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group mr-2" role="group" aria-label="First group">
-                    <div>
-                    <h2>Quiz length</h2>
-                    </div>
                     {% for number in [1,2,3,5,8,13,21,34] %}
-                        <button class="btn btn-outline-secondary" type="button">{{number}}</button>                
+                        <button class="btn btn-secondary btn-sm" type="button">{{number}}</button>                
                     {% endfor %}
                 </div>      
             </div>
@@ -28,11 +27,12 @@
 
             <div>
                 {% for category,options_list in available_category_options.items() if category!='name'%}
-                <h2>{{category}}</h2>
-
+                <div>
+                    <br>
+                </div>
                 <div class="btn-group-horizontal" data-toggle="buttons">
                     {% for option in options_list %}
-                    <input type="button" class="btn btn-outline-secondary" name="{{category}}" value="{{option}}" ></button>
+                    <input type="button" class="btn btn-outline-secondary btn-sm" name="{{category}}" value="{{option}}" ></button>
                     {% endfor %}
                 </div>
 
@@ -40,29 +40,14 @@
             </div>        
 
         <div>
-            <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="submitting" >Submit</button>
+            <p>
+                <br>
+                <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="submitting" >Submit</button>
+            </p>
         </div>
 
     </fieldset>
 </form>
 
-<div>    
-    <p>
-        Test_value: need to somehow record the button values with javascript code in layout.html
-        then grab those values all together and submit them all using the submit button as POST event.
-    </p> 
-
-    <p>
-        Request form: {{request.form}}
-    </p>
-
-    <p>
-        selections: {{selections}}
-    </p>
-
-    <p>
-        form: {{form}}
-    </p>
-</div>
 
 {% endblock %}

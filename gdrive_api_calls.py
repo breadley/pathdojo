@@ -5,6 +5,8 @@ import random
 gauth = GoogleAuth()
 
 # TODO: This seems to be for single app use, not server deployment. 
+# I believe for real world deployment we just get rid of it
+# As per https://pythonhosted.org/PyDrive/quickstart.html
 gauth.LocalWebserverAuth()
 
 
@@ -66,7 +68,6 @@ def select_an_image_from_list_of_ids(image_id_list):
 	filename = f'temporary_image_with_id_{random_id}.jpeg'
 	# download image
 	image.GetContentFile('static/'+filename)
-
 	
 	return filename,id
 
@@ -107,4 +108,5 @@ def clear_static_folder(list_of_images_to_be_destroyed):
 			os.remove(f'/static{file_present}')
 	return
 
-# list_all_files('dummy_folder')
+if __name__=='__main__':
+	pass

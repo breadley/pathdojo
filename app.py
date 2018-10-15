@@ -59,13 +59,18 @@ def string_to_html(string):
 @app.route('/design',methods=['GET','POST'])
 def design():
     # WORK IN PROGRESS - CANNOT GET INPUTS FROM MORE THAN ONE BUTTON AT A TIME
-
+    google_drive = True
     # Homepage 
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
  
     # Get inventory (ideally we would only do this the first time)
     # We will use local files for the moment
-    available_files = quiz_logic.record_available_files(google_drive = False)
+    available_files = quiz_logic.record_available_files(google_drive = google_drive)
+    for index, thing in enumerate(available_files):
+
+        if index<6:
+            print(f'\n\n{thing}')
+            # print(f'The id of {thing["name"]} is {thing["id"]}')
 
     available_category_options = quiz_logic.get_category_options(available_files)
 
@@ -81,26 +86,28 @@ def design():
     
     # If a button is pressed
     if request.method == 'POST':
-        button_pressed = request.form
-        temp_selections.append(button_pressed)
         selections = request.form
 
-        print('button_pressed',button_pressed)
-        print('temp_selections',temp_selections)
-        print('selections',selections)
-        print('request',request)
-
         # If the submit button is pressed
-        if button_pressed == 'submitting': 
+        if selections['submit_options'] == 'submitting': 
             #TODO
 
             # Temporary placeholder value
             selected_category_options = {'organ': [], 'disease_type': ['benign'], 'subtype': [], 'complexity': [], 'incidence': [], 'name': []}
-            selected_files = get_filenames_that_match(available_files,selected_category_options)
-            fully_formed_quiz = Quiz(selected_files,max_quiz_length,google_drive = google_drive)
+            max_quiz_length = 3
+            
+            selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
+            fully_formed_quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
+            
+            # fully_formed_quiz.step_through_quiz()
+            # a test folder id
+            test_folder_id = '1Lk3-zB5VOe6JGksJjwLRiQ0J8P6_0Hzw'
+            image_name = get_single_image(test_folder_id)
 
-
-            return render_template(url_for('view'),selections=selections, selected_category_options=selected_category_options, quiz=quiz)
+            return render_template('view.html',
+                                    selections=selections, 
+                                    selected_category_options=selected_category_options, 
+                                    image = image_name)
 
         # Any other button pressed
         else:      
@@ -111,7 +118,7 @@ def design():
                 latest_button[category] = desired_option       
                 temp_selections.append(latest_button)
             session['selections'] = temp_selections                
-            return redirect(url_for('design'))
+            return redirect('design')
             #return render_template('test.html',selections=button_pressed)
 
 
@@ -145,7 +152,7 @@ def view():
             # let them try again
 
             
-    return render_template(url_for('view'), image=get_single_image(id_of_the_image_to_display))
+    return render_template('view.html', image_id=get_single_image(id_of_the_image_to_display))
 
 
 
@@ -191,6 +198,8 @@ def get_single_image(blob_folder_drive_id):
     # Download a single image
     random_image_filename = gdrive_api_calls.select_an_image_from_list_of_ids(blob_folder_image_ids)[0]
     random_image_id = gdrive_api_calls.select_an_image_from_list_of_ids(blob_folder_image_ids)[1]
+    
+    # Return image name
     return random_image_filename
 
 

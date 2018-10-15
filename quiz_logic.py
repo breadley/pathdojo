@@ -12,6 +12,7 @@ import gdrive_api_calls
 # Allowbale files to be read
 image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
 
+
 # The location of the elements in the disease folder names
 # [organ][disease_type][subtype][complexity][incidence][name - excluded here]
 index_of_category_in_filename = {'organ':0,
@@ -66,9 +67,10 @@ def record_available_files(google_drive=False): # FINISHED
             # A dictionary where the google drive ID is None
             unprocessed_files[file] = None 
     
+    # if google drive
     else:
         # By default, the home folder of the google drive is used
-        unprocessed_fies = gdrive_api_calls.list_all_files('dummy_folder').items()             
+        unprocessed_files = gdrive_api_calls.list_all_files('dummy_folder')            
         
     for folder_name,google_drive_id in unprocessed_files.items():
         # If a completed disease folder
@@ -89,27 +91,39 @@ def record_available_files(google_drive=False): # FINISHED
                 else:
                     this_disease['printable_name']+=letter
 
-            # Record folder contents, which will be useful later on when caching
+
+
+            # Record subfiles within each folder
+            unprocessed_subfiles = {}
+            files_inside = []
+
+            # Compile a list of files and IDs (none where local files)
             if google_drive:
-                # Get list of files within the folder
-                # Format ['name':'id','name':'id']
-                files_inside = []
-                # for file in folder:
-                    #this_file = {}
-                    #this_file['name'] = 'blah'
-                    #this_file['id'] = 'blahblah'
-                    #files_inside.append(this_file)
-                #this_disease["files_within_folder"] = files_inside
-
+                # List the contents of the folder
+                unprocessed_subfiles = drive.ListFile({'q': f"'{google_drive_id}' in parents and trashed=false"}).GetList()
             if not google_drive:
-                files_inside = []
-                for file in os.listdir(content_directory):
+                for file in os.listdir(content_directory+folder_name):
+                    unprocessed_subfiles['title'] = file
+                    unprocessed_subfiles['id'] = None
+            
+            # For all of the files within the disease folder
+            for subfile,subfile_id in unprocessed_subfiles:
+                # If the file is a valid file
+                if not subfile.startswith('.') and if not subfile.startswith('_'):
+                    subfile_name,subfile_extension = os.path.splitext(subfile)
                     this_file = {}
-                    this_file['name'] = file
-                    this_file['id'] = None
+                    if subfile_extension in image_extensions:
+                        this_file['image_name']=subfile
+                        this_file['image_id'] = None
+                    if subfile_extension == '.xml'
+                        this_file['xml_name']=subfile
+                        this_file['xml_id'] = None
+                    if subfile_extension == '.toml' or file_extension == '.txt'
+                        this_file['textfile_name']=subfile
+                        this_file['textfile_id'] = None
                     files_inside.append(this_file)
-                this_disease['files_within_folder'] = files_inside
-
+            # Record list of files
+            this_disease['files_within_folder'] = files_inside
 
 
             available_files.append(this_disease)
@@ -763,11 +777,14 @@ def unit_tests(test):
 if __name__=="__main__":       
     # Start a new quiz, manually calling the inventory the first time only.
 
-    coordinate_quiz(google_drive = False, first_time = True)
+    #coordinate_quiz(google_drive = False, first_time = True)
     # Flask app should set google_drive to True
-   
-    
+
     #unit_tests(test=4)
+    
+    files = record_available_files(google_drive=True)
+  
+    print(files)
 
     
     
