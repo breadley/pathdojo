@@ -37,7 +37,7 @@ def list_all_files(folder): # Eventually deprecate
 	return results
 
 def record_available_files(google_drive=False): # FINISHED
-	# input format: No input data required
+	# input format: No input data required. Google drive is true/false
 	# output format:
 	# available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
 
@@ -87,7 +87,22 @@ def record_available_files(google_drive=False): # FINISHED
 				else:
 					this_disease['printable_name']+=letter
 
+			available_files.append(this_disease)
+	
+	
+	# output format:
+	# available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
+	return available_files
 
+def add_subfiles_to_file_details(list_of_files, google_drive=False):
+	# This takes a list (a short list of the diseases of interest)
+	# Looks at the contents of the files and adds the important details to the file record
+	# Returns the same list but with the additional details included
+	# Google drive is True/False
+	list_of_files_including_subfiles = []
+
+	for main_file in list_of_files:
+		google_drive_id = file['google_drive_id']
 
 			# Record subfiles within each folder
 			unprocessed_subfiles = []
@@ -97,7 +112,6 @@ def record_available_files(google_drive=False): # FINISHED
 			if google_drive:
 				# List the contents of the folder
 				drive_subfiles = drive.ListFile({'q': f"'{google_drive_id}' in parents and trashed=false"}).GetList()
-				pdb.set_trace() # ISSUE I THINK IS THAT SUBFILES IS GETTING ALL ROOT FILES
 				for file in drive_subfiles:
 					this_file = {}
 					this_file['filename'] = file['title']
@@ -121,24 +135,23 @@ def record_available_files(google_drive=False): # FINISHED
 					this_file = {}
 					if subfile_extension in image_extensions:
 						this_file['image_name']=subfile
-						this_file['image_id'] = None
+						this_file['image_id'] = subfile_id
 					if subfile_extension == '.xml':
 						this_file['xml_name']=subfile
-						this_file['xml_id'] = None
+						this_file['xml_id'] = subfile_id
 					if subfile_extension == '.toml' or subfile_extension == '.txt':
 						this_file['textfile_name']=subfile
-						this_file['textfile_id'] = None
+						this_file['textfile_id'] = subfile_id
 					files_inside.append(this_file)
 			# Record list of files
-			this_disease['files_within_folder'] = files_inside
+			main_file['files_within_folder'] = files_inside
+
+			list_of_files_including_subfiles.append(main_file)
+
+	return list_of_files_including_subfiles
 
 
-			available_files.append(this_disease)
-	
-	
-	# output format:
-	# available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
-	return available_files
+
 
 def filename_breakdown(filename): # FINISHED
 	# Accepts a filename as a string: 'blah'
@@ -159,6 +172,7 @@ def filename_breakdown(filename): # FINISHED
 
 
 def get_file_ids_from_folder(folder_id):
+	# TO BE DEPRECATED IN FAVOUR OF add_subfiles_to_file_details
 	# Returns an array of ids for the images within a given folder
 	image_ids = []
 	image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
@@ -246,6 +260,13 @@ def clear_static_folder(list_of_images_to_be_destroyed):
 
 if __name__=='__main__':
 	# pass
-	files = record_available_files(google_drive=False)
+	# List the contents of the folder
+	test_folder_id = '1Lk3-zB5VOe6JGksJjwLRiQ0J8P6_0Hzw'
+	drive_subfiles = drive.ListFile({'q': f"'{test_folder_id}' in parents and trashed=false"}).GetList()
+
+	
+	files = record_available_files(google_drive=True)
 	for file in files:
-		print('\n\n',files)
+		print('\n\n New file ---------------------- \n\n')
+		for item in file:
+			print(f'{item} \t\t\t\t\t\t {file[item]}')

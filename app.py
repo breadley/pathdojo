@@ -101,6 +101,9 @@ def design():
             max_quiz_length = 3
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
+            # Go through the selected files and take invetory of subfiles
+            selected_files_and_subfiles = add_subfiles_to_file_details(selected_files, google_drive=True)
+            # Create quiz
             fully_formed_quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
             
             # fully_formed_quiz.step_through_quiz()
