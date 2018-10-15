@@ -10,34 +10,23 @@
     </p>
 </div>
 
-<form action="/design" method="POST">
-    <fieldset>
-        <fieldset class="form-group">
+<form action="{{ url_for('design') }}" method="POST">
+    <fieldset class="form-group">
             <div>
-                {% for category,options_list in available_category_options.items() %}
+                {% for category,options_list in available_category_options.items() if category!='name'%}
                 <legend>{{category}}</legend>
-                    <p>
+
+                <div class="btn-group-horizontal" data-toggle="buttons">
                     {% for option in options_list %}
                     <input type="button" class="btn btn-outline-secondary" name="{{category}}" value="{{option}}" ></button>
                     {% endfor %}
-                    </p>
+                </div>
+
                 {% endfor %}
-            </div>
-
-        </fieldset>
-
-        <div class="form-group">
-            <label class="col-form-label" for="inputDefault">input 1</label>
-            <input type="text" class="form-control" placeholder="Default input" id="inputDefault">
-        </div>
-
-        <div class="form-group">
-            <label class="col-form-label" for="inputDefault">input 2</label>
-            <input type="text" class="form-control" placeholder="Default input" id="inputDefault">
-        </div>
+            </div>        
 
         <div>
-            <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="{{request.form}}" >Submit</button>
+            <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="ta daaaa" >Submit</button>
         </div>
 
     </fieldset>

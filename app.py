@@ -4,7 +4,7 @@ import os
 import gdrive_api_calls
 import random
 import quiz_logic
-from wtforms import Form, fields
+
 
 app = Flask(__name__)
 
@@ -19,43 +19,7 @@ list_of_files_with_attributes = []
 # Inventory needs to only be taken once
 need_to_take_inventory = True
 
-dojo_welcome = """   
-                                                         . /
-                                                     . /
-                                                 . /
-                                             . /
-                                         . /
-                                     . /
-                               /-__/   / /_)
-                              /\/\   =/ = /_/     Hello there
-                                 /  \,_\_)___(_
-                                 \  /    .  .  \_
-                                  \___\|\_,   .  /
-                                        \__-\__  .
-                                         /\// '   .
-                                         (/_   .  /
-                                        \_,\__.___|
-                                       __#######]
-                                    __/._  .  . )
-                                  _/ .\  .   . <
-                                 \.    .   . _/
-                                 /\__.  _.__/
-                                (    \_/ (   /_|
-                                 )/_     /'-`_)
-                                  |     /  (___'_)
-                                  '/. __)
-                              ..   \_/ |          .
-                                    _\ (    . ..
-                                 (____`_)
-
-
-
-                        You and Pathdojo form a symbiont circle.
-
-                        What happens to one of you will affect the other. 
-                        
-                        You must understand this.     
-                        """
+dojo_welcome = """ Hello there """
 
 
 def take_inventory():
@@ -91,28 +55,9 @@ def string_to_html(string):
             .replace("\n","<br>")
     return modified_string
 
-    
-# A class that uses Form from WTForms
-class Quiz_Design_Form(Form):
-    input_1 = TextField('field 1')
-    input_2 = TextField('field 2')
-
-@app.route('/design',methods=['GET', 'POST'])
+ 
+@app.route('/design',methods=['GET','POST'])
 def design():
-
-    try:
-        # Pass the request.form to the wtforms class for processing
-        form = Quiz_Design_Form(request.form)
-        if request.method == 'POST':
-            first_input = form.input_1.data
-            second_input = form.input_2.data
-            return redirect(url_for('test.html', form=form))
-            
-
-
-    except Exception:
-        return str(e)
-
 
     # Homepage 
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
@@ -131,15 +76,18 @@ def design():
 
     # Create a blank dictionary to hold button presses
     selections = session.get('selections', temp_selections)
-    print(f'Inventory taken: Available files {len(available_files)}')
-    print(f'hello, your there are {len(available_category_options)} available categories')
-    print(f'and your selections are {selections}')
+
     
     # If a button is pressed
     if request.method == 'POST':
         button_pressed = request.form
         temp_selections.append(button_pressed)
         selections = request.form
+
+        print('button_pressed',button_pressed)
+        print('temp_selections',temp_selections)
+        print('selections',selections)
+        print('request',request)
 
         # If the submit button is pressed
         if button_pressed == 'submitting': 
