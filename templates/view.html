@@ -1,0 +1,32 @@
+<!--This page is for viewing the current diseasee in the quiz-->
+
+{% extends 'layout.html' %}
+
+{% block body %}
+<div style=" bottom: 0; position: fixed; z-index: 1; background-color: rgba(255,255,255,0.85); padding: 1em 2em; font-family: 'Open Sans';">
+			
+	<h1> Name that disease! </h1>
+
+  <form action="/display" method="POST">
+	  <input type="text" name="blob" value="What's your answer?"><br>
+	  <input type="submit" value="Guess">
+  </form>
+
+  <p>Selections: {{selections}}</p>
+  <p>Selected_category_options: {{selected_category_options</p>
+  <p>Quiz: {{quiz}}</p>
+
+</div>
+<img src="{{url_for('static', filename=image)}}"></div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+
+

@@ -58,6 +58,7 @@ def string_to_html(string):
  
 @app.route('/design',methods=['GET','POST'])
 def design():
+    # WORK IN PROGRESS - CANNOT GET INPUTS FROM MORE THAN ONE BUTTON AT A TIME
 
     # Homepage 
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
@@ -91,10 +92,15 @@ def design():
 
         # If the submit button is pressed
         if button_pressed == 'submitting': 
-            # and value is 'submitting'
             #TODO
-            
-            return redirect(url_for('design'),selections=button_pressed)
+
+            # Temporary placeholder value
+            selected_category_options = {'organ': [], 'disease_type': ['benign'], 'subtype': [], 'complexity': [], 'incidence': [], 'name': []}
+            selected_files = get_filenames_that_match(available_files,selected_category_options)
+            fully_formed_quiz = Quiz(selected_files,max_quiz_length,google_drive = google_drive)
+
+
+            return render_template(url_for('view'),selections=selections, selected_category_options=selected_category_options, quiz=quiz)
 
         # Any other button pressed
         else:      
@@ -114,6 +120,33 @@ def design():
                             message = message,
                             selections = selections,
                             available_category_options = available_category_options)
+
+
+
+
+@app.route('/view',methods=['GET', 'POST'])
+def view():
+    # This page is for viewing the current disease in the quiz
+
+
+
+    id_of_the_image_to_display = ''
+
+    if request.method == 'POST':
+        # Get user input
+
+        pass 
+
+        # if input == disease name:
+
+            # Take them to next question
+
+        # else:
+            # let them try again
+
+            
+    return render_template(url_for('view'), image=get_single_image(id_of_the_image_to_display))
+
 
 
 

@@ -12,9 +12,23 @@
 
 <form action="{{ url_for('design') }}" method="POST">
     <fieldset class="form-group">
+
+            <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+                <div class="btn-group mr-2" role="group" aria-label="First group">
+                    <div>
+                    <h2>Quiz length</h2>
+                    </div>
+                    {% for number in [1,2,3,5,8,13,21,34] %}
+                        <button class="btn btn-outline-secondary" type="button">{{number}}</button>                
+                    {% endfor %}
+                </div>      
+            </div>
+
+
+
             <div>
                 {% for category,options_list in available_category_options.items() if category!='name'%}
-                <legend>{{category}}</legend>
+                <h2>{{category}}</h2>
 
                 <div class="btn-group-horizontal" data-toggle="buttons">
                     {% for option in options_list %}
@@ -26,7 +40,7 @@
             </div>        
 
         <div>
-            <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="ta daaaa" >Submit</button>
+            <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="submitting" >Submit</button>
         </div>
 
     </fieldset>

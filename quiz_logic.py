@@ -337,10 +337,9 @@ def coordinate_quiz(google_drive = False, first_time = False):
 
         
     '''
-    # make a quiz name
-    quiz_name = "A quiz of something!1!1!"
+
     
-    fully_formed_quiz = Quiz(selected_files,max_quiz_length,quiz_name,google_drive = google_drive)
+    fully_formed_quiz = Quiz(selected_files,max_quiz_length,google_drive = google_drive)
 
 
     '''
@@ -515,7 +514,7 @@ class Disease():
 class Quiz():
     # Creates quiz objects
             
-    def __init__(self, list_of_eligible_folders, max_quiz_length, quiz_name, google_drive):
+    def __init__(self, list_of_eligible_folders, max_quiz_length, google_drive):
         # Make a list of disease files
         self.disease_files = self.shuffle_and_trim_diseases(list_of_eligible_folders,max_quiz_length)
         # Make a list of disease objects
@@ -525,8 +524,6 @@ class Quiz():
             disease_as_object = Disease(file,google_drive)
             self.diseases.append(disease_as_object)
                 
-        # create quiz name (if designed, call it those parameters, if ddx quiz, call it that)
-        self.name = quiz_name
         # get quiz length
         self.total_quiz_length = len(self.disease_files)
         # Current progress. 1 = first disease
