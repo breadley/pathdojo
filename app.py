@@ -4,6 +4,7 @@ import os
 import gdrive_api_calls
 import random
 import quiz_logic
+import pdb
 
 
 app = Flask(__name__)
@@ -65,11 +66,14 @@ def design():
  
     # Get inventory (ideally we would only do this the first time)
     # We will use local files for the moment
-    available_files = quiz_logic.record_available_files(google_drive = google_drive)
+    available_files = gdrive_api_calls.record_available_files(google_drive = google_drive)
     for index, thing in enumerate(available_files):
 
         if index<6:
             print(f'\n\n{thing}')
+            pdb.set_trace() # CURRENTLY HERE
+            # NEXT step is to pick a random image to display on the 'view' page 
+            # After passing some dummy category selections from this page
             # print(f'The id of {thing["name"]} is {thing["id"]}')
 
     available_category_options = quiz_logic.get_category_options(available_files)

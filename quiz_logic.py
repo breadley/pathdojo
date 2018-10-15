@@ -32,108 +32,7 @@ available_files = []
 
 
 
-def filename_breakdown(filename): # FINISHED
-    # Accepts a filename as a string: 'blah'
-    # Returns a dictionary of values about the name
 
-    parts = {}
-    components = []
-    for segment in filename.split('['):
-        if segment != '':
-            components.append(segment.strip(']'))
-    
-    for category,index in index_of_category_in_filename.items():
-        parts[category] = components[index]
-    
-    # output format:
-    # parts =  {'full_name':'','organ':'','disease_type':'', etc.}
-    return parts
-
-
-
-def record_available_files(google_drive=False): # FINISHED
-    # input format: No input data required
-    # output format:
-    # available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
-
-    # Temporary variable
-    unprocessed_files = {}     
-    # Clear global inventory
-    available_files = []
-
-    # if local files, record the files in dictionary format
-    if not google_drive: 
-        for file in os.listdir(content_directory):
-            # A dictionary where the google drive ID is None
-            unprocessed_files[file] = None 
-    
-    # if google drive
-    else:
-        # By default, the home folder of the google drive is used
-        unprocessed_files = gdrive_api_calls.list_all_files('dummy_folder')            
-        
-    for folder_name,google_drive_id in unprocessed_files.items():
-        # If a completed disease folder
-        if folder_name.startswith('[') and folder_name.endswith(']'): 
-            this_disease={}
-            this_disease['folder_name'] = folder_name
-            this_disease['google_drive_id'] = google_drive_id                
-            
-            # get {'full_name':'','organ':'','disease_type':'', etc.}
-            filename_dict = filename_breakdown(folder_name)
-            for category,value in filename_dict.items():
-                this_disease[category] = value
-            
-            this_disease['printable_name'] = ''
-            for letter in this_disease['name']:
-                if letter == '_':
-                    this_disease['printable_name']+=' '
-                else:
-                    this_disease['printable_name']+=letter
-
-
-
-            # Record subfiles within each folder
-            unprocessed_subfiles = {}
-            files_inside = []
-
-            # Compile a list of files and IDs (none where local files)
-            if google_drive:
-                # List the contents of the folder
-                unprocessed_subfiles = drive.ListFile({'q': f"'{google_drive_id}' in parents and trashed=false"}).GetList()
-            if not google_drive:
-                for file in os.listdir(content_directory+folder_name):
-                    unprocessed_subfiles['title'] = file
-                    unprocessed_subfiles['id'] = None
-            
-            # For all of the files within the disease folder
-            for subfile,subfile_id in unprocessed_subfiles:
-                # If the file is a valid file
-                if not subfile.startswith('.') and if not subfile.startswith('_'):
-                    subfile_name,subfile_extension = os.path.splitext(subfile)
-                    this_file = {}
-                    if subfile_extension in image_extensions:
-                        this_file['image_name']=subfile
-                        this_file['image_id'] = None
-                    if subfile_extension == '.xml'
-                        this_file['xml_name']=subfile
-                        this_file['xml_id'] = None
-                    if subfile_extension == '.toml' or file_extension == '.txt'
-                        this_file['textfile_name']=subfile
-                        this_file['textfile_id'] = None
-                    files_inside.append(this_file)
-            # Record list of files
-            this_disease['files_within_folder'] = files_inside
-
-
-            available_files.append(this_disease)
-
-
-
-    
-    # output format:
-    # available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
-    return available_files
 
 
 def get_category_options(available_files_with_categories):
@@ -283,7 +182,7 @@ def coordinate_quiz(google_drive = False, first_time = False):
 
     '''
     1. Record files available in a list:
-        - record_available_files()
+        - gdrive_api_calls.record_available_files()
         - Each file has characteristics, same for google drice and local files
         - Google drive files will have additional parameter the: drive ID
             - available_files = [{'underlined_name':'blah_blah',
@@ -294,7 +193,7 @@ def coordinate_quiz(google_drive = False, first_time = False):
                                             ..., etc. ]
     '''
     if first_time:
-        available_files = record_available_files(google_drive = google_drive)
+        available_files = gdrive_api_calls.record_available_files(google_drive = google_drive)
         # Delete any files left around from previous sessions or users
         # If two users are using the app concurrenlty, this may destroy the cache of the other person.
         delete_all_files_in_cache_folder()
@@ -737,8 +636,8 @@ def unit_tests(test):
 
     if test == 1 or test == 'all':
         print('--------------------------------------------------------------------------')
-        print('testing: record_available_files()')
-        filenames = record_available_files(google_drive = False)
+        print('testing: gdrive_api_calls.record_available_files()')
+        filenames = gdrive_api_calls.record_available_files(google_drive = False)
         for index,file in enumerate(filenames):
             
             if index < 2:
@@ -781,10 +680,13 @@ if __name__=="__main__":
     # Flask app should set google_drive to True
 
     #unit_tests(test=4)
-    
-    files = record_available_files(google_drive=True)
+
+        
+    files = gdrive_api_calls.record_available_files(google_drive=True)
   
-    print(files)
+    for file in files:
+        print('\n\n',files)
+
 
     
     

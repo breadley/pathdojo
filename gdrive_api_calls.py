@@ -1,6 +1,8 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import random
+import os
+import pdb
 
 gauth = GoogleAuth()
 
@@ -8,12 +10,24 @@ gauth = GoogleAuth()
 # I believe for real world deployment we just get rid of it
 # As per https://pythonhosted.org/PyDrive/quickstart.html
 gauth.LocalWebserverAuth()
-
-
 drive = GoogleDrive(gauth)
 
+index_of_category_in_filename = {'organ':0,
+                                'disease_type':1,
+                                'subtype':2,
+                                'complexity':3,
+                                'incidence':4,
+                                'name':5}
+
+content_directory = './folder_based_dojo/'
+
+# Allowbale files to be read
+image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
+
+
+
 # Auto-iterate through all files that matches this query
-def list_all_files(folder):
+def list_all_files(folder): # Eventually deprecate
 	file_list = drive.ListFile({'q': "'root' in parents"}).GetList()
 	results = {}
 	for file1 in file_list:
@@ -21,6 +35,128 @@ def list_all_files(folder):
 			results[file1['title']] = file1['id']
 	print(f'There are currently {len(results)} files in the Google Drive folder')
 	return results
+
+def record_available_files(google_drive=False): # FINISHED
+	# input format: No input data required
+	# output format:
+	# available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
+
+	# Temporary variable
+	unprocessed_files = []    
+	# Clear global inventory
+	available_files = []
+
+	# if local files, record the files in dictionary format
+	if not google_drive: 
+		for file in os.listdir(content_directory):
+			# A dictionary where the google drive ID is None
+			this_file = {}
+			this_file['filename'] = file
+			this_file['id'] = None
+			unprocessed_files.append(this_file)
+
+	# if google drive
+	else:
+		drive_files = drive.ListFile({'q': "'root' in parents"}).GetList()
+		for file in drive_files:
+			this_file = {}
+			this_file['filename'] = file['title']
+			this_file['id'] = file['id']
+			unprocessed_files.append(this_file)
+
+	# Go through the list of folders
+	for file in unprocessed_files:
+		folder_name = file['filename']
+		google_drive_id = file['id']
+
+		# If a completed disease folder
+		if folder_name.startswith('[') and folder_name.endswith(']'): 
+			this_disease={}
+			this_disease['folder_name'] = folder_name
+			this_disease['google_drive_id'] = google_drive_id                
+			
+			# get {'full_name':'','organ':'','disease_type':'', etc.}
+			filename_dict = filename_breakdown(folder_name)
+			for category,value in filename_dict.items():
+				this_disease[category] = value
+			
+			this_disease['printable_name'] = ''
+			for letter in this_disease['name']:
+				if letter == '_':
+					this_disease['printable_name']+=' '
+				else:
+					this_disease['printable_name']+=letter
+
+
+
+			# Record subfiles within each folder
+			unprocessed_subfiles = []
+			files_inside = []
+
+			# Compile a list of files and IDs (none where local files)
+			if google_drive:
+				# List the contents of the folder
+				drive_subfiles = drive.ListFile({'q': f"'{google_drive_id}' in parents and trashed=false"}).GetList()
+				pdb.set_trace() # ISSUE I THINK IS THAT SUBFILES IS GETTING ALL ROOT FILES
+				for file in drive_subfiles:
+					this_file = {}
+					this_file['filename'] = file['title']
+					this_file['id'] = file['id']
+					unprocessed_subfiles.append(this_file)
+
+			if not google_drive:
+				for file in os.listdir(content_directory+folder_name):
+					this_file = {}
+					this_file['filename'] = file
+					this_file['id'] = None
+					unprocessed_subfiles.append(this_file)	
+			
+			# For all of the files within the disease folder
+			for file in unprocessed_subfiles:
+				subfile = file['filename']
+				subfile_id = file['id']
+				# If the file is a valid file
+				if not subfile.startswith('.') and not subfile.startswith('_'):
+					subfile_name,subfile_extension = os.path.splitext(subfile)
+					this_file = {}
+					if subfile_extension in image_extensions:
+						this_file['image_name']=subfile
+						this_file['image_id'] = None
+					if subfile_extension == '.xml':
+						this_file['xml_name']=subfile
+						this_file['xml_id'] = None
+					if subfile_extension == '.toml' or subfile_extension == '.txt':
+						this_file['textfile_name']=subfile
+						this_file['textfile_id'] = None
+					files_inside.append(this_file)
+			# Record list of files
+			this_disease['files_within_folder'] = files_inside
+
+
+			available_files.append(this_disease)
+	
+	
+	# output format:
+	# available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
+	return available_files
+
+def filename_breakdown(filename): # FINISHED
+	# Accepts a filename as a string: 'blah'
+	# Returns a dictionary of values about the name
+
+	parts = {}
+	components = []
+	for segment in filename.split('['):
+		if segment != '':
+			components.append(segment.strip(']'))
+	
+	for category,index in index_of_category_in_filename.items():
+		parts[category] = components[index]
+	
+	# output format:
+	# parts =  {'full_name':'','organ':'','disease_type':'', etc.}
+	return parts
+
 
 def get_file_ids_from_folder(folder_id):
 	# Returns an array of ids for the images within a given folder
@@ -109,4 +245,7 @@ def clear_static_folder(list_of_images_to_be_destroyed):
 	return
 
 if __name__=='__main__':
-	pass
+	# pass
+	files = record_available_files(google_drive=False)
+	for file in files:
+		print('\n\n',files)
