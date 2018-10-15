@@ -102,51 +102,51 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 	list_of_files_including_subfiles = []
 
 	for main_file in list_of_files:
-		google_drive_id = file['google_drive_id']
+		google_drive_id = main_file['google_drive_id']
 
-			# Record subfiles within each folder
-			unprocessed_subfiles = []
-			files_inside = []
+		# Record subfiles within each folder
+		unprocessed_subfiles = []
+		files_inside = []
 
-			# Compile a list of files and IDs (none where local files)
-			if google_drive:
-				# List the contents of the folder
-				drive_subfiles = drive.ListFile({'q': f"'{google_drive_id}' in parents and trashed=false"}).GetList()
-				for file in drive_subfiles:
-					this_file = {}
-					this_file['filename'] = file['title']
-					this_file['id'] = file['id']
-					unprocessed_subfiles.append(this_file)
+		# Compile a list of files and IDs (none where local files)
+		if google_drive:
+			# List the contents of the folder
+			drive_subfiles = drive.ListFile({'q': f"'{google_drive_id}' in parents and trashed=false"}).GetList()
+			for file in drive_subfiles:
+				this_file = {}
+				this_file['filename'] = file['title']
+				this_file['id'] = file['id']
+				unprocessed_subfiles.append(this_file)
 
-			if not google_drive:
-				for file in os.listdir(content_directory+folder_name):
-					this_file = {}
-					this_file['filename'] = file
-					this_file['id'] = None
-					unprocessed_subfiles.append(this_file)	
-			
-			# For all of the files within the disease folder
-			for file in unprocessed_subfiles:
-				subfile = file['filename']
-				subfile_id = file['id']
-				# If the file is a valid file
-				if not subfile.startswith('.') and not subfile.startswith('_'):
-					subfile_name,subfile_extension = os.path.splitext(subfile)
-					this_file = {}
-					if subfile_extension in image_extensions:
-						this_file['image_name']=subfile
-						this_file['image_id'] = subfile_id
-					if subfile_extension == '.xml':
-						this_file['xml_name']=subfile
-						this_file['xml_id'] = subfile_id
-					if subfile_extension == '.toml' or subfile_extension == '.txt':
-						this_file['textfile_name']=subfile
-						this_file['textfile_id'] = subfile_id
-					files_inside.append(this_file)
-			# Record list of files
-			main_file['files_within_folder'] = files_inside
+		if not google_drive:
+			for file in os.listdir(content_directory+folder_name):
+				this_file = {}
+				this_file['filename'] = file
+				this_file['id'] = None
+				unprocessed_subfiles.append(this_file)	
+		
+		# For all of the files within the disease folder
+		for file in unprocessed_subfiles:
+			subfile = file['filename']
+			subfile_id = file['id']
+			# If the file is a valid file
+			if not subfile.startswith('.') and not subfile.startswith('_'):
+				subfile_name,subfile_extension = os.path.splitext(subfile)
+				this_file = {}
+				if subfile_extension in image_extensions:
+					this_file['image_name']=subfile
+					this_file['image_id'] = subfile_id
+				if subfile_extension == '.xml':
+					this_file['xml_name']=subfile
+					this_file['xml_id'] = subfile_id
+				if subfile_extension == '.toml' or subfile_extension == '.txt':
+					this_file['textfile_name']=subfile
+					this_file['textfile_id'] = subfile_id
+				files_inside.append(this_file)
+		# Record list of files
+		main_file['files_within_folder'] = files_inside
 
-			list_of_files_including_subfiles.append(main_file)
+		list_of_files_including_subfiles.append(main_file)
 
 	return list_of_files_including_subfiles
 
@@ -265,8 +265,14 @@ if __name__=='__main__':
 	drive_subfiles = drive.ListFile({'q': f"'{test_folder_id}' in parents and trashed=false"}).GetList()
 
 	
-	files = record_available_files(google_drive=True)
-	for file in files:
+	files = []
+	inventory = record_available_files(google_drive=True)
+	files.append(random.choice(inventory))
+	files.append(random.choice(inventory))
+	files.append(random.choice(inventory))
+	
+	subfiles = add_subfiles_to_file_details(files, google_drive =True)
+	for file in subfiles:
 		print('\n\n New file ---------------------- \n\n')
 		for item in file:
 			print(f'{item} \t\t\t\t\t\t {file[item]}')
