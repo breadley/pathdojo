@@ -4,7 +4,7 @@
 
 {% block body %}
 <div style=" bottom: 0; position: fixed; z-index: 1; background-color: rgba(255,255,255,0.85); padding: 1em 2em; font-family: 'Open Sans';">
-  <form action="/display" method="POST">
+  <form action="/view" method="POST">
     <div class="form-group">
         <label class="col-form-label" for="inputDefault"></label>
         <input class="form-control" id="inputDefault" type="text" placeholder="Your answer">
@@ -15,7 +15,7 @@
 
 
 </div>
-<img src="{{url_for('static', filename=image)}}"></div>
+<img src="https://drive.google.com/uc?id={{image_id}}"></div>
 
 {% endblock %}
 

@@ -67,14 +67,6 @@ def design():
     # Get inventory (ideally we would only do this the first time)
     # We will use local files for the moment
     available_files = gdrive_api_calls.record_available_files(google_drive = google_drive)
-    for index, thing in enumerate(available_files):
-
-        if index<6:
-            print(f'\n\n{thing}')
-            pdb.set_trace() # CURRENTLY HERE
-            # NEXT step is to pick a random image to display on the 'view' page 
-            # After passing some dummy category selections from this page
-            # print(f'The id of {thing["name"]} is {thing["id"]}')
 
     available_category_options = quiz_logic.get_category_options(available_files)
 
@@ -102,19 +94,22 @@ def design():
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
             # Go through the selected files and take invetory of subfiles
-            selected_files_and_subfiles = add_subfiles_to_file_details(selected_files, google_drive=True)
+            selected_files_and_subfiles = gdrive_api_calls.add_subfiles_to_file_details(selected_files, google_drive=True)
             # Create quiz
-            fully_formed_quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
+            # fully_formed_quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
             
             # fully_formed_quiz.step_through_quiz()
-            # a test folder id
-            test_folder_id = '1Lk3-zB5VOe6JGksJjwLRiQ0J8P6_0Hzw'
+            
+            
+            # test id
+            test_folder_id = '1VujLlAbRwLhGDMGncW9M22tNc270Nhqi'
+            test_image_id = '17aJI9Fi2yFhen1V8hZGl9FDZond8MJRg'
             image_name = get_single_image(test_folder_id)
 
             return render_template('view.html',
                                     selections=selections, 
                                     selected_category_options=selected_category_options, 
-                                    image = image_name)
+                                    image_id = test_image_id)
 
         # Any other button pressed
         else:      
