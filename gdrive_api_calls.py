@@ -133,15 +133,15 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 			if not subfile.startswith('.') and not subfile.startswith('_'):
 				subfile_name,subfile_extension = os.path.splitext(subfile)
 				this_file = {}
+				this_file['subfile_name'] = subfile
+				this_file['subfile_id'] = subfile_id
 				if subfile_extension in image_extensions:
-					this_file['image_name']=subfile
-					this_file['image_id'] = subfile_id
+					this_file['subfile_type']='image'
 				if subfile_extension == '.xml':
-					this_file['xml_name']=subfile
-					this_file['xml_id'] = subfile_id
+					this_file['subfile_type']='xml'
 				if subfile_extension == '.toml' or subfile_extension == '.txt':
-					this_file['textfile_name']=subfile
-					this_file['textfile_id'] = subfile_id
+					this_file['subfile_type']='text'
+
 				files_inside.append(this_file)
 		# Record list of files
 		main_file['files_within_folder'] = files_inside

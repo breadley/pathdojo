@@ -96,11 +96,18 @@ def design():
             # Go through the selected files and take invetory of subfiles
             selected_files_and_subfiles = gdrive_api_calls.add_subfiles_to_file_details(selected_files, google_drive=True)
             # Create quiz
+        
             # fully_formed_quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
             
             # fully_formed_quiz.step_through_quiz()
             
-            
+            ###########temporary random file test############
+            random_disease = random.choice(selected_files_and_subfiles)
+            random_disease_images = []
+            for subfile in random_disease["files_within_folder"]:
+                if subfile[]
+
+            random_image = random.choice(random_disease[])
             # test id
             test_folder_id = '1VujLlAbRwLhGDMGncW9M22tNc270Nhqi'
             test_image_id = '17aJI9Fi2yFhen1V8hZGl9FDZond8MJRg'
