@@ -34,7 +34,7 @@
                 </div>
                 <div class="btn-group-horizontal" data-toggle="buttons">
                     {% for option in options_list %}
-                    <input type="button" class="btn btn-outline-secondary btn-sm" name="{{category}}" value="{{option}}" id='selector' onclick="myFunction(this);" ></button>
+                    <input type="button" class="btn btn-outline-secondary btn-sm" name="{{category}}" value="{{option}}" onclick="saveOption(this);" ></button>
                     {% endfor %}
                 </div>
 

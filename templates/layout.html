@@ -8,19 +8,68 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
    
     <script language="JavaScript">
+        // Global variable passed back to app
         var myMemory = [];
-        function myFunction(element) 
+
+        // A dictionary of categories and selected-options-list
+        var selectedOptions= {};
+        // Set default quiz length
+        var quizLength = 3;
+
+
+        function saveOption(element) 
         {
             alert("Clicked " + element.name + " with value " + element.value);
-            var this_button = element.value;
-            myMemory.push.apply(myMemory,[this_button]);
-            alert("My memory is " + myMemory);
+            var name = element.name;
+            var value = element.value;
+            // Get this button
+            var thisButton = {
+                name: value
+            };
+            
+            alert("thisButton is " + Object.keys(thisButton) + " with value " + Object.values(thisButton));
+
+            // Determine which list to add the button to
+ 
+
+           
+
+            // TODO If the element already in list, remove it (has been unselected)
+            
+            if (selectedOptions[name]== undefined){
+                var list_to_append = [];
+            } 
+            else {
+                var list_to_append = selectedOptions[name];
+            }
+            alert("old list_to_append is " + list_to_append);
+
+
+            // Add this button to the list (unless we want to remove)            
+            list_to_append.push.apply(list_to_append,[thisButton]);
+            alert("List to append is now " + list_to_append);
+
+            // Re-assign the list to selectedOption
+            selectedOption[name] = list_to_append;
+            alert("Selected options are " + selectedOptions);
+
+            // Old functions
+            //selectedOption[element.name] = element.value;
+            //myMemory.push.apply(myMemory,[thisButton]);
+
+            // Update myMemory
+
+
+            
             
         }   
 
         function getMemory()
         {
+            // Get memory
+            myMemory.push([quizLength,selectedOptions])
             alert("You are about to submit the form with memory: " + myMemory);
+            // Save the memory value to the hidden input html called transmitter
             document.getElementById('memory_transmitter').value = myMemory;            
         }     
     </script>
