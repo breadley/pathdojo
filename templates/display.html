@@ -3,26 +3,42 @@
 {% block body %}
 <div style=" bottom: 0; position: fixed; z-index: 1; background-color: rgba(255,255,255,0.85); padding: 1em 2em; font-family: 'Open Sans';">
 			
-	<h1> Name that blob! </h1>
+	
 
-	<p> It looks nice and pink doesn't it.</p>
+	<p> A puzzle indeed.</p>
 
-	<p> Well?</p>
 
   <form action="/display" method="POST">
+	<!--
 	  <input type="text" name="blob" value=""><br>
 	  <input type="submit" value="Guess">
-  </form>
+	--> 
+		<input class="form-control form-control-sm" type="text" placeholder="your guess" name="blob" id="inputSmall">
+		<br>
+	  	<button type="submit"  value="Guess" class="btn btn-primary btn-sm">Submit</button>
 
+  </form>
+  <br>
   <p><b> Your score: </b>{{ successes }}</p>
 
 </div>
-<img src="{{url_for('static', filename=image)}}"></div>
 
+
+<div class="container">
+	<div style="padding-left: 0px;  padding-right: 0px;">
+		<img src="{{url_for('static', filename=image)}}" class="image-fluid">
+	</div>
+</div>
+
+<!--
+<div class="container">
+	<div class="col-md-4" style="padding-left: 0px;  padding-right: 0px;">
+		<img src="{{url_for('static', filename=image)}}">
+	</div>
+</div>
+
+-->
 {% endblock %}
-
-
-
 
 
 
