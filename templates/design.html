@@ -26,23 +26,27 @@
 
 
             <div>
+                
                 {% for category,options_list in available_category_options.items() if category!='name'%}
+                
                 <div>
                     <br>
                 </div>
                 <div class="btn-group-horizontal" data-toggle="buttons">
                     {% for option in options_list %}
-                    <input type="button" class="btn btn-outline-secondary btn-sm" name="{{category}}" value="{{option}}" ></button>
+                    <input type="button" class="btn btn-outline-secondary btn-sm" name="{{category}}" value="{{option}}" id='selector' onclick="myFunction(this);" ></button>
                     {% endfor %}
                 </div>
 
                 {% endfor %}
+
+                
             </div>        
 
         <div>
             <p>
                 <br>
-                <button type="submit" class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="submitting" >Submit</button>
+                <button type="submit" id='submit_button' class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="{{myMemory}}" >Submit</button>
             </p>
         </div>
 

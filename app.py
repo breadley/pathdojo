@@ -5,6 +5,7 @@ import gdrive_api_calls
 import random
 import quiz_logic
 import pdb
+import json
 
 
 app = Flask(__name__)
@@ -21,6 +22,7 @@ list_of_files_with_attributes = []
 need_to_take_inventory = True
 
 dojo_welcome = """ Hello there """
+
 
 
 def take_inventory():
@@ -78,19 +80,23 @@ def design():
 
     # Create a blank dictionary to hold button presses
     selections = session.get('selections', temp_selections)
-
+    
     
     # If a button is pressed
     if request.method == 'POST':
         selections = request.form
 
+        print('The form is: ',request.form)
+        """
+
         # If the submit button is pressed
-        if selections['submit_options'] == 'submitting': 
+        if True: 
+        #selections['submit_options'] == 'submitting': 
             #TODO
 
             # Temporary placeholder value
             selected_category_options = {'organ': [], 'disease_type': ['benign'], 'subtype': [], 'complexity': [], 'incidence': [], 'name': []}
-            max_quiz_length = 3
+            max_quiz_length = 3 
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
             # Go through the selected files and take invetory of subfiles
@@ -126,6 +132,8 @@ def design():
 
         # Any other button pressed
         else:      
+            pass
+            
             # Go through the dictionary of button presses  
             for category,desired_option in button_pressed.items():   
                 # Record the button selection in selected_categories  
@@ -134,8 +142,10 @@ def design():
                 temp_selections.append(latest_button)
             session['selections'] = temp_selections                
             return redirect('design')
+            
             #return render_template('test.html',selections=button_pressed)
 
+        """
 
 
     return render_template('design.html', 
