@@ -108,7 +108,7 @@ def design():
                 if subfile['subfile_type']=='image':
                     random_disease_images.append(subfile)
 
-            random_image = random.choice(random_disease_images)
+            random_image = random.choice(random_disease_images) 
             # test id
             #test_folder_id = '1VujLlAbRwLhGDMGncW9M22tNc270Nhqi'
 
@@ -122,7 +122,7 @@ def design():
             session['test_disease_name'] = test_disease_name
 
 
-            return render_template('view.html', image_id = test_image_id)
+            return render_template('view.html', image_id = test_image_id,form_value = request.form)
 
         # Any other button pressed
         else:      
@@ -170,7 +170,7 @@ def view():
             # let them try again
 
             
-    return render_template('view.html', image_id = test_image_id)
+    return render_template('view.html', image_id = test_image_id, form_value = request.form)
 
 
 
