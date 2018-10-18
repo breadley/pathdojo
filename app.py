@@ -105,18 +105,24 @@ def design():
             random_disease = random.choice(selected_files_and_subfiles)
             random_disease_images = []
             for subfile in random_disease["files_within_folder"]:
-                if subfile[]
+                if subfile['subfile_type']=='image':
+                    random_disease_images.append(subfile)
 
-            random_image = random.choice(random_disease[])
+            random_image = random.choice(random_disease_images)
             # test id
-            test_folder_id = '1VujLlAbRwLhGDMGncW9M22tNc270Nhqi'
-            test_image_id = '17aJI9Fi2yFhen1V8hZGl9FDZond8MJRg'
-            image_name = get_single_image(test_folder_id)
+            #test_folder_id = '1VujLlAbRwLhGDMGncW9M22tNc270Nhqi'
 
-            return render_template('view.html',
-                                    selections=selections, 
-                                    selected_category_options=selected_category_options, 
-                                    image_id = test_image_id)
+            test_image_id = random_image['subfile_id']
+            test_image_name = random_image['subfile_name']
+            test_disease_name = random_disease['printable_name']
+
+            # Save the image variables as a sessin for /view to access
+            session['test_image_id'] = test_image_id
+            session['test_image_name'] = test_image_name
+            session['test_disease_name'] = test_disease_name
+
+
+            return render_template('view.html', image_id = test_image_id)
 
         # Any other button pressed
         else:      
@@ -144,14 +150,17 @@ def design():
 def view():
     # This page is for viewing the current disease in the quiz
 
-
-
-    id_of_the_image_to_display = ''
+    # TEMP TEST Get the details of the current image
+    test_image_id = session.get('test_image_id', None)
+    test_image_name = session.get('test_image_name',None)
+    test_disease_name = session.get('test_disease_name',None)
+    
 
     if request.method == 'POST':
         # Get user input
-
-        pass 
+        string = f'The request form is {request.form}\n\nThe disease was {test_disease_name}'
+        return string
+        
 
         # if input == disease name:
 
@@ -161,15 +170,14 @@ def view():
             # let them try again
 
             
-    return render_template('view.html', image_id=get_single_image(id_of_the_image_to_display))
-
+    return render_template('view.html', image_id = test_image_id)
 
 
 
 @app.route('/')
 def index():
     # Homepage    
-    message = '''You and Pathdojo form a symbiont circle. \nWhat happens to one of you will affect the other.\nYou must understand this.  '''
+    message = 'Hi there'
     return render_template('index.html',message = message)
 
 

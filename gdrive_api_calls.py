@@ -266,7 +266,7 @@ if __name__=='__main__':
 
 
 
-''' Examples
+''' Example
 {'folder_name': '[thyroid][malignant][tumour][spot_diagnosis][uncommon][medullary_thyroid_carcinoma]', 
 				'google_drive_id': '1VujLlAbRwLhGDMGncW9M22tNc270Nhqi', 
 				'organ': 'thyroid', 
@@ -276,19 +276,15 @@ if __name__=='__main__':
 				'incidence': 'uncommon', 
 				'name': 'medullary_thyroid_carcinoma', 
 				'printable_name': 'medullary thyroid carcinoma', 
-				'files_within_folder': [{'textfile_name': 'medullary_thyroid_carcinoma.txt', 'textfile_id': '1CG_gfgNuP43wwoWWG6_5PCKdURXhH4E6'}, 
-										{'image_name': 'lp9.jpg', 'image_id': '1JAhCtAFyezg37PLLJTdf1elLBEMmyJo7'}, 
-										{'image_name': 'lp6.jpg', 'image_id': '1lOMBZfoY8xqPZdmAH1xhDcdvKKct-T3B'}, 
-										{'image_name': 'lp7.jpg', 'image_id': '17aJI9Fi2yFhen1V8hZGl9FDZond8MJRg'}, 
-										{'image_name': 'lp8.jpg', 'image_id': '1aLh5p7De2pGecAk1HIDXtKKbW-qi0a_r'}, 
-										{'image_name': 'lp2.jpg', 'image_id': '1OoRBGrbylp7r_CbLoMdS1E0F97l5HIxs'}, 
-										{'image_name': 'lp1.jpg', 'image_id': '15BxnQscoe2-2MmGsTRBqwATFyEtRffx6'}, 
-										{'image_name': 'lp3.jpg', 'image_id': '1lirTf2_3evl7K91_MyuFKqBLAcddvGHY'}, 
-										{'image_name': 'lp4.jpg', 'image_id': '1o8w3A0V1YLEJLOXQmTlb7aMpBTA5tnR8'}, 
-										{'image_name': 'lp5.jpg', 'image_id': '1aW2IYO_4qlpbBw6ogVA1ZSry4zqHxe4l'}]}
-
-{'folder_name': '[lung][benign][infection][spot_diagnosis][uncommon][pneumocystis_pneumonia]', 'google_drive_id': '1c0JS8viihak1X7DUrxB0Wf-vD-2mTYv1', 'organ': 'lung', 'disease_type': 'benign', 'subtype': 'infection', 'complexity': 'spot_diagnosis', 'incidence': 'uncommon', 'name': 'pneumocystis_pneumonia', 'printable_name': 'pneumocystis pneumonia', 'files_within_folder': [{'textfile_name': 'pneumocystis_pneumonia.txt', 'textfile_id': '1L2UrvzK7SNvCiZcHQX9CjoyicRx4qwSR'}, {'image_name': 'med_lp.jpg', 'image_id': '1zHwEcC_ReLg6g7ToCSh00t8Z0RqbRhTI'}]}
-
-{'folder_name': '[thyroid][malignant][tumour][spot_diagnosis][common][papillary_thyroid_carcinoma]', 'google_drive_id': '1m1PUfDjppvv9fs1H9P6M4__qcY-s5vES', 'organ': 'thyroid', 'disease_type': 'malignant', 'subtype': 'tumour', 'complexity': 'spot_diagnosis', 'incidence': 'common', 'name': 'papillary_thyroid_carcinoma', 'printable_name': 'papillary thyroid carcinoma', 'files_within_folder': [{'textfile_name': 'papillary_thyroid_carcinoma.txt', 'textfile_id': '13ctbOpLgIpwP2fptZbcnVndGiH3cZtGP'}, {'image_name': 'po6.jpg', 'image_id': '10exI8OvtEd1Hbxs4IVlgIKo86md8na1h'}, {'image_name': 'po5.jpg', 'image_id': '1iHJcDI2VradG9IXiUkBzQOMPs0kPDP06'}, {'image_name': 'po4.jpg', 'image_id': '1oiSwgSYCVDqxvPSgizDgd8Vru330eMQc'}, {'image_name': 'po3.jpg', 'image_id': '1par8XUwzAoJCIfimVUZu0TZQ-9mXck5t'}, {'image_name': 'po2.jpg', 'image_id': '1xCSM4-ibbsO5c9kprxdbaiVTUfa9q3xd'}, {'image_name': 'po1.jpg', 'image_id': '1BKl21WWKspuDjDHC2ZlQtggoAa6V7PUI'}]}
+				'files_within_folder': [{'subfile_name': 'medullary_thyroid_carcinoma.txt', 'subfile_type':'text', 'subfile_id': '1CG_gfgNuP43wwoWWG6_5PCKdURXhH4E6'}, 
+										{'subfile_name': 'lp9.jpg', 'subfile_type':'image', 'subfile_id': '1JAhCtAFyezg37PLLJTdf1elLBEMmyJo7'}, 
+										{'subfile_name': 'lp6.jpg', 'subfile_type':'image', 'subfile_id': '1lOMBZfoY8xqPZdmAH1xhDcdvKKct-T3B'}, 
+										{'subfile_name': 'lp7.jpg', 'subfile_type':'image', 'subfile_id': '17aJI9Fi2yFhen1V8hZGl9FDZond8MJRg'}, 
+										{'subfile_name': 'lp8.jpg', 'subfile_type':'image', 'subfile_id': '1aLh5p7De2pGecAk1HIDXtKKbW-qi0a_r'}, 
+										{'subfile_name': 'lp2.jpg', 'subfile_type':'image', 'subfile_id': '1OoRBGrbylp7r_CbLoMdS1E0F97l5HIxs'}, 
+										{'subfile_name': 'lp1.jpg', 'subfile_type':'image', 'subfile_id': '15BxnQscoe2-2MmGsTRBqwATFyEtRffx6'}, 
+										{'subfile_name': 'lp3.jpg', 'subfile_type':'image', 'subfile_id': '1lirTf2_3evl7K91_MyuFKqBLAcddvGHY'}, 
+										{'subfile_name': 'lp4.jpg', 'subfile_type':'image', 'subfile_id': '1o8w3A0V1YLEJLOXQmTlb7aMpBTA5tnR8'}, 
+										{'subfile_name': 'lp5.jpg', 'subfile_type':'image', 'subfile_id': '1aW2IYO_4qlpbBw6ogVA1ZSry4zqHxe4l'}]}
 
 '''

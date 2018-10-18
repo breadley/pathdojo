@@ -37,6 +37,8 @@ on Windows: `$env:FLASK_APP='app.py'` `flask run`
 
 Will be using html bootstrap for all [forms](https://getbootstrap.com/docs/4.0/components/forms/) and [buttons](https://getbootstrap.com/docs/4.0/components/buttons/)
 
+For forms, likely going to use [WTForms](https://blog.miguelgrinberg.com/post/the-flask-mega-tutorial-part-iii-web-forms)
+
 #### Zappa
 
 Creates serverless web app architecture.
