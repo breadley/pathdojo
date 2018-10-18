@@ -16,7 +16,13 @@
             myMemory.push.apply(myMemory,[this_button]);
             alert("My memory is " + myMemory);
             
-        }        
+        }   
+
+        function getMemory()
+        {
+            alert("You are about to submit the form with memory: " + myMemory);
+            document.getElementById('memory_transmitter').value = myMemory;            
+        }     
     </script>
 
 

@@ -10,7 +10,7 @@
     </p>
 </div>
 
-<form action="{{ url_for('design') }}" method="POST">
+<form action="{{ url_for('design') }}" method="POST" onsubmit="return getMemory();">
     <fieldset class="form-group">
             <div>
                 Number of cases:
@@ -44,6 +44,8 @@
             </div>        
 
         <div>
+
+            <input type="hidden" id="memory_transmitter" name="memory" value=""; />
             <p>
                 <br>
                 <button type="submit" id='submit_button' class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="{{myMemory}}" >Submit</button>
@@ -53,5 +55,6 @@
     </fieldset>
 </form>
 
+<p>We have returned to Design after you POSTed selections: {{selections}}</p>
 
 {% endblock %}
