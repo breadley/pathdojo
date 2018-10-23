@@ -85,15 +85,17 @@ def design():
     # If a button is pressed
     if request.method == 'POST':
         selections = request.form.to_dict()
-        data = request.get_data()
-        print('selections is ',selections)
-
-        print('The data is: ',data)
+        print(selections)
+        JSONmemory = selections['memory']
+        memory = json.loads(JSONmemory)
+        selected_category_options = memory['category_selections']
+        max_quiz_length = memory['quiz_length']
+        print('your organs are', selected_category_options['organ'])
         """
 
         # If the submit button is pressed
         if True: 
-        #selections['submit_options'] == 'submitting': 
+        #selections['submit_button'] == 'pressed': 
             #TODO
 
             # Temporary placeholder value
