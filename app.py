@@ -91,16 +91,10 @@ def design():
         selected_category_options = memory['category_selections']
         max_quiz_length = memory['quiz_length']
         print('your organs are', selected_category_options['organ'])
-        """
+        
 
         # If the submit button is pressed
-        if True: 
-        #selections['submit_button'] == 'pressed': 
-            #TODO
-
-            # Temporary placeholder value
-            selected_category_options = {'organ': [], 'disease_type': ['benign'], 'subtype': [], 'complexity': [], 'incidence': [], 'name': []}
-            max_quiz_length = 3 
+        if selections['submit_button'] == 'pressed': 
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
             # Go through the selected files and take invetory of subfiles
@@ -149,7 +143,7 @@ def design():
             
             #return render_template('test.html',selections=button_pressed)
 
-        """
+        
 
 
     return render_template('design.html', 
