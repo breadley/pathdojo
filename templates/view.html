@@ -1,22 +1,21 @@
-<!--This page is for viewing the current diseasee in the quiz-->
-
 {% extends 'layout.html' %}
 
 {% block body %}
-<div style=" bottom: 0; position: fixed; z-index: 1; background-color: rgba(255,255,255,0.85); padding: 1em 2em; font-family: 'Open Sans';">
-  <form action="/view" method="POST">
-    <div class="form-group">
-        <label class="col-form-label" for="inputDefault"></label>
-        <input class="form-control" id="inputDefault" type="text" placeholder="Your answer">
-        <button class="btn btn-primary" type="submit">Submit</button>
-      </div>
-  </form>
+<form action="/view" method="POST">
+  <div class="form-group">
+      <label class="col-form-label" for="inputDefault"></label>
+      <input class="form-control" id="inputDefault" type="text" placeholder="Your answer">
+      <button class="btn btn-primary" type="submit">Submit</button>
+    </div>
+</form>
 
-  <div>The form parameter is: {{form_value}}</div>
-
+<div>
+    <p class="text-muted">{{answer}}</p>
 </div>
-<img src="https://drive.google.com/uc?id={{image_id}}"></div>
 
+<div>
+    <img class="img-responsive" src="https://drive.google.com/uc?id={{image_id}}"></div>
+</div>
 {% endblock %}
 
 

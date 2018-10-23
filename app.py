@@ -89,10 +89,7 @@ def design():
         JSONmemory = selections['memory']
         memory = json.loads(JSONmemory)
         selected_category_options = memory['category_selections']
-        max_quiz_length = memory['quiz_length']
-        print('your organs are', selected_category_options['organ'])
-        print('your quiz length is',max_quiz_length)
-        
+        max_quiz_length = memory['quiz_length']        
 
         # If the submit button is pressed
         if selections['submit_button'] == 'pressed': 
@@ -114,8 +111,6 @@ def design():
                     random_disease_images.append(subfile)
 
             random_image = random.choice(random_disease_images) 
-            # test id
-            #test_folder_id = '1VujLlAbRwLhGDMGncW9M22tNc270Nhqi'
 
             test_image_id = random_image['subfile_id']
             test_image_name = random_image['subfile_name']
@@ -128,24 +123,6 @@ def design():
 
 
             return render_template('view.html', image_id = test_image_id,form_value = request.form)
-
-        # Any other button pressed
-        else:      
-            pass
-            
-            # Go through the dictionary of button presses  
-            for category,desired_option in button_pressed.items():   
-                # Record the button selection in selected_categories  
-                latest_button = {}  
-                latest_button[category] = desired_option       
-                temp_selections.append(latest_button)
-            session['selections'] = temp_selections                
-            return redirect('design')
-            
-            #return render_template('test.html',selections=button_pressed)
-
-        
-
 
     return render_template('design.html', 
                             message = message,
@@ -166,18 +143,8 @@ def view():
     
 
     if request.method == 'POST':
-        # Get user input
-        string = f'The request form is {request.form}\n\nThe disease was {test_disease_name}'
-        return string
-        
-
-        # if input == disease name:
-
-            # Take them to next question
-
-        # else:
-            # let them try again
-
+        answer = f'The answer is: {test_disease_name}'
+        return render_template('view.html', image_id = test_image_id, answer = answer)
             
     return render_template('view.html', image_id = test_image_id, form_value = request.form)
 
