@@ -51,13 +51,16 @@
         function getMemory()
         {
             // Get memory
+            var cats = {};
+            cats.blue = 'bruno';
+            cats.red = 'murray';
             memory.category_selections = selectedOptions;
             memory.quiz_length = quizLength;
 
             alert("You are about to submit the form with memory: " + memory.category_selections + 'and quiz length: '+memory.quiz_length);
             // Save the memory value to the hidden input html called transmitter
             console.log('about to log memory');
-            document.getElementById('memory_transmitter').value = memory;            
+            document.getElementById('memory_transmitter').value = cats; // This function should ideally return all the memory variables            
         }     
     </script>
 
