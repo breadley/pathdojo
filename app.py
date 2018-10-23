@@ -96,7 +96,7 @@ def design():
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
             # Go through the selected files and take invetory of subfiles
-            selected_files_and_subfiles = gdrive_api_calls.add_subfiles_to_file_details(selected_files, google_drive=True)
+            selected_files_and_subfiles = gdrive_api_calls.add_subfiles_to_file_details(selected_files, google_drive=google_drive)
             # Create quiz
         
             # fully_formed_quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
@@ -140,12 +140,28 @@ def view():
     test_image_id = session.get('test_image_id', None)
     test_image_name = session.get('test_image_name',None)
     test_disease_name = session.get('test_disease_name',None)
-    
-
+    # If anything is posted, display the test image
     if request.method == 'POST':
         answer = f'The answer is: {test_disease_name}'
         return render_template('view.html', image_id = test_image_id, answer = answer)
-            
+
+    """ WORK IN PROGRESS. CURRENTLY BELIEVE QUIZ WILL BE EXECUTED FROM HERE. 
+    # Caching (to be attempted later) will have happened in /design prior to coming to view
+
+    # Create quiz object
+
+    # Get the first element from the quiz
+
+    # Render the image and buttons for IHC/ddx/clue/nestedquiz/answer_description/terminate/skip
+
+    # If button pressed for options such as IHC, also display IHC
+
+    # If button pressed for next image, render /view again with the new disease as the current disease
+
+    # 
+
+    """
+
     return render_template('view.html', image_id = test_image_id, form_value = request.form)
 
 

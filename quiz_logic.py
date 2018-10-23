@@ -168,10 +168,13 @@ def construct_quiz(selected_files,quiz_length,quiz_name):
 
 
 def delete_all_files_in_cache_folder():
+    pass
+    '''
     # When a new session is started
     for file_present in os.scandir(google_drive_download_directory):        
         # Remove the file
         os.remove(google_drive_download_directory+file_present)
+    '''
 
 
 def coordinate_quiz(google_drive = False, first_time = False):
@@ -489,6 +492,8 @@ class Quiz():
         return name
 
     def cache_files(self):
+        pass
+        '''
         # Gets the files at the start of a quiz so there's no waiting
         self.list_of_cached_files = []
 
@@ -505,15 +510,19 @@ class Quiz():
 
             list_of_ids_within_folder = []
             for file_name in list_of_ids_within_folder:          
-                self.list_of_cached_files.append(file_name)                    
+                self.list_of_cached_files.append(file_name)   
+        '''
 
     def clear_cached_files(self):
+        pass
+        '''
         # After a quiz has finished
         for file in self.content_directory:
             # Go through the files that were cached
             if file in self.list_of_cached_files:
                 # Delete them from cache
                 os.remove(self.content_directory+'file')
+        '''
 
     def get_quiz_diseases(self):
         # Gives a list of what diseases are in this quiz
