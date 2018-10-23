@@ -84,9 +84,11 @@ def design():
     
     # If a button is pressed
     if request.method == 'POST':
-        selections = request.form
+        selections = request.form.to_dict()
+        data = request.get_data()
+        print('selections is ',selections)
 
-        print('The form is: ',request.form)
+        print('The data is: ',data)
         """
 
         # If the submit button is pressed

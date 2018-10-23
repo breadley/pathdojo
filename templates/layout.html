@@ -8,69 +8,56 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
    
     <script language="JavaScript">
-        // Global variable passed back to app
-        var myMemory = [];
 
+        var test_var = 'banoonoo';
+        var memory = {};
         // A dictionary of categories and selected-options-list
         var selectedOptions= {};
         // Set default quiz length
         var quizLength = 3;
 
-
+        // A function called by onclick property of the category buttons
         function saveOption(element) 
         {
-            alert("Clicked " + element.name + " with value " + element.value);
-            var name = element.name;
-            var value = element.value;
-            // Get this button
-            var thisButton = {
-                name: value
-            };
-            
-            alert("thisButton is " + Object.keys(thisButton) + " with value " + Object.values(thisButton));
-
-            // Determine which list to add the button to
- 
-
-           
-
-            // TODO If the element already in list, remove it (has been unselected)
-            
-            if (selectedOptions[name]== undefined){
-                var list_to_append = [];
+            // The purpose of the function is to add the selection to the selectOptions dict
+            // if thyriod is clicked then selectedOptions = {'organ':['thyroid']}
+            var list_to_append;
+            // If the category is not in selectedoptions memory, create empty list
+            if (element.name in selectedOptions == false){
+                list_to_append = [];
             } 
             else {
-                var list_to_append = selectedOptions[name];
+                list_to_append = selectedOptions[element.name];
             }
-            alert("old list_to_append is " + list_to_append);
 
-
-            // Add this button to the list (unless we want to remove)            
-            list_to_append.push.apply(list_to_append,[thisButton]);
-            alert("List to append is now " + list_to_append);
-
+            // Add this button to the list if not already in there 
+            if (list_to_append.indexOf(element.value) < 0){  
+                list_to_append.push.apply(list_to_append,[element.value]);
+            }
+            // Remove the item if already in list
+            else {
+                // Get index
+                var index = list_to_append.indexOf(element.value);
+                // Splice out
+                if (index !== -1) {
+                    list_to_append.splice(index, 1);
+                }
+            }
             // Re-assign the list to selectedOption
-            selectedOption[name] = list_to_append;
-            alert("Selected options are " + selectedOptions);
-
-            // Old functions
-            //selectedOption[element.name] = element.value;
-            //myMemory.push.apply(myMemory,[thisButton]);
-
-            // Update myMemory
-
-
-            
-            
+            selectedOptions[element.name] = list_to_append;
+            console.log('Selected options are: '+selectedOptions[element.name]);
         }   
-
+        
         function getMemory()
         {
             // Get memory
-            myMemory.push([quizLength,selectedOptions])
-            alert("You are about to submit the form with memory: " + myMemory);
+            memory.category_selections = selectedOptions;
+            memory.quiz_length = quizLength;
+
+            alert("You are about to submit the form with memory: " + memory.category_selections + 'and quiz length: '+memory.quiz_length);
             // Save the memory value to the hidden input html called transmitter
-            document.getElementById('memory_transmitter').value = myMemory;            
+            console.log('about to log memory');
+            document.getElementById('memory_transmitter').value = memory;            
         }     
     </script>
 

@@ -39,16 +39,16 @@
                 </div>
 
                 {% endfor %}
-
+ 
                 
             </div>        
 
         <div>
 
-            <input type="hidden" id="memory_transmitter" name="memory" value=""; />
+            <input type="hidden" id="memory_transmitter" name="memory" value="">
             <p>
                 <br>
-                <button type="submit" id='submit_button' class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="{{myMemory}}" >Submit</button>
+                <button type="submit" id='submit_button' class="btn btn-secondary btn-lg btn-block btn-sm" name="submit_options" value="a string" >Submit</button>
             </p>
         </div>
 
@@ -56,5 +56,6 @@
 </form>
 
 <p>We have returned to Design after you POSTed selections: {{selections}}</p>
+<p>The quiz length variable is {{quizLength}}</p>
 
 {% endblock %}
