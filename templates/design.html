@@ -18,7 +18,7 @@
             <div class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
                 <div class="btn-group mr-2" role="group" aria-label="First group">
                     {% for number in [1,2,3,5,8,13,21,34] %}
-                        <button class="btn btn-secondary btn-sm" id="quiz_length" type="button">{{number}}</button>                
+                        <button class="btn btn-secondary btn-sm" id="quiz_length" type="button" name="quiz_length" value="{{number}}" onclick="saveLength(this);">{{number}}</button>                
                     {% endfor %}
                 </div>      
             </div>

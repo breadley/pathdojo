@@ -91,6 +91,7 @@ def design():
         selected_category_options = memory['category_selections']
         max_quiz_length = memory['quiz_length']
         print('your organs are', selected_category_options['organ'])
+        print('your quiz length is',max_quiz_length)
         
 
         # If the submit button is pressed
