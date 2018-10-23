@@ -122,9 +122,9 @@ def get_options_from_user(available_category_options):
     return selected_category_options
 
 def get_filenames_that_match(available_files,selected_category_options):
-    # input format: list of available files, dictionary of category selections
+    # input format: list of available files and a dictionary of category selections
 
-    # Accepts the a dictionary of category options that were selected
+    # Accepts the dictionary of category options that were selected
     # Returns a list of all filenames that meet the criteria
 
     selected_files = []
