@@ -148,7 +148,7 @@ def view():
     """ WORK IN PROGRESS. CURRENTLY BELIEVE QUIZ WILL BE EXECUTED FROM HERE. 
     # Caching (to be attempted later) will have happened in /design prior to coming to view
 
-    # Create quiz object
+    # Create quiz object - > or do this in /design
 
     # Get the first element from the quiz
 
