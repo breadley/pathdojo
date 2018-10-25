@@ -56,6 +56,17 @@ Code (flask app) is hosted on AWS, but is only invoked when triggered by user/vi
 
 When deploying/updating to AWS with zappa on a new computer `zappa update dev`, you need to first configure AWS CLI again.
 
+##### AWS Costing
+
+With initial test, AWS lamda was being called regularly and free usage nearly expired.
+
+used `zappa undeploy dev` to unstage the project before working out a fix
+
+Perhaps related to the keep warm functin? `Unscheduled pathdojo-dev-zappa-keep-warm-handler.keep_warm_callback.`
+
+Or otherwise might be related to the Quickstart.py file calling the api too often
+
+
 #### Google Drive
 
 Hosting images with each disease in separate folder.
