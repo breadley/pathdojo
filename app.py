@@ -15,9 +15,6 @@ app.config.from_object('config.DevelopmentConfig')
 # Debug mode on/True or off/False
 app.debug=True
 
-
-# [{'name':'blah blah','underlined_name':'blah_blah','google_drive_id':'id','folder_name':'blah'}]
-list_of_files_with_attributes = []
 # Inventory needs to only be taken once
 need_to_take_inventory = True
 
@@ -67,7 +64,7 @@ def design():
     message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
  
     # Get inventory (ideally we would only do this the first time)
-    # We will use local files for the moment
+    
     available_files = gdrive_api_calls.record_available_files(google_drive = google_drive)
 
     available_category_options = quiz_logic.get_category_options(available_files)
@@ -95,10 +92,12 @@ def design():
         if selections['submit_button'] == 'pressed': 
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
+            print('selected_files about to be processed for subfiles', selected_files)
             # Go through the selected files and take invetory of subfiles
             selected_files_and_subfiles = gdrive_api_calls.add_subfiles_to_file_details(selected_files, google_drive=google_drive)
+            print('selected_files with subfiles', selected_files_and_subfiles)
             # Create quiz
-        
+
             # fully_formed_quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
             
             # fully_formed_quiz.step_through_quiz()
@@ -169,31 +168,9 @@ def view():
 @app.route('/')
 def index():
     # Homepage    
-    message = 'Hi there'
+    message = 'Hi there'    
     return render_template('index.html',message = message)
 
-
-@app.route('/files/')
-def files():
-    # Deprecated/gdrive test only
-    # Homepage/files
-    content = ''
-
-    # TODO, replace code here with a call to take_inventory
-    # assign all the files to the global variable dictionary_of_files
-    temp_files = gdrive_api_calls.list_all_files('dummy_folder')
-    for filename,id in temp_files.items():
-        # if file is a disease folder
-        if filename.startswith('[') and filname.endswith(']'):
-            # add file to globally acccessible list
-            dictionary_of_files[filename] = id
-            content+=f'\n\nFilename: {filename}\t\t\tFile ID: {id}'
-    
-
-    page = string_to_html_page(content)
-
-    # use a monospace font so everything lines up as expected
-    return page, 200   
 
 def get_single_image(blob_folder_drive_id):
     # This function randomly chooses an image from a blob's folder and downloads it for display
@@ -212,28 +189,47 @@ def get_single_image(blob_folder_drive_id):
     return random_image_filename
 
 
+def get_random_disease(available_files=[]):
+    # This function returns a single disease dictionary for simple displaying
+
+    disease = []
+    # Pick a random disease
+    disease.append(random.choice(available_files))
+    # Get the folder details
+    detailed_disease = gdrive_api_calls.add_subfiles_to_file_details(disease, google_drive=True)
+    return detailed_disease
+
+def get_random_image(detailed_disease_dictionary):
+    # This function picks a random image ID to display
+
+
+    files = detailed_disease_dictionary['files_within_folder']
+
+    for subfile in files:
+        if subfile['subfile_type'] == 'image':
+            # download the image
+
+            # Return the image name
+            return subfile['subfile_name']
+
+
 @app.route('/display',methods=['GET', 'POST'])
 def display():
-    # Intro message TODO
+
     message = string_to_html(dojo_welcome)
 
-    # Take inventory of files (ideally once only)
-    '''
-    if need_to_take_inventory:
-        take_inventory()
-        need_to_take_inventory=False
-    '''
-    take_inventory()
-
-    # Reference the diseases as blobs for testing
-    blobs = list_of_files_with_attributes
-
+    # Get inventory from '/' home page or take manually if not already available.
+    available_files = gdrive_api_calls.record_available_files(google_drive = True)
+    
     successes = session.get('successes', 0)
     # Get a random disease
-    blob = session.get('blob', random.choice(blobs))
-    # Assign the disease a to the session
+    
+    
+    blob = get_random_disease(available_files)
+    # Assign the disease to the session
     session['blob'] = blob
-
+    print(f'This blob is {blob}')
+    # blob = session.get('blob', get_random_disease(available_files))
 
     if request.method == 'POST':
 
@@ -242,19 +238,20 @@ def display():
         if guess.lower() == blob['name'].lower():
 
             session['successes'] = successes + 1
-            session['blob'] = random.choice(blobs)
+            session['blob'] = get_random_disease(available_files)
 
             return redirect('/display')
 
         else:
             session['successes'] = 0
-
-            session['blob'] = random.choice(blobs)
+            # Randomise the blob for the next turn
+            session['blob'] = get_random_disease(available_files)
 
             return render_template('wrong.html', successes=successes, blob_name=blob['name'])
-    return render_template('display.html', image=get_single_image(blob['google_drive_id']), message=message, successes=successes, failed=True)
-
-
+    # Download image
+    image_name = get_random_image(blob[0])
+    
+    return render_template('display.html', image_name=image_name, message=message, successes=successes, failed=True)
 
 
 # include this for local dev

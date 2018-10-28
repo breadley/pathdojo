@@ -99,11 +99,14 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 	# Looks at the contents of the files and adds the important details to the file record
 	# Returns the same list but with the additional details included
 	# Google drive is True/False
+
+
+
 	list_of_files_including_subfiles = []
 
 	for main_file in list_of_files:
 		google_drive_id = main_file['google_drive_id']
-
+		
 		# Record subfiles within each folder
 		unprocessed_subfiles = []
 		files_inside = []
