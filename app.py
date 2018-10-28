@@ -208,9 +208,9 @@ def get_random_image(detailed_disease_dictionary):
     for subfile in files:
         if subfile['subfile_type'] == 'image':
             # download the image
-
+            downloaded_file_name = gdrive_api_calls.download_single_image(subfile['subfile_id'],subfile['subfile_name'])
             # Return the image name
-            return subfile['subfile_name']
+            return downloaded_file_name
 
 
 @app.route('/display',methods=['GET', 'POST'])
@@ -224,18 +224,20 @@ def display():
     successes = session.get('successes', 0)
     # Get a random disease
     
-    
-    blob = get_random_disease(available_files)
+    # Check to see if there is a blob stored yet
+    blob = session.get('blob', get_random_disease(available_files)[0])
+    blob_name = blob[0]['printable_name']
+
     # Assign the disease to the session
     session['blob'] = blob
-    print(f'This blob is {blob}')
+    print(f'This blob is {blob_name}')
     # blob = session.get('blob', get_random_disease(available_files))
 
     if request.method == 'POST':
 
         guess = request.form.get('blob')
 
-        if guess.lower() == blob['name'].lower():
+        if guess.lower() == blob['printable_name'].lower():
 
             session['successes'] = successes + 1
             session['blob'] = get_random_disease(available_files)
@@ -245,13 +247,13 @@ def display():
         else:
             session['successes'] = 0
             # Randomise the blob for the next turn
-            session['blob'] = get_random_disease(available_files)
+            session['blob'] = get_random_disease(available_files)[0]
 
-            return render_template('wrong.html', successes=successes, blob_name=blob['name'])
+            return render_template('wrong.html', successes=successes, blob_name=blob_name)
     # Download image
-    image_name = get_random_image(blob[0])
+    downloaded_file_name = get_random_image(blob)  
     
-    return render_template('display.html', image_name=image_name, message=message, successes=successes, failed=True)
+    return render_template('display.html', image_name=downloaded_file_name, message=message, successes=successes, failed=True, name=blob_name)
 
 
 # include this for local dev

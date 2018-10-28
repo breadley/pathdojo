@@ -224,6 +224,20 @@ def select_an_image_from_list_of_ids(image_id_list):
 	
 	return filename,id
 
+def download_single_image(image_id,image_name):
+	# Accepts the id and name of an image
+	# Downloads the image to the static folder
+
+	# Create pydrive object
+	image = drive.CreateFile({'id':image_id})
+	# download image
+	image_name = 'temporary_image_with_id_'+image_id+'.jpg'
+	image_path = 'static/'+image_name
+	image.GetContentFile(image_path)
+	
+	return image_name
+	
+
 
 def get_images(folder_id):
 	# DEPRECATED
