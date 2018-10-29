@@ -5,13 +5,17 @@
 
 <div class="container">
 	<div style="padding-left: 0px;  padding-right: 0px;">
-		<br>
-		<picture>
-			<!-- XML file might be able to go here
-			<source srcset="..." type="image/svg+xml">
-			-->  
-			<img src="{{url_for('static', filename=image_name)}}" class="img-fluid" alt="Responsive image">
-		</picture>	
+		{% for individual_image in images %}			
+		<div>
+			<br>
+			<picture>
+				<!-- XML file might be able to go here
+				<source srcset="..." type="image/svg+xml">
+				-->  
+				<img src="{{url_for('static', filename=individual_image)}}" class="img-fluid" alt="Responsive image">
+			</picture>
+		</div>	
+		{% endfor %}	
 	</div>
 
 

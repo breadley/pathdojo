@@ -8,32 +8,10 @@ import toml
 import tkinter as tk
 import pdb
 import gdrive_api_calls
-
-# Allowbale files to be read
-image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
-
-
-# The location of the elements in the disease folder names
-# [organ][disease_type][subtype][complexity][incidence][name - excluded here]
-index_of_category_in_filename = {'organ':0,
-                                'disease_type':1,
-                                'subtype':2,
-                                'complexity':3,
-                                'incidence':4,
-                                'name':5}
-
-# The this file and the content_directory (which contains diseases) should be within one folder
-content_directory = './folder_based_dojo/'
-google_drive_download_directory = './cache/'
-# Dictionary for diseases and their folder names {'disease':'foldername'}. Populated on start-up.
+import config
 
 # [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., ...]
 available_files = []
-
-
-
-
-
 
 def get_category_options(available_files_with_categories):
     # input format: a list of diseases with format:
@@ -42,7 +20,7 @@ def get_category_options(available_files_with_categories):
     available_category_options = {}
 
     # Create a blank list of categories
-    for category,index in index_of_category_in_filename.items():
+    for category,index in config.index_of_category_in_filename.items():
         available_category_options[category] = []
 
     # For each disease
@@ -50,7 +28,7 @@ def get_category_options(available_files_with_categories):
         # For each aspect of the disease
         for field, value in disease.items():
             # If the field is a category (rather than an ID or something else)
-            if field in index_of_category_in_filename:
+            if field in config.index_of_category_in_filename:
                 # If value not already there:
                 if value not in available_category_options[field] and value != '' and value != ' ':
                     # Assign the value of the category to the list for that category                
@@ -272,26 +250,26 @@ def download_file_using_id(google_drive_id):
 
 class Disease():
 
-    def __init__(self, disease_file,google_drive):
+    def __init__(self,disease_file,google_drive):
         
+        self.using_google_drive = google_drive #True/False
+        self.folder_name = disease_file["folder_name"]
+        self.files_within_folder = disease_file['files_within_folder']
+        self.name = disease_file["name"]   
         # Check if google_drive is used (True or False)
         if google_drive:
-            self.content_directory = google_drive_download_directory
+            self.google_drive_id = disease_file["google_drive_id"]
             # See if the file has been correctly cached, if not, download
             self.check_file_download_status()
-            self.google_drive_id = disease_file["google_drive_id"]
-
         else:
-            self.content_directory = content_directory
-        
-        self.folder_name = disease_file["folder_name"] 
+            self.content_directory = config.local_storage_directory
+                 
         self.images = self.get_list_of_images()   
-        self.text_file_contents = self.load_text_file()
-        self.name = disease_file["name"]   
+        self.text_file_contents = self.load_text_file()        
         self.description = self.get_description()
         self.differentials = self.get_differentials()
         self.immunohistochemistry = self.get_immunohistochemistry()
-        self.files_within_folder = disease_file['files_within_folder']
+        
         
     def __repr__(self):
         return f'{self.name} with {len(self.images)} images'
@@ -302,27 +280,46 @@ class Disease():
     def load_text_file(self):
         contents = {} # start with blank dictionary to populate with toml data
 
-        for file in os.listdir(content_directory+self.folder_name): 
+        if not self.using_google_drive:
+            for file in os.listdir(self.content_directory+self.folder_name): 
 
-            # if it is a text file
-            if file.endswith('.txt') and not file.startswith('._') and not file.startswith('_'):                                        
-                try:
-                    contents = toml.load(content_directory+self.folder_name+'/'+file) # load .txt as .toml
-                except FileNotFoundError:
-                    print('Error: could not load the .txt file')
-                except:
-                    print('There are formatting errors in the %s file'%(content_directory+self.folder_name+'/'+file))
+                # if it is a text file
+                if file.endswith('.txt') and not file.startswith('._') and not file.startswith('_'):                                        
+                    try:
+                        contents = toml.load(self.content_directory+self.folder_name+'/'+file) # load .txt as .toml
+                    except FileNotFoundError:
+                        print('Error: could not load the .txt file')
+                    except:
+                        print('There are formatting errors in the %s file'%(self.content_directory+self.folder_name+'/'+file))
 
+        if self.using_google_drive:
+            for file in self.files_within_folder:
+                if file['subfile_type'] == 'text':
+                    filename = file['temporary_file_name']
+                    try:
+                        contents = toml.load(config.google_drive_download_directory+filename)
+                    except FileNotFoundError:
+                        print('Error: could not load the .txt file')
+                    except:
+                        print(f'There are formatting errors in file: {filename}')
         return contents
 
 
     def get_list_of_images(self):
         images = []
-        for file in os.listdir(content_directory+self.folder_name): 
-            if file.endswith(tuple(image_extensions)) and not file.startswith('._'):
-                images.append(file)
-        if images == 0:
-            print("(no images found for "+self.folder_name)
+        
+        if not self.using_google_drive:
+            for file in os.listdir(self.content_directory+self.folder_name): 
+                if file.endswith(tuple(config.image_extensions)) and not file.startswith('._'):
+                    images.append(file)
+            if images == 0:
+                print("(no images found for "+self.folder_name)
+        
+        if self.using_google_drive:
+            for file in self.files_within_folder:
+                if file['subfile_type'] == 'image':
+                    images.append(file['temporary_file_name'])
+
         return images
 
             
@@ -336,22 +333,32 @@ class Disease():
         return description_text
 
     def get_clue(self):
-        
-        split_name = self.folder_name.rsplit('[')
-        hints = []
-        for hint in split_name:
-            if hint != '':
-                hints.append(hint.strip(']'))
-        hints.pop()
-        print(f'From the {hints[0]}, this is a {hints[1]} {hints[2]} thingy, considered a {hints[3]} and relatively {hints[4]}')
+
+        if not self.using_google_drive:
+            split_name = self.folder_name.rsplit('[')
+            hints = []
+            for hint in split_name:
+                if hint != '':
+                    hints.append(hint.strip(']'))
+            hints.pop()
+            print(f'From the {hints[0]}, this is a {hints[1]} {hints[2]} thingy, considered a {hints[3]} and relatively {hints[4]}')
+            return
+
+        if self.using_google_drive:
+            clue = 'No clues for you'
+            return clue
+
 
     def show_all_images(self):
-        try:
-            for image in self.images:
-                image_to_display = Image.open(content_directory+self.folder_name+'/'+image)
-                image_to_display.show()    
-        except:
-            print('no images to display')
+        
+        if not self.using_google_drive:
+            try:
+                for image in self.images:
+                    image_to_display = Image.open(self.content_directory+self.folder_name+'/'+image)
+                    image_to_display.show()    
+            except:
+                print('no images to display')
+        return
 
     def get_differentials(self):
         # This retrieves the differentials
@@ -366,12 +373,13 @@ class Disease():
     
     def display_differentials(self):
         # This prints the differentials out in a nice format
-        if len(self.differentials)==0:
-            print("There are no differentials available")
-        else:
-            print(f'There are {len(self.differentials)} differentials, they are:')
-            for individual_differential in self.differentials:
-                print(individual_differential)
+        if not self.using_google_drive:
+            if len(self.differentials)==0:
+                print("There are no differentials available")
+            else:
+                print(f'There are {len(self.differentials)} differentials, they are:')
+                for individual_differential in self.differentials:
+                    print(individual_differential)
                      
                 
     def get_immunohistochemistry(self):
@@ -383,15 +391,19 @@ class Disease():
         return ihc_dictionary
 
     def display_immunohistochemistry(self):  
-        if self.immunohistochemistry=={}:
-            print("No IHC available")
+        
+        if not self.using_google_drive:
+            if self.immunohistochemistry=={}:
+                print("No IHC available")
 
-        for ihc_name in self.immunohistochemistry.items():
-            print('The %s is %s'%(ihc_name, self.immunohistochemistry[ihc_name]))
-
+            for ihc_name in self.immunohistochemistry.items():
+                print('The %s is %s'%(ihc_name, self.immunohistochemistry[ihc_name]))
+        return
 
     def show_name_and_description(self):
-        print(f'Disease: {self.name}\n\n{self.description}')                      
+        if not self.using_google_drive:
+            print(f'Disease: {self.name}\n\n{self.description}')  
+        return
         
 
     def get_folder_names_of_differentials(self):
@@ -402,30 +414,28 @@ class Disease():
         print("Preparing differentials for "+self.name)
 
         ddx_folder_names = []
-        
-        for differential in self.differentials:
-            # Go through all disease names and select if they match.
-            for disease in disease_folder_inventory:
-                # If the disease name in the inventory matches the name in the differentials
-                if disease["underlined_name"] == differential:
-                    # add the full filename to the list. 
-                    ddx_folder_names.append(disease["folder_name"])    
+        if not self.using_google_drive:
+            for differential in self.differentials:
+                # Go through all disease names and select if they match.
+                for disease in disease_folder_inventory:
+                    # If the disease name in the inventory matches the name in the differentials
+                    if disease["underlined_name"] == differential:
+                        # add the full filename to the list. 
+                        ddx_folder_names.append(disease["folder_name"])    
+        if self.using_google_drive:
+            print('need to get inventory of google drive and check for matches on differentials')
 
-        return dxx_folder_names
+        return ddx_folder_names
 
     def check_file_download_status(self):
-        if disease_folder_name not in self.content_directory:
-            folder_id = disease['google_drive_id']
-            # download the file
-        # Check to see if all the files are there
-        files_needed = self.files_within_folder
-        for file in files_needed:
-            filename = file['name']
-            file_id = file['id']
-            #while filename not in os.scandir(self.content_directory):
-                #download_file_using_id(google_drive_id):
-                # delay(100)
-
+        # Check if each of the desired files has been cached and download if not
+        print('about to download', self.files_within_folder)
+        # For each subfile
+        for file in self.files_within_folder:
+            # If not cached
+            if file['temporary_file_name'] not in config.google_drive_download_directory:
+                # Download
+                gdrive_api_calls.download_subfile(file)
 
 class Quiz():
     # Creates quiz objects

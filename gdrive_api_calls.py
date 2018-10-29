@@ -3,6 +3,8 @@ from pydrive.drive import GoogleDrive
 import random
 import os
 import pdb
+import quiz_logic
+import config
 
 gauth = GoogleAuth()
 
@@ -19,7 +21,7 @@ index_of_category_in_filename = {'organ':0,
                                 'incidence':4,
                                 'name':5}
 
-content_directory = './folder_based_dojo/'
+
 
 # Allowbale files to be read
 image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
@@ -48,7 +50,7 @@ def record_available_files(google_drive=False): # FINISHED
 
 	# if local files, record the files in dictionary format
 	if not google_drive: 
-		for file in os.listdir(content_directory):
+		for file in os.listdir(quiz_logic.content_directory):
 			# A dictionary where the google drive ID is None
 			this_file = {}
 			this_file['filename'] = file
@@ -122,7 +124,7 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 				unprocessed_subfiles.append(this_file)
 
 		if not google_drive:
-			for file in os.listdir(content_directory+folder_name):
+			for file in os.listdir(quiz_logic.content_directory+folder_name):
 				this_file = {}
 				this_file['filename'] = file
 				this_file['id'] = None
@@ -140,6 +142,9 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 				this_file = {}
 				this_file['subfile_name'] = subfile
 				this_file['subfile_id'] = subfile_id
+				this_file['subfile_extension'] = subfile_extension
+				this_file['temporary_file_name'] = 'temporary_file_with_id_'+subfile_id + subfile_extension
+
 				if subfile_extension in image_extensions:
 					this_file['subfile_type']='image'
 				if subfile_extension == '.xml':
@@ -226,19 +231,19 @@ def select_an_image_from_list_of_ids(image_id_list):
 	
 	return filename,id
 
-def download_single_image(image_id,image_name):
-	# Accepts the id and name of an image
-	# Downloads the image to the static folder
+def download_subfile(subfile):
+	# Accepts the dictionary of the object
+	# Downloads the image to the temporary folder
 
 	# Create pydrive object
-	image = drive.CreateFile({'id':image_id})
-	# download image
-	image_name = 'temporary_image_with_id_'+image_id+'.jpg'
-	image_path = 'static/'+image_name
+	image = drive.CreateFile({'id':subfile['subfile_id']})
+	
+	# Download image
+	image_name = subfile['temporary_file_name']
+	image_path = config.google_drive_download_directory + image_name
 	image.GetContentFile(image_path)
 	
-	return image_name
-	
+	return 
 
 
 def get_images(folder_id):

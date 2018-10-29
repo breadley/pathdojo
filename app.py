@@ -210,10 +210,11 @@ def get_random_image(detailed_disease_dictionary):
 
     for subfile in files:
         if subfile['subfile_type'] == 'image':
-            # download the image
-            downloaded_file_name = gdrive_api_calls.download_single_image(subfile['subfile_id'],subfile['subfile_name'])
+            # download the image using the subfile dictionary
+            gdrive_api_calls.download_subfile(subfile)
             # Return the image name
-            return downloaded_file_name
+            
+            return subfile['temporary_file_name']
 
 
 @app.route('/display',methods=['GET', 'POST'])
@@ -233,11 +234,16 @@ def display():
     blob = session.get('blob', get_random_disease(available_files)[0])
     print("The blobby is",blob)
     blob_name = blob['printable_name']
-    
     # Assign the disease to the session
     session['blob'] = blob
     print(f'This blob is {blob_name}')
     # blob = session.get('blob', get_random_disease(available_files))
+    
+    
+    # Test OOP functionality    
+    blob_object = quiz_logic.Disease(blob,google_drive=True)
+    print("blobject is", blob_object)
+
 
     if request.method == 'POST':
 
@@ -255,11 +261,29 @@ def display():
             # Randomise the blob for the next turn
             session['blob'] = get_random_disease(available_files)[0]
 
-            return render_template('wrong.html', successes=successes, blob_name=blob_name)
+            return render_template('wrong.html', 
+                                    successes=successes, 
+                                    blob_name=blob_name, 
+                                    ihc=blob_object.immunohistochemistry,
+                                    ddx=blob_object.differentials,
+                                    description=blob_object.description)
     # Download image
-    downloaded_file_name = get_random_image(blob)  
+    downloaded_image_name = get_random_image(blob)
     
-    return render_template('display.html', image_name=downloaded_file_name, message=message, successes=successes, failed=True, name=blob_name)
+    print('image name', downloaded_image_name)
+    print('download folder contents',os.listdir(config.google_drive_download_directory))
+    
+    while downloaded_image_name not in os.listdir(config.google_drive_download_directory):
+        print('waiting')
+       
+    
+    
+    return render_template('display.html', image_name=downloaded_image_name, 
+                            message=message, 
+                            successes=successes, 
+                            failed=True, 
+                            name=blob_name,
+                            images=blob_object.images)
 
 
 # include this for local dev
