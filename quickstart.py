@@ -1,3 +1,4 @@
+"""
 from __future__ import print_function
 from googleapiclient.discovery import build
 from httplib2 import Http
@@ -7,9 +8,9 @@ from oauth2client import file, client, tools
 SCOPES = 'https://www.googleapis.com/auth/drive.metadata.readonly'
 
 def main():
-    """Shows basic usage of the Drive v3 API.
-    Prints the names and ids of the first 10 files the user has access to.
-    """
+    #Shows basic usage of the Drive v3 API.
+    #Prints the names and ids of the first 10 files the user has access to.
+    
     store = file.Storage('token.json')
     creds = store.get()
     if not creds or creds.invalid:
@@ -30,3 +31,6 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
+    """

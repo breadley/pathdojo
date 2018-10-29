@@ -1,44 +1,38 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<div style=" bottom: 0; position: fixed; z-index: 1; background-color: rgba(255,255,255,0.85); padding: 1em 2em; font-family: 'Open Sans';">
-			
-	
-
-	<p> A puzzle indeed.</p>
-
-
-  <form action="/display" method="POST">
-	<!--
-	  <input type="text" name="blob" value=""><br>
-	  <input type="submit" value="Guess">
-	--> 
-		<input class="form-control form-control-sm" type="text" placeholder="your guess" name="blob" id="inputSmall">
-		<br>
-	  	<button type="submit"  value="Guess" class="btn btn-primary btn-sm">Submit</button>
-
-  </form>
-  <br>
-  <p><b> Your score: </b>{{ successes }}</p>
-
-</div>
 
 
 <div class="container">
 	<div style="padding-left: 0px;  padding-right: 0px;">
-		<img src="{{url_for('static', filename=image_name)}}" class="image-fluid">
+		<br>
+		<picture>
+			<!-- XML file might be able to go here
+			<source srcset="..." type="image/svg+xml">
+			-->  
+			<img src="{{url_for('static', filename=image_name)}}" class="img-fluid" alt="Responsive image">
+		</picture>	
 	</div>
-</div>
-{{name}}
 
-<!--
-<div class="container">
-	<div class="col-md-4" style="padding-left: 0px;  padding-right: 0px;">
-		<img src="{{url_for('static', filename=image)}}">
+
+	<div style=" bottom: 0; position: fixed; z-index: 1; background-color: rgba(255,255,255,0.85); padding: 1em 2em; font-family: 'Open Sans';">
+
+		<form action="/display" method="POST">
+			<input class="form-control form-control-sm" type="text" placeholder="your guess" name="blob" id="inputSmall">
+			<br>
+			<button type="submit"  value="Guess" class="btn btn-primary btn-sm">Submit</button>
+		
+		</form>
+		<br>
+		<p><b> Consecutive wins: </b>{{ successes }}</p>
+		  
 	</div>
+
+
+
 </div>
 
--->
+
 {% endblock %}
 
 

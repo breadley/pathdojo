@@ -169,6 +169,9 @@ def view():
 def index():
     # Homepage    
     message = 'Hi there'    
+    session['unique_public_session_id'] = random.getrandbits(32)
+    cookie = session.get('unique_public_session_id','no cookie')
+    print('Cookie is',cookie)
     return render_template('index.html',message = message)
 
 
@@ -219,6 +222,8 @@ def display():
     message = string_to_html(dojo_welcome)
 
     # Get inventory from '/' home page or take manually if not already available.
+    # Don't get inventory if POST form (to avoid unnecessary API call)
+    print(f'\n\nrequest variable is: {request.form}\n\n')
     available_files = gdrive_api_calls.record_available_files(google_drive = True)
     
     successes = session.get('successes', 0)
@@ -226,8 +231,9 @@ def display():
     
     # Check to see if there is a blob stored yet
     blob = session.get('blob', get_random_disease(available_files)[0])
-    blob_name = blob[0]['printable_name']
-
+    print("The blobby is",blob)
+    blob_name = blob['printable_name']
+    
     # Assign the disease to the session
     session['blob'] = blob
     print(f'This blob is {blob_name}')

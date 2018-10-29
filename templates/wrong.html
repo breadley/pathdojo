@@ -1,10 +1,13 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-    <p>Oh no you got that wrong :(</p>
+
     <p> The correct answer was {{ blob_name }}</p>
-    <p> Your final score was {{ successes }} </p>
-    <a href="/display" > Try again?</a>
+    <p> Final score: {{ successes }} </p>
+    <br>
+      
+    <a href="/display">Play again</a>
+
 
 {% endblock %}
 

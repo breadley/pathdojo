@@ -1,20 +1,35 @@
 {% extends 'layout.html' %}
 
 {% block body %}
-<form action="/view" method="POST">
-  <div class="form-group">
-      <label class="col-form-label" for="inputDefault"></label>
-      <input class="form-control" id="inputDefault" type="text" placeholder="Your answer">
-      <button class="btn btn-primary" type="submit">Submit</button>
+
+
+
+
+<div class="container">
+    <div style="padding-left: 0px;  padding-right: 0px;">
+        <br>
+        <picture>
+            <!-- XML file might be able to go here
+            <source srcset="..." type="image/svg+xml">
+            -->  
+            <img src="https://drive.google.com/uc?id={{image_id}}" class="img-fluid" alt="Responsive image">
+        </picture>	
     </div>
-</form>
 
-<div>
-    <p class="text-muted">{{answer}}</p>
-</div>
 
-<div>
-    <img class="img-responsive" src="https://drive.google.com/uc?id={{image_id}}"></div>
+    <form action="/view" method="POST">
+        <div class="form-group">
+            <label class="col-form-label" for="inputDefault"></label>
+            <input class="form-control" id="inputDefault" type="text" placeholder="Your answer">
+            <br>
+            <button class="btn btn-primary" type="submit">Submit</button>
+        </div>
+    </form>
+    
+    <div>
+        <p class="text-muted">{{answer}}</p>
+    </div>
+
 </div>
 {% endblock %}
 

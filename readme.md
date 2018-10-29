@@ -116,6 +116,10 @@ TODO: Allow the lambda instance API access, as per [stackoverflow comment](https
 
 May be used for google drive calls, may be incoroporated into `app.py`
 
+## Layout
+
+Image [layout](https://www.samalive.co/) ideally scales with mobile browser
+
 
 
 

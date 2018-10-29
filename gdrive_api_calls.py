@@ -135,6 +135,8 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 			# If the file is a valid file
 			if not subfile.startswith('.') and not subfile.startswith('_'):
 				subfile_name,subfile_extension = os.path.splitext(subfile)
+				subfile_name = subfile_name.lower()
+				subfile_extension = subfile_extension.lower()
 				this_file = {}
 				this_file['subfile_name'] = subfile
 				this_file['subfile_id'] = subfile_id
