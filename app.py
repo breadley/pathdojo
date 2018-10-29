@@ -254,12 +254,17 @@ def display():
             session['successes'] = successes + 1
             session['blob'] = get_random_disease(available_files)
 
+
             return redirect('/display')
 
         else:
             session['successes'] = 0
             # Randomise the blob for the next turn
             session['blob'] = get_random_disease(available_files)[0]
+
+            # Clear static folder
+            for file in os.listdir(config.google_drive_download_directory):
+                os.remove(config.google_drive_download_directory+file)
 
             return render_template('wrong.html', 
                                     successes=successes, 
