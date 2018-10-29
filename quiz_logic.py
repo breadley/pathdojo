@@ -252,30 +252,61 @@ class Disease():
 
     def __init__(self,disease_file,google_drive):
         
+        self.file_details = disease_file
         self.using_google_drive = google_drive #True/False
         self.folder_name = disease_file["folder_name"]
-        self.files_within_folder = disease_file['files_within_folder']
         self.name = disease_file["name"]   
         # Check if google_drive is used (True or False)
         if google_drive:
             self.google_drive_id = disease_file["google_drive_id"]
             # See if the file has been correctly cached, if not, download
-            self.check_file_download_status()
+            #self.check_file_download_status()
         else:
-            self.content_directory = config.local_storage_directory
-                 
-        self.images = self.get_list_of_images()   
-        self.text_file_contents = self.load_text_file()        
-        self.description = self.get_description()
-        self.differentials = self.get_differentials()
-        self.immunohistochemistry = self.get_immunohistochemistry()
-        
+            self.content_directory = config.local_storage_directory                 
+
         
     def __repr__(self):
         return f'{self.name} with {len(self.images)} images'
 
     def __str__(self):
         return f'{self.name}'
+
+    def take_subfile_inventory(self):
+        # Calls google API to get the contents of this disease folder
+        # Create a list containing the single dictionary for the accepting function
+        file_of_interest = [self.file_details]
+        self.details_and_subfiles = gdrive_api_calls.add_subfiles_to_file_details(file_of_interest, google_drive=True)[0]
+        self.files_within_folder = self.details_and_subfiles['files_within_folder']  
+        
+        # Build a list of images
+        images = []
+        for file in self.files_within_folder:
+            if file['subfile_type'] == 'image':
+                images.append(file)
+        shuffled_images = sample(images,len(images))
+        self.images = shuffled_images
+        self.current_image = self.images[0]
+                
+    def download_non_image_files(self):
+        # Caches files
+        for file in self.files_within_folder:
+            if not file['subfile_type'] == 'image':
+                pass # Download the file
+
+        self.text_file_contents = self.load_text_file() 
+        self.description = self.get_description()
+        self.differentials = self.get_differentials()
+        self.immunohistochemistry = self.get_immunohistochemistry()
+    
+    def download_current_image(self):
+        gdrive_api_calls.download_subfile(self.current_image)
+        # available the folder: config.google_drive_download_directory
+        # with filename self.current_image['temporary_file_name']
+
+    def move_to_next_image(self):
+        self.images.pop(0)
+        self.current_image = self.images[0]
+
 
     def load_text_file(self):
         contents = {} # start with blank dictionary to populate with toml data
@@ -446,7 +477,7 @@ class Quiz():
         # Make a list of disease objects
         self.diseases = []
         for file in self.disease_files:
-            # Check if desired folder name actually a disease 
+            # Check if desired folder name actually a disease             
             disease_as_object = Disease(file,google_drive)
             self.diseases.append(disease_as_object)
                 
@@ -462,12 +493,9 @@ class Quiz():
         self.parent_quiz = None
         # Make name
         self.name = self.get_name()
-        # Cache all files for the quiz
-        if google_drive:
-            self.cache_files() 
+        # Set a disease as the first element in the quiz
+        self.current_disease = self.diseases[0]
 
-        
-        
 
     def __repr__(self):
         return f'"{self.name}" quiz with {self.total_quiz_length} items'
@@ -501,27 +529,17 @@ class Quiz():
 
         return name
 
-    def cache_files(self):
-        pass
-        '''
-        # Gets the files at the start of a quiz so there's no waiting
-        self.list_of_cached_files = []
+    def move_to_next_disease(self):
+        # This function sets the next disease up for quizzing
+        if len(self.remaining_diseases)>1:
+            # Get rid of the disease in index zero
+            self.remaining_diseases = self.remaining_diseases.pop(0)
+            # Set the new index 0 diseases as the current disease 
+            self.current_disease = self.remaining_diseases[0]
+        else:
+            # End current quiz
+            self.terminate_quiz()
 
-        
-        for disease in self.disease_files:
-            folder_id = disease['google_drive_id']
-            # Get list of files to download
-
-            # get list of ids within the folder
-            # get list of names of the expected files
-            # download the files to the cache directory
-            # record the names of the files for later destruction
-            # list_of_ids_within_folder = gdrive_api_calls.get_file_ids_from_folder(folder_id)
-
-            list_of_ids_within_folder = []
-            for file_name in list_of_ids_within_folder:          
-                self.list_of_cached_files.append(file_name)   
-        '''
 
     def clear_cached_files(self):
         pass

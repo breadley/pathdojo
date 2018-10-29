@@ -103,7 +103,6 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 	# Google drive is True/False
 
 
-
 	list_of_files_including_subfiles = []
 
 	for main_file in list_of_files:

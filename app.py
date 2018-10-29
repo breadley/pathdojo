@@ -92,36 +92,22 @@ def design():
         if selections['submit_button'] == 'pressed': 
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
-            print('selected_files about to be processed for subfiles', selected_files)
-            # Go through the selected files and take invetory of subfiles
-            selected_files_and_subfiles = gdrive_api_calls.add_subfiles_to_file_details(selected_files, google_drive=google_drive)
-            print('selected_files with subfiles', selected_files_and_subfiles)
-            # Create quiz
-
-            # fully_formed_quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
             
-            # fully_formed_quiz.step_through_quiz()
-            
-            ###########temporary random file test############
-            random_disease = random.choice(selected_files_and_subfiles)
-            random_disease_images = []
-            for subfile in random_disease["files_within_folder"]:
-                if subfile['subfile_type']=='image':
-                    random_disease_images.append(subfile)
+            # Quiz object
+            quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
+            # Get contents of first disease
+            quiz.current_disease.take_subfile_inventory()
 
-            random_image = random.choice(random_disease_images) 
+            # Download an image to display
+            quiz.current_disease.download_current_image()
 
-            test_image_id = random_image['subfile_id']
-            test_image_name = random_image['subfile_name']
-            test_disease_name = random_disease['printable_name']
+            # Get name of image in 'static' folder
+            image_name = quiz.current_disease.current_image['temporary_file_name']
 
             # Save the image variables as a sessin for /view to access
-            session['test_image_id'] = test_image_id
-            session['test_image_name'] = test_image_name
-            session['test_disease_name'] = test_disease_name
-
-
-            return render_template('view.html', image_id = test_image_id,form_value = request.form)
+            #session['quiz_object'] = quiz
+  
+            return render_template('view.html', image_name = image_name)
 
     return render_template('design.html', 
                             message = message,
@@ -135,14 +121,12 @@ def design():
 def view():
     # This page is for viewing the current disease in the quiz
 
-    # TEMP TEST Get the details of the current image
-    test_image_id = session.get('test_image_id', None)
-    test_image_name = session.get('test_image_name',None)
-    test_disease_name = session.get('test_disease_name',None)
+    # TEMP TEST NOT JSON SERIALISABLE as object 
+    #quiz = session.get('quiz_object', None)
+
     # If anything is posted, display the test image
     if request.method == 'POST':
-        answer = f'The answer is: {test_disease_name}'
-        return render_template('view.html', image_id = test_image_id, answer = answer)
+        pass
 
     """ WORK IN PROGRESS. CURRENTLY BELIEVE QUIZ WILL BE EXECUTED FROM HERE. 
     # Caching (to be attempted later) will have happened in /design prior to coming to view
@@ -161,7 +145,7 @@ def view():
 
     """
 
-    return render_template('view.html', image_id = test_image_id, form_value = request.form)
+    return render_template('view.html', image_name = image_name)
 
 
 
@@ -252,7 +236,7 @@ def display():
         if guess.lower() == blob['printable_name'].lower():
 
             session['successes'] = successes + 1
-            session['blob'] = get_random_disease(available_files)
+            session['blob'] = get_random_disease(available_files)[0]
 
 
             return redirect('/display')
