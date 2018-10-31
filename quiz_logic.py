@@ -122,9 +122,12 @@ def get_filenames_that_match(available_files,selected_category_options):
         if not definitely_out:
             selected_files.append(file)
 
+    # Shuffle
+    shuffled_files = sample(selected_files,len(selected_files))
+
 
     # output format: list of files, same format as others but shorter
-    return selected_files
+    return shuffled_files
 
 def construct_quiz(selected_files,quiz_length,quiz_name):
     # input format: list of files, a number and string

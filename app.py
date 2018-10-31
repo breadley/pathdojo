@@ -93,20 +93,26 @@ def design():
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
             
-            # Quiz object
-            quiz = quiz_logic.Quiz(selected_files,max_quiz_length,google_drive = google_drive)
-            # Get contents of first disease
-            quiz.current_disease.take_subfile_inventory()
+            # Give each file a number ID
+            for index,file in enumerate(selected_files):
+                file['quiz_index'] = index
+                if index == 0:
+                    # Get the first disease ready to display
+                    disease = Disease(file,google_drive=True)
+            
 
-            # Download an image to display
-            quiz.current_disease.download_current_image()
 
-            # Get name of image in 'static' folder
-            image_name = quiz.current_disease.current_image['temporary_file_name']
+            # Save quiz as session object
+            session['selected_files'] = selected_files
 
-            # Save the image variables as a sessin for /view to access
-            #session['quiz_object'] = quiz
   
+            # Get image to display
+            disease.take_subfile_inventory()
+            disease.download_current_image()
+            image_name = disease.current_image['temporary_file_name']
+
+            # Possible also get description here and send it to view
+
             return render_template('view.html', image_name = image_name)
 
     return render_template('design.html', 
@@ -121,29 +127,16 @@ def design():
 def view():
     # This page is for viewing the current disease in the quiz
 
-    # TEMP TEST NOT JSON SERIALISABLE as object 
-    #quiz = session.get('quiz_object', None)
+    # Get next item in quiz
+
+    # Turn disease into object
+
+    # Pass the necessary values/dicts to the view page
 
     # If anything is posted, display the test image
     if request.method == 'POST':
         pass
-
-    """ WORK IN PROGRESS. CURRENTLY BELIEVE QUIZ WILL BE EXECUTED FROM HERE. 
-    # Caching (to be attempted later) will have happened in /design prior to coming to view
-
-    # Create quiz object - > or do this in /design
-
-    # Get the first element from the quiz
-
-    # Render the image and buttons for IHC/ddx/clue/nestedquiz/answer_description/terminate/skip
-
-    # If button pressed for options such as IHC, also display IHC
-
-    # If button pressed for next image, render /view again with the new disease as the current disease
-
-    # 
-
-    """
+    
 
     return render_template('view.html', image_name = image_name)
 
