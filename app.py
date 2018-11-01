@@ -91,25 +91,39 @@ def design():
         # If the submit button is pressed
         if selections['submit_button'] == 'pressed': 
             
+
+
+
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
             
             # Give each file a number ID
             for index,file in enumerate(selected_files):
-                file['quiz_index'] = index
+                file['index_of_disease_in_quiz'] = index
                 if index == 0:
                     # Get the first disease ready to display
-                    disease = Disease(file,google_drive=True)
+                    current_disease = file                    
             
+            # Record this quiz in the master list
+            this_quiz = {}
+            this_quiz['unique_id'] = random.getrandbits(32)
+            this_quiz['thumbnail'] =  None
+            this_quiz['list_of_selected_files'] = selected_files
 
+            # Set initial values for each of the global variables
 
-            # Save quiz as session object
-            session['selected_files'] = selected_files
-
+            # A list of dictionaries with: quiz_id, quiz_selected_files, thumbnail
+            session['list_of_quizzes'] = [this_quiz]
+            # A list of disease dictionaries with: name, drive id, ... but not folder contents
+            session['current_quiz'] = [this_quiz]
   
             # Get image to display
+            disease = Disease(current_disease,google_drive=True)
             disease.take_subfile_inventory()
             disease.download_current_image()
             image_name = disease.current_image['temporary_file_name']
+            
+            # A dictionary of attributes for the disease)
+            session['current_disease'] = disease.details_and_subfiles
 
             # Possible also get description here and send it to view
 
@@ -127,9 +141,19 @@ def design():
 def view():
     # This page is for viewing the current disease in the quiz
 
-    # Get next item in quiz
+    current_quiz = session.get('current_quiz',None)
+    current_disease = session.get('current_disease',None)
 
-    # Turn disease into object
+    # Get next item in quiz (pop)
+    if len(current_quiz) == 1:
+        pass
+        # finished the quiz, do things here 
+    else:
+        # Remove the last element from the quiz, and assigne it as the current disease
+        session['current_disease'] = current_quiz.pop()
+
+
+
 
     # Pass the necessary values/dicts to the view page
 
