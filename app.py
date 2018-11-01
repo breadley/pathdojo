@@ -67,6 +67,7 @@ def design():
     
     available_files = gdrive_api_calls.record_available_files(google_drive = google_drive)
 
+
     available_category_options = quiz_logic.get_category_options(available_files)
 
     selected_category_options = {}
@@ -117,17 +118,17 @@ def design():
             session['current_quiz'] = [this_quiz]
   
             # Get image to display
-            disease = Disease(current_disease,google_drive=True)
+            disease = quiz_logic.Disease(current_disease,google_drive=True)
             disease.take_subfile_inventory()
             disease.download_current_image()
-            image_name = disease.current_image['temporary_file_name']
+            images = [disease.current_image['temporary_file_name']]
             
             # A dictionary of attributes for the disease)
             session['current_disease'] = disease.details_and_subfiles
 
             # Possible also get description here and send it to view
 
-            return render_template('view.html', image_name = image_name)
+            return render_template('view.html', images = images)
 
     return render_template('design.html', 
                             message = message,
@@ -141,28 +142,53 @@ def design():
 def view():
     # This page is for viewing the current disease in the quiz
 
-    current_quiz = session.get('current_quiz',None)
-    current_disease = session.get('current_disease',None)
+    differentials = ''
+    immunohistochemistry = ''
+    description = ''
 
+    current_quiz = session.get('current_quiz',None)
     # Get next item in quiz (pop)
     if len(current_quiz) == 1:
         pass
         # finished the quiz, do things here 
-    else:
-        # Remove the last element from the quiz, and assigne it as the current disease
-        session['current_disease'] = current_quiz.pop()
 
+    current_disease = session.get('current_disease',None)
+    disease = quiz_logic.Disease(current_disease,google_drive=True)
+    disease.take_subfile_inventory()
+    images = disease.images
+    image_names = []
+    for image in disease.images:
+        image_names.append(image['temporary_file_name'])
 
+    for index,image in enumerate(images):
+        if image not in os.listdir(config.google_drive_download_directory):
+            gdrive_api_calls.download_subfile(image)
 
-
-    # Pass the necessary values/dicts to the view page
-
-    # If anything is posted, display the test image
     if request.method == 'POST':
-        pass
-    
+        button = 'actual_button_value' # Get the button pressed here
 
-    return render_template('view.html', image_name = image_name)
+        if button == 'show_details' or True:
+            disease.download_non_image_files()
+            
+            differentials = disease.differentials
+            immunohistochemistry = disease.immunohistochemistry
+            description = disease.description
+
+        if button == 'skip':
+            # Remove the last element from the quiz, and assigne it as the current disease
+            session['current_disease'] = current_quiz.pop()
+        
+        if button == 'start_ddx_quiz':
+            pass
+
+    answer = disease.name
+    # Pass the necessary values/dicts to the view page
+    return render_template('view.html', 
+                            description = description,
+                            immunohistochemistry = immunohistochemistry,
+                            differentials = differentials,
+                            images = image_names,
+                            answer = answer)
 
 
 

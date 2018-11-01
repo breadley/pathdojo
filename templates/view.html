@@ -3,15 +3,27 @@
 {% block body %}
 
 <div class="container">
-    <div style="padding-left: 0px;  padding-right: 0px;">
-        <br>
-        <picture>
-            <!-- XML file might be able to go here
-            <source srcset="..." type="image/svg+xml">
-            -->  
-            <img src="{{url_for('static', filename=image_name)}}" class="img-fluid" alt="Responsive image">
-        </picture>	
+
+    <div>
+        <p class="text-muted">Answer: {{answer}}</p>
+        <p class="text-muted">Description: {{description}}</p>
+        <p class="text-muted">Immunohistochemistry: {{immunohistochemistry}}</p>
+        <p class="text-muted">Differentials: {{differentials}}</p>
     </div>
+
+	<div style="padding-left: 0px;  padding-right: 0px;">
+		{% for individual_image in images %}			
+		<div>
+			<br>
+			<picture>
+				<!-- XML file might be able to go here
+				<source srcset="..." type="image/svg+xml">
+				-->  
+				<img src="{{url_for('static', filename=individual_image)}}" class="img-fluid" alt="Responsive image">
+			</picture>
+		</div>	
+		{% endfor %}	
+	</div>
 
 
     <form action="/view" method="POST">
@@ -23,9 +35,7 @@
         </div>
     </form>
     
-    <div>
-        <p class="text-muted">{{answer}}</p>
-    </div>
+
 </div>
 
 {% endblock %}

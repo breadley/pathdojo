@@ -258,7 +258,7 @@ class Disease():
         self.file_details = disease_file
         self.using_google_drive = google_drive #True/False
         self.folder_name = disease_file["folder_name"]
-        self.name = disease_file["name"]   
+        self.name = disease_file["printable_name"]   
         # Check if google_drive is used (True or False)
         if google_drive:
             self.google_drive_id = disease_file["google_drive_id"]
@@ -294,7 +294,7 @@ class Disease():
         # Caches files
         for file in self.files_within_folder:
             if not file['subfile_type'] == 'image':
-                pass # Download the file
+                gdrive_api_calls.download_subfile(file)
 
         self.text_file_contents = self.load_text_file() 
         self.description = self.get_description()
@@ -303,13 +303,17 @@ class Disease():
     
     def download_current_image(self):
         gdrive_api_calls.download_subfile(self.current_image)
-        # available the folder: config.google_drive_download_directory
+        # available in the folder: config.google_drive_download_directory
         # with filename self.current_image['temporary_file_name']
 
     def move_to_next_image(self):
         self.images.pop(0)
         self.current_image = self.images[0]
 
+    def download_all_images(self):
+        # used to download all images after .take_subfile_inventory has been called.
+        for image in self.images:
+            gdrive_api_calls.download_subfile(image)
 
     def load_text_file(self):
         contents = {} # start with blank dictionary to populate with toml data
