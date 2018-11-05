@@ -64,6 +64,15 @@
             console.log('about to log memory');
             document.getElementById('memory_transmitter').value = memoryJSON; // This function should ideally return all the memory variables            
         }     
+
+        function revealAnswer(element)
+        {
+            // Change the differentials and submit button to be visible
+            document.getElementById('hidden_button').type = 'submit';
+            document.getElementById('hidden_card').class = "card border-light mb-3";
+            document.getElementById('description_button').type = 'button';
+        }
+
     </script>
 
 

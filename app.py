@@ -102,7 +102,7 @@ def design():
                 file['index_of_disease_in_quiz'] = index
                 if index == 0:
                     # Get the first disease ready to display
-                    current_disease = file                    
+                    session['current_disease'] = file                    
             
             # Record this quiz in the master list
             this_quiz = {}
@@ -116,19 +116,10 @@ def design():
             session['list_of_quizzes'] = [this_quiz]
             # A list of disease dictionaries with: name, drive id, ... but not folder contents
             session['current_quiz'] = [this_quiz]
-  
-            # Get image to display
-            disease = quiz_logic.Disease(current_disease,google_drive=True)
-            disease.take_subfile_inventory()
-            disease.download_current_image()
-            images = [disease.current_image['temporary_file_name']]
-            
-            # A dictionary of attributes for the disease)
-            session['current_disease'] = disease.details_and_subfiles
 
-            # Possible also get description here and send it to view
-
-            return render_template('view.html', images = images)
+            return view()
+            #return redirect(url_for('view'))
+            #return render_template('view.html', images = images)
 
     return render_template('design.html', 
                             message = message,

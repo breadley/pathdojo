@@ -4,6 +4,8 @@
 
 <div class="container">
 
+
+
     <div>
         <p class="text-muted">Answer: {{answer}}</p>
         <p class="text-muted">Description: {{description}}</p>
@@ -11,30 +13,98 @@
         <p class="text-muted">Differentials: {{differentials}}</p>
     </div>
 
-	<div style="padding-left: 0px;  padding-right: 0px;">
-		{% for individual_image in images %}			
-		<div>
-			<br>
-			<picture>
-				<!-- XML file might be able to go here
-				<source srcset="..." type="image/svg+xml">
-				-->  
-				<img src="{{url_for('static', filename=individual_image)}}" class="img-fluid" alt="Responsive image">
-			</picture>
-		</div>	
-		{% endfor %}	
-	</div>
+
+
+    <div style="padding-left: 0px;  padding-right: 0px;">
+        {% for individual_image in images %}			
+        <div>
+            <br>
+            <picture>
+                <!-- XML file might be able to go here
+                <source srcset="..." type="image/svg+xml">
+                -->  
+                <img src="{{url_for('static', filename=individual_image)}}" class="img-fluid" alt="Responsive image">
+            </picture>
+        </div>	
+        {% endfor %}	
+    </div>
+
+
+
+
+
+
+
+
+    <ul class="nav nav-tabs">
+        {% if immunohistochemistry|length > 0 %}
+            <li class="nav-item">
+                <a class="nav-link" href="#IHC" data-toggle="tab">IHC</a>
+            </li>
+        {% endif %}
+
+        {% if differentials|length > 0 %} 
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" role="button" aria-expanded="false" aria-haspopup="true" href="#" data-toggle="dropdown">DDx ({{differentials|length}})</a>
+            <div class="dropdown-menu">
+                {% for differential in differentials %}    
+                        <a class="dropdown-item" href="#page_for_single_image_of_{{differential}}">{{differential}}</a>                  
+                {% endfor %}
+            </div>
+        </li>
+
+        <li class="nav-item">
+                <a class="nav-link" href="#DDX_QUIZ" data-toggle="tab">DDx Quiz</a>
+        </li>
+        {% endif %}
+
+        <li class="nav-item">
+            <a class="nav-link" href="#Skip" data-toggle="tab">Skip</a>
+        </li>
+    </ul>
+      
+    <div class="tab-content" id="myTabContent">
+        <div class="tab-pane fade" id="IHC">
+          <p>Immuno available: {{immunohistochemistry}}</p>
+        </div>
+    </div>
+
+    <input type="hidden" id="description_button" data-toggle="collapse" class="btn btn-primary" value="description" data-target="#description_body"></button>
+    <div id="description_body" class="collapse">
+        Description: {{description}}
+    </div>
 
 
     <form action="/view" method="POST">
         <div class="form-group">
             <label class="col-form-label" for="inputDefault"></label>
             <input class="form-control" id="inputDefault" type="text" placeholder="Your answer">
+
+
             <br>
-            <button class="btn btn-primary" type="submit">Submit</button>
+            <input type="hidden" id="hidden_button" class="btn btn-primary btn-block" name="hidden" value="Next" ></button>
+            <br>
         </div>
-    </form>
-    
+
+        <br>
+        <input id="submit_button" type="button" class="btn btn-primary" name="test_name" value="Submit" onclick="revealAnswer(this);" ></button>
+        <br>
+
+        <div id="hidden_card" class="collapse">
+            <div class="card-header">Disease name</div>
+            <div class="card-body">
+                <p class="card-text">{{description}}</p>
+            </div>
+        </div>
+
+
+
+
+        
+    </form> 
+
+
+
 
 </div>
 
