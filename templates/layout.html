@@ -65,17 +65,17 @@
             document.getElementById('memory_transmitter').value = memoryJSON; // This function should ideally return all the memory variables            
         }     
 
-        function revealAnswer(element)
+        function revealAnswer(element) // Once the guess has been entered
         {
             // Hide the button that was pressed
-            document.getElementById('submit_button').type = 'hidden';
+            document.getElementById('lock_in_answer').type = 'hidden';
             // Reveal the button that will be used to get to the next page
-            document.getElementById('hidden_button').type = 'submit';
-            
+            document.getElementById('move_on').type = 'submit';
+            document.getElementById('move_on').value = 'Next';
+            // Hide the input box
+            document.getElementById('guessing_box').type = 'hidden';
            //document.getElementById('hidden_card').class = "card border-light mb-3";
             document.getElementById('description_button').type = 'button';
-
-            
         }
 
     </script>

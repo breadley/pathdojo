@@ -97,12 +97,8 @@ def design():
 
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
             
-            # Give each file a number ID
-            for index,file in enumerate(selected_files):
-                file['index_of_disease_in_quiz'] = index
-                if index == 0:
-                    # Get the first disease ready to display
-                    session['current_disease'] = file                    
+            # Remove the last element, and assign as the current disease
+            session['current_disease'] = selected_files.pop()                  
             
             # Record this quiz in the master list
             this_quiz = {}
@@ -114,9 +110,10 @@ def design():
 
             # A list of dictionaries with: quiz_id, quiz_selected_files, thumbnail
             session['list_of_quizzes'] = [this_quiz]
+            
             # A list of disease dictionaries with: name, drive id, ... but not folder contents
-            session['current_quiz'] = [this_quiz]
-
+            session['current_quiz'] = this_quiz
+          
             return view()
 
     return render_template('design.html', 
@@ -136,6 +133,7 @@ def view():
     description = ''
 
     current_quiz = session.get('current_quiz',None)
+
     # Get next item in quiz (pop)
     if len(current_quiz) == 1:
         pass
@@ -144,6 +142,7 @@ def view():
     current_disease = session.get('current_disease',None)
     disease = quiz_logic.Disease(current_disease,google_drive=True)
     disease.take_subfile_inventory()
+    disease.download_non_image_files()
     images = disease.images
     image_ids = []
     for image in disease.images:
@@ -151,21 +150,30 @@ def view():
 
 
     if request.method == 'POST':
-        button = 'actual_button_value' # Get the button pressed here
+        print('request.form is: ',request.form)
+        if request.form.get('guess') == disease.name:
+            print('hot dog, we have a winner!')
 
-        if button == 'show_details' or True:
-            disease.download_non_image_files()
+        if request.form.get('move_on') == 'Next': # if the move on button has been primed
+            print('moving to next item')
             
-            differentials = disease.differentials
-            immunohistochemistry = disease.immunohistochemistry
-            description = disease.description
+            # Get the old list, remove the last element and assign as current disease
+            print('before',len(current_quiz['list_of_selected_files']))
+            session['current_disease'] = current_quiz['list_of_selected_files'].pop()
+            print('after',len(current_quiz['list_of_selected_files']))
+            # update current quiz
+            session['current_quiz'] = current_quiz
 
-        if button == 'skip':
+
+
+        if request.form.get('skip_option') == 'skipping':
             # Remove the last element from the quiz, and assigne it as the current disease
             session['current_disease'] = current_quiz.pop()
+            print('we are skipping this disease')
+
+        return redirect('/view')
         
-        if button == 'start_ddx_quiz':
-            pass
+
 
     answer = disease.name
 
@@ -173,9 +181,9 @@ def view():
 
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
-                            description = description,
-                            immunohistochemistry = immunohistochemistry,
-                            differentials = differentials,
+                            description = disease.description,
+                            immunohistochemistry = disease.immunohistochemistry,
+                            differentials = disease.differentials,
                             image_ids = image_ids,
                             answer = answer)
 

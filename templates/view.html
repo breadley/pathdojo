@@ -39,8 +39,9 @@
         {% endif %}
 
         <li class="nav-item">
-            <a class="nav-link" href="#Skip" data-toggle="tab">Skip</a>
+            <a class="nav-link" href="#move_on" data-toggle="tab">Skip</a>
         </li>
+
     </ul>
       
     <div class="tab-content" id="myTabContent">
@@ -57,17 +58,19 @@
 
     <form action="/view" method="POST">
         <div class="form-group">
-            <label class="col-form-label" for="inputDefault"></label>
-            <input class="form-control" id="inputDefault" type="text" placeholder="Your answer">
-
-
+            <label class="col-form-label" for="guessing_box"></label>
+            <input class="form-control" id="guessing_box" type="text" placeholder="Your answer" name="guess" value="">
             
-            <input type="hidden" id="hidden_button" class="btn btn-primary btn-block" name="hidden" value="Next" ></button>
+        </div>
+
+        <div>
+
+            <input type="hidden" id="move_on" class="btn btn-primary btn-block" name="move_on" value="not_ready" ></button>
             
         </div>
 
         
-        <input id="submit_button" type="button" class="btn btn-primary" name="test_name" value="Submit" onclick="revealAnswer(this);" ></button>
+        <input id="lock_in_answer" type="button" class="btn btn-primary" name="lock_in_answer" value="Submit" onclick="revealAnswer(this);" ></button>
         <br>   
     </form> 
 
