@@ -288,7 +288,10 @@ class Disease():
                 images.append(file)
         shuffled_images = sample(images,len(images))
         self.images = shuffled_images
-        self.current_image = self.images[0]
+        try:
+            self.current_image = self.images[0]
+        except:
+            self.current_image = None
                 
     def download_non_image_files(self):
         # Caches files

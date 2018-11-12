@@ -56,24 +56,18 @@ def string_to_html(string):
     return modified_string
 
  
-@app.route('/design',methods=['GET','POST'])
+@app.route('/',methods=['GET','POST'])
 def design():
-    # WORK IN PROGRESS - CANNOT GET INPUTS FROM MORE THAN ONE BUTTON AT A TIME
     google_drive = True
-    # Homepage 
-    message = 'Buttons, buttons, everywhere. \nWhich things will you choose?'
+    message = 'Select categories to include, or go straight into a random quiz'
  
     # Get inventory (ideally we would only do this the first time)
     
     available_files = gdrive_api_calls.record_available_files(google_drive = google_drive)
-
-
     available_category_options = quiz_logic.get_category_options(available_files)
-
     selected_category_options = {}
     for category in available_category_options.keys():
         selected_category_options[category]=[]
-
     temp_selections = []
 
     # Create a blank dictionary to hold button presses
@@ -92,9 +86,6 @@ def design():
         # If the submit button is pressed
         if selections['submit_button'] == 'pressed': 
             
-
-
-
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
             
             # Remove the last element, and assign as the current disease
@@ -134,14 +125,11 @@ def view():
 
     current_quiz = session.get('current_quiz',None)
 
-    # Get next item in quiz (pop)
-    if len(current_quiz) == 1:
-        pass
-        # finished the quiz, do things here 
-
     current_disease = session.get('current_disease',None)
     disease = quiz_logic.Disease(current_disease,google_drive=True)
     disease.take_subfile_inventory()
+
+    # Need to replace this with in-memory IO (import IO)
     disease.download_non_image_files()
     images = disease.images
     image_ids = []
@@ -155,7 +143,10 @@ def view():
             print('hot dog, we have a winner!')
 
         if request.form.get('move_on') == 'Next': # if the move on button has been primed
-            print('moving to next item')
+        
+                # Get next item in quiz (pop)
+            if len(current_quiz['list_of_selected_files']) == 0:
+                return redirect('/')
             
             # Get the old list, remove the last element and assign as current disease
             print('before',len(current_quiz['list_of_selected_files']))
@@ -172,8 +163,14 @@ def view():
             print('we are skipping this disease')
 
         return redirect('/view')
-        
-
+          
+    positive_immunohistochemistry = 'Positive:'
+    negative_immunohistochemistry = 'Negative:'
+    for ihc in disease.immunohistochemistry:
+        if disease.immunohistochemistry[ihc] == '+':
+            positive_immunohistochemistry+=' '+ihc
+        if disease.immunohistochemistry[ihc] == '-':
+            negative_immunohistochemistry+=' '+ihc
 
     answer = disease.name
 
@@ -182,21 +179,19 @@ def view():
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
                             description = disease.description,
-                            immunohistochemistry = disease.immunohistochemistry,
+                            positive_immunohistochemistry = positive_immunohistochemistry,
+                            negative_immunohistochemistry = negative_immunohistochemistry,
                             differentials = disease.differentials,
                             image_ids = image_ids,
                             answer = answer)
 
 
 
-@app.route('/')
+@app.route('/info')
 def index():
     # Homepage    
-    message = 'Hi there'    
-    session['unique_public_session_id'] = random.getrandbits(32)
-    cookie = session.get('unique_public_session_id','no cookie')
-    print('Cookie is',cookie)
-    return render_template('index.html',message = message)
+    message = 'Reinforcement learning for familiarity with basic disease morphology'    
+    return render_template('info.html',message = message)
 
 
 def get_single_image(blob_folder_drive_id):
@@ -241,78 +236,7 @@ def get_random_image(detailed_disease_dictionary):
             return subfile['temporary_file_name']
 
 
-@app.route('/display',methods=['GET', 'POST'])
-def display():
 
-    message = string_to_html(dojo_welcome)
-
-    # Get inventory from '/' home page or take manually if not already available.
-    # Don't get inventory if POST form (to avoid unnecessary API call)
-    print(f'\n\nrequest variable is: {request.form}\n\n')
-    available_files = gdrive_api_calls.record_available_files(google_drive = True)
-    
-    successes = session.get('successes', 0)
-    # Get a random disease
-    
-    # Check to see if there is a blob stored yet
-    blob = session.get('blob', get_random_disease(available_files)[0])
-    print("The blobby is",blob)
-    blob_name = blob['printable_name']
-    # Assign the disease to the session
-    session['blob'] = blob
-    print(f'This blob is {blob_name}')
-    # blob = session.get('blob', get_random_disease(available_files))
-    
-    
-    # Test OOP functionality    
-    blob_object = quiz_logic.Disease(blob,google_drive=True)
-    print("blobject is", blob_object)
-
-
-    if request.method == 'POST':
-
-        guess = request.form.get('blob')
-
-        if guess.lower() == blob['printable_name'].lower():
-
-            session['successes'] = successes + 1
-            session['blob'] = get_random_disease(available_files)[0]
-
-
-            return redirect('/display')
-
-        else:
-            session['successes'] = 0
-            # Randomise the blob for the next turn
-            session['blob'] = get_random_disease(available_files)[0]
-
-            # Clear static folder
-            for file in os.listdir(config.google_drive_download_directory):
-                os.remove(config.google_drive_download_directory+file)
-
-            return render_template('wrong.html', 
-                                    successes=successes, 
-                                    blob_name=blob_name, 
-                                    ihc=blob_object.immunohistochemistry,
-                                    ddx=blob_object.differentials,
-                                    description=blob_object.description)
-    # Download image
-    downloaded_image_name = get_random_image(blob)
-    
-    print('image name', downloaded_image_name)
-    print('download folder contents',os.listdir(config.google_drive_download_directory))
-    
-    while downloaded_image_name not in os.listdir(config.google_drive_download_directory):
-        print('waiting')
-       
-    
-    
-    return render_template('display.html', image_name=downloaded_image_name, 
-                            message=message, 
-                            successes=successes, 
-                            failed=True, 
-                            name=blob_name,
-                            images=blob_object.images)
 
 
 # include this for local dev
