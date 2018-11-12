@@ -4,36 +4,16 @@
 
 <div class="container">
 
-
-
-    <div>
-        <p class="text-muted">Answer: {{answer}}</p>
-        <p class="text-muted">Description: {{description}}</p>
-        <p class="text-muted">Immunohistochemistry: {{immunohistochemistry}}</p>
-        <p class="text-muted">Differentials: {{differentials}}</p>
-    </div>
-
-
-
     <div style="padding-left: 0px;  padding-right: 0px;">
-        {% for individual_image in images %}			
+        {% for individual_image in image_ids %}			
         <div>
             <br>
             <picture>
-                <!-- XML file might be able to go here
-                <source srcset="..." type="image/svg+xml">
-                -->  
-                <img src="{{url_for('static', filename=individual_image)}}" class="img-fluid" alt="Responsive image">
+                <img src="https://drive.google.com/uc?id={{individual_image}}&export=download" class="img-fluid" alt="Responsive image">
             </picture>
         </div>	
         {% endfor %}	
     </div>
-
-
-
-
-
-
 
 
     <ul class="nav nav-tabs">
@@ -69,7 +49,7 @@
         </div>
     </div>
 
-    <input type="hidden" id="description_button" data-toggle="collapse" class="btn btn-primary" value="description" data-target="#description_body"></button>
+    <input type="hidden" id="description_button" data-toggle="collapse" class="btn btn-primary" value="{{answer}}" data-target="#description_body"></button>
     <div id="description_body" class="collapse">
         Description: {{description}}
     </div>
@@ -81,30 +61,15 @@
             <input class="form-control" id="inputDefault" type="text" placeholder="Your answer">
 
 
-            <br>
+            
             <input type="hidden" id="hidden_button" class="btn btn-primary btn-block" name="hidden" value="Next" ></button>
-            <br>
+            
         </div>
-
-        <br>
-        <input id="submit_button" type="button" class="btn btn-primary" name="test_name" value="Submit" onclick="revealAnswer(this);" ></button>
-        <br>
-
-        <div id="hidden_card" class="collapse">
-            <div class="card-header">Disease name</div>
-            <div class="card-body">
-                <p class="card-text">{{description}}</p>
-            </div>
-        </div>
-
-
-
 
         
+        <input id="submit_button" type="button" class="btn btn-primary" name="test_name" value="Submit" onclick="revealAnswer(this);" ></button>
+        <br>   
     </form> 
-
-
-
 
 </div>
 

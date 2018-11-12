@@ -145,13 +145,10 @@ def view():
     disease = quiz_logic.Disease(current_disease,google_drive=True)
     disease.take_subfile_inventory()
     images = disease.images
-    image_names = []
+    image_ids = []
     for image in disease.images:
-        image_names.append(image['temporary_file_name'])
+        image_ids.append(image['subfile_id'])
 
-    for index,image in enumerate(images):
-        if image not in os.listdir(config.google_drive_download_directory):
-            gdrive_api_calls.download_subfile(image)
 
     if request.method == 'POST':
         button = 'actual_button_value' # Get the button pressed here
@@ -171,12 +168,15 @@ def view():
             pass
 
     answer = disease.name
+
+    print(f'\tdescription: {description}\n\nimmunohistochemistry: {immunohistochemistry}\n\tdifferentials: {differentials}\n\tanswer: {answer}')
+
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
                             description = description,
                             immunohistochemistry = immunohistochemistry,
                             differentials = differentials,
-                            images = image_names,
+                            image_ids = image_ids,
                             answer = answer)
 
 
