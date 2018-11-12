@@ -67,10 +67,15 @@
 
         function revealAnswer(element)
         {
-            // Change the differentials and submit button to be visible
+            // Hide the button that was pressed
+            document.getElementById('submit_button').type = 'hidden';
+            // Reveal the button that will be used to get to the next page
             document.getElementById('hidden_button').type = 'submit';
+            
             document.getElementById('hidden_card').class = "card border-light mb-3";
             document.getElementById('description_button').type = 'button';
+
+            
         }
 
     </script>

@@ -118,8 +118,6 @@ def design():
             session['current_quiz'] = [this_quiz]
 
             return view()
-            #return redirect(url_for('view'))
-            #return render_template('view.html', images = images)
 
     return render_template('design.html', 
                             message = message,

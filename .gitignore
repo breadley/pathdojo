@@ -27,3 +27,7 @@ token.json
 static/*
 
 *.zip
+
+# Exclude api test folder
+api_test_18_11_12
+
