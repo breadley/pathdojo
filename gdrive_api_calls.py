@@ -11,7 +11,29 @@ gauth = GoogleAuth()
 # TODO: This seems to be for single app use, not server deployment. 
 # I believe for real world deployment we just get rid of it
 # As per https://pythonhosted.org/PyDrive/quickstart.html
+# OR: ----> https://stackoverflow.com/questions/24419188/automating-pydrive-verification-process
+
+""" This is the functioning element
 gauth.LocalWebserverAuth()
+"""
+#######TEST########
+# Try to load saved client credentials
+gauth.LoadCredentialsFile("mycreds.txt")
+if gauth.credentials is None:
+    # Authenticate if they're not there
+    gauth.LocalWebserverAuth()
+elif gauth.access_token_expired:
+    # Refresh them if expired
+    gauth.Refresh()
+else:
+    # Initialize the saved creds
+    gauth.Authorize()
+# Save the current credentials to a file
+gauth.SaveCredentialsFile("mycreds.txt")
+#######END of TEST########
+
+
+
 drive = GoogleDrive(gauth)
 
 index_of_category_in_filename = {'organ':0,

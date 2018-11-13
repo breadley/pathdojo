@@ -165,14 +165,13 @@ def view():
 
         return redirect('/view')
           
-    positive_immunohistochemistry = 'Positive:'
-    negative_immunohistochemistry = 'Negative:'
+    positive_immunohistochemistry = ''
+    negative_immunohistochemistry = ''
     for ihc in disease.immunohistochemistry:
         if disease.immunohistochemistry[ihc] == '+':
-            positive_immunohistochemistry+=' '+ihc
+            positive_immunohistochemistry+=ihc+'   '
         if disease.immunohistochemistry[ihc] == '-':
-            negative_immunohistochemistry+=' '+ihc
-    pdb.set_trace()
+            negative_immunohistochemistry+=ihc+'   '
     answer = disease.name
     differentials = disease.differentials
     session['differentials'] = differentials # Save in case DDx quiz initiated
