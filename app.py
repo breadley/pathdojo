@@ -69,6 +69,7 @@ def design():
     for category in available_category_options.keys():
         selected_category_options[category]=[]
     temp_selections = []
+    
 
     # Create a blank dictionary to hold button presses
     selections = session.get('selections', temp_selections)
@@ -171,17 +172,20 @@ def view():
             positive_immunohistochemistry+=' '+ihc
         if disease.immunohistochemistry[ihc] == '-':
             negative_immunohistochemistry+=' '+ihc
-
+    pdb.set_trace()
     answer = disease.name
+    differentials = disease.differentials
+    session['differentials'] = differentials # Save in case DDx quiz initiated
 
-    print(f'\tdescription: {description}\n\nimmunohistochemistry: {immunohistochemistry}\n\tdifferentials: {differentials}\n\tanswer: {answer}')
+    print(f'\tdescription: {disease.description}\n\nimmunohistochemistry: {disease.immunohistochemistry}\n\tdifferentials: {differentials}\n\tanswer: {answer}')
 
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
                             description = disease.description,
+                            immunohistochemistry = disease.immunohistochemistry,
                             positive_immunohistochemistry = positive_immunohistochemistry,
                             negative_immunohistochemistry = negative_immunohistochemistry,
-                            differentials = disease.differentials,
+                            differentials = differentials,
                             image_ids = image_ids,
                             answer = answer)
 
@@ -193,6 +197,13 @@ def index():
     message = 'Reinforcement learning for familiarity with basic disease morphology'    
     return render_template('info.html',message = message)
 
+
+@app.route('/differentials')
+def differentials():
+    # View differentials  
+    differentials = session.get('differentials')
+       
+    return render_template('differentials.html',differentials = differentials)
 
 def get_single_image(blob_folder_drive_id):
     # This function randomly chooses an image from a blob's folder and downloads it for display
