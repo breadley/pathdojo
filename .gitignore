@@ -22,6 +22,7 @@ credentials.json
 # Ignore the google drive api wrapper credentials file 
 # (a copy of credentials.json, used for PyDrive)
 client_secrets.json
+client_secret.json
 token.json
 
 static/*
