@@ -121,5 +121,37 @@ May be used for google drive calls, may be incoroporated into `app.py`
 Image [layout](https://www.samalive.co/) ideally scales with mobile browser
 
 
+## Adding content
 
+When creating a new disease, observe the following categories:
+
+[organ]
+skin, lung, brain
+
+[type]
+benign
+malignant
+
+[subtype]
+tumour
+inflammatory
+degenerative
+vascular
+infection
+cystic
+
+[complexity]
+# as a guide, the librpathology.org/spot_diagnosis and /short_power_list and /long_power_list are used to determine complexity category
+spot_diagnosis
+basic
+advanced (long power list minus (short power list and spotters)
+curiosity (really niche things)
+
+[incidence]
+common
+uncommon
+rare
+
+[name]
+#disease name with underline delimiters in the format: this_is_a_disease_name
 

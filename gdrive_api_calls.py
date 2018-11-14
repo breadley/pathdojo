@@ -6,6 +6,7 @@ import pdb
 import quiz_logic
 import config
 
+
 gauth = GoogleAuth()
 
 # TODO: This seems to be for single app use, not server deployment. 
@@ -251,6 +252,14 @@ def select_an_image_from_list_of_ids(image_id_list):
 	image.GetContentFile('static/'+filename)
 	
 	return filename,id
+
+def read_subfile(subfile):
+	# Accepts the dictionary of the object
+
+	# Create pydrive object
+	file = drive.CreateFile({'id':subfile['subfile_id']})
+	content = file.GetContentString()
+	return content
 
 def download_subfile(subfile):
 	# Accepts the dictionary of the object

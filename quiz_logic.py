@@ -292,9 +292,35 @@ class Disease():
             self.current_image = self.images[0]
         except:
             self.current_image = None
-                
+
+
+    def read_text_file(self):
+        # Returns the contents of a the google drive .txt file without downloading
+
+        for file in self.files_within_folder:
+                if file['subfile_type'] == 'text':
+                    raw_contents = gdrive_api_calls.read_subfile(file)
+
+                    
+                    try:
+                        contents = toml.loads(raw_contents)
+                        self.text_file_contents = contents
+                    except FileNotFoundError:
+                        print('Error: could not load the .txt file')
+                        self.text_file_contents = 'the text file has a typo'
+                    except:
+                        print(f'There are formatting errors in .txt file for: {file}')
+                        self.text_file_contents = 'the text file has a typo'
+        
+        
+        self.description = self.get_description()
+        self.differentials = self.get_differentials()
+        self.immunohistochemistry = self.get_immunohistochemistry()
+        print('this code works')
+
+
     def download_non_image_files(self):
-        # Caches files
+        # Caches files - to be deprecated
         for file in self.files_within_folder:
             if not file['subfile_type'] == 'image':
                 gdrive_api_calls.download_subfile(file)
@@ -305,6 +331,7 @@ class Disease():
         self.immunohistochemistry = self.get_immunohistochemistry()
     
     def download_current_image(self):
+        # To be deprecated
         gdrive_api_calls.download_subfile(self.current_image)
         # available in the folder: config.google_drive_download_directory
         # with filename self.current_image['temporary_file_name']
@@ -314,6 +341,7 @@ class Disease():
         self.current_image = self.images[0]
 
     def download_all_images(self):
+        # To be deprecated
         # used to download all images after .take_subfile_inventory has been called.
         for image in self.images:
             gdrive_api_calls.download_subfile(image)

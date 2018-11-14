@@ -132,6 +132,8 @@ def view():
 
     # Need to replace this with in-memory IO (import IO)
     disease.download_non_image_files()
+    # Use this instead
+    #disease.read_text_file()
     images = disease.images
     image_ids = []
     for image in disease.images:
