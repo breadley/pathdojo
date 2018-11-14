@@ -6,6 +6,7 @@
         "project_name": "pathdojo",
         "runtime": "python3.6",
         "s3_bucket": "zappa-pnit5yu77",
-        "exclude":["folder_based_dojo","[*","*.ipynb","*.ipynb_checkpoints"]
+        "exclude":["folder_based_dojo","[*","*.ipynb","*.ipynb_checkpoints"],
+        "keep_warm": false
     }
 }

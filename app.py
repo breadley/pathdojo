@@ -131,9 +131,10 @@ def view():
     disease.take_subfile_inventory()
 
     # Need to replace this with in-memory IO (import IO)
-    disease.download_non_image_files()
+    #disease.download_non_image_files()
     # Use this instead
-    #disease.read_text_file()
+    disease.read_text_file()
+    
     images = disease.images
     image_ids = []
     for image in disease.images:

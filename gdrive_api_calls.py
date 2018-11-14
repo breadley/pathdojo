@@ -19,7 +19,7 @@ gauth.LocalWebserverAuth()
 """
 #######TEST########
 # Try to load saved client credentials
-gauth.LoadCredentialsFile("mycreds.txt")
+gauth.LoadCredentialsFile("mycreds.txt") # prev mycreds.txt
 if gauth.credentials is None:
     # Authenticate if they're not there
     gauth.LocalWebserverAuth()
