@@ -5,7 +5,6 @@ from PIL import Image
 import glob, os, fnmatch
 from random import sample, choice
 import toml
-import tkinter as tk
 import pdb
 import gdrive_api_calls
 import config
