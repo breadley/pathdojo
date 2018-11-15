@@ -1,0 +1,62 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+
+<div class="container">
+    <br>
+    <div class="progress">
+        <!-- Score obtained out of maximum = ( average score / number_quizzed*100 ) * fraction of quiz completed  -->
+        <div class="progress-bar" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="400" style="width: {{(points_obtained_so_far / points_available_for_whole_quiz)*100}}%;"></div>
+        <!-- potential score that was missed  -->
+        <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="400" style="width: {{( (points_missed_so_far) / points_available_for_whole_quiz)*100}}%;"></div>
+    </div>
+
+    {% if average_score != None %}
+        <br>
+        <span class="badge badge-primary">   Total score: {{average_score}}%   </span>
+    {% endif %}
+
+    {% if this_score != None %}
+        <br>
+        <span class="badge badge-success">   Your guess {{scored_submission}} scored {{this_score}} against {{scored_disease}}    </span>
+    {% endif %}
+
+
+
+
+    <div>
+        <h4>Cases covered</h4>
+        {% for disease in diseases_for_review %}
+        <p>{{disease}}</p>
+        {% endfor %}
+    </div>
+
+    <br>
+    <p>How about  <a href="{{ url_for('design') }}">a few more</a>?</p>
+    <br>
+
+    <div style="padding-left: 0px;  padding-right: 0px;">
+        {% for individual_image in images_for_later_review %}			
+        <div>
+            <br>
+            <picture>
+                <img src="https://drive.google.com/uc?id={{individual_image}}&export=download" class="img-fluid" alt="Responsive image">
+            </picture>
+        </div>	
+        {% endfor %}	
+    </div>
+ 
+
+
+</div>
+
+{% endblock %}
+
+
+
+
+
+
+
+
+

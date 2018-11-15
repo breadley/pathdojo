@@ -12,7 +12,7 @@ points_missed_so_far = 25
         <!-- Score obtained out of maximum = ( average score / number_quizzed*100 ) * fraction of quiz completed  -->
         <div class="progress-bar" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="400" style="width: {{(points_obtained_so_far / points_available_for_whole_quiz)*100}}%;"></div>
         <!-- potential score that was missed  -->
-        <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="400" style="width: {{( (points_missed_so_far  - points_obtained_so_far) / points_available_for_whole_quiz)*100}}%;"></div>
+        <div class="progress-bar bg-danger" role="progressbar" aria-valuenow="" aria-valuemin="0" aria-valuemax="400" style="width: {{( (points_missed_so_far) / points_available_for_whole_quiz)*100}}%;"></div>
     </div>
 
     {% if average_score != None %}

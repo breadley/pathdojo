@@ -84,7 +84,7 @@ def design():
         JSONmemory = selections['memory']
         memory = json.loads(JSONmemory)
         selected_category_options = memory['category_selections']
-        max_quiz_length = memory['quiz_length']  
+        max_quiz_length = int(memory['quiz_length'])
         # Reset score counters      
         session['aggregate_score'] = 0
         session['this_score'] = None
@@ -96,6 +96,18 @@ def design():
         if selections['submit_button'] == 'pressed': 
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
+            
+            if len(selected_files) > max_quiz_length:
+                selected_files = selected_files[:(max_quiz_length)]
+                print(selected_files)
+                print(f'you wanted quiz length {max_quiz_length}, and we have prepared the quiz with length: {len(selected_files)}')
+
+            # Memory for reviewing after the quiz
+            diseases_for_review = []
+            for disease in selected_files:
+                diseases_for_review.append(disease['printable_name'])
+            session['diseases_for_review'] = diseases_for_review
+
             session['total_quiz_length'] = len(selected_files)
             # Remove the last element, and assign as the current disease
             if len(selected_files)>1:
@@ -128,25 +140,10 @@ def design():
 @app.route('/view',methods=['GET', 'POST'])
 def view():
     # This page is for viewing the current disease in the quiz
-
+    ########## Disease things ##########
     differentials = ''
     immunohistochemistry = ''
     description = ''
-
-    # Update scorers
-    current_quiz = session.get('current_quiz',None)
-    aggregate_score = int(session.get('aggregate_score',0))
-    quiz_length = int(session.get('total_quiz_length',None))
-    number_completed = quiz_length - len(current_quiz['list_of_selected_files'])
-
-    points_available_for_whole_quiz = int(quiz_length*100) # points_available, # for visual bar
-    points_obtained_so_far = int(aggregate_score) # points_obtained, # for visual bar
-    points_missed_so_far = int(number_completed*100) - 100
-
-    if aggregate_score != None and aggregate_score != None:
-        average_score = int(aggregate_score / (number_completed+1))
-    else:
-        average_score = 0
 
     # Get disease information
     current_disease = session.get('current_disease',None)
@@ -165,6 +162,51 @@ def view():
     for image in disease.images:
         image_ids.append(image['subfile_id'])
 
+    positive_immunohistochemistry = ''
+    negative_immunohistochemistry = ''
+    for ihc in disease.immunohistochemistry:
+        if disease.immunohistochemistry[ihc] == '+':
+            positive_immunohistochemistry+=ihc+'   '
+        if disease.immunohistochemistry[ihc] == '-':
+            negative_immunohistochemistry+=ihc+'   '
+    answer = disease.name
+    differentials = disease.differentials
+    session['differentials'] = differentials # Save in case DDx quiz initiated
+    
+
+    print(f'\tdescription: {disease.description}\n\nimmunohistochemistry: {disease.immunohistochemistry}\n\tdifferentials: {differentials}\n\tanswer: {answer}')
+
+
+
+    ######### Scoring things ########
+    current_quiz = session.get('current_quiz',None)
+    aggregate_score = int(session.get('aggregate_score',0))
+    quiz_length = int(session.get('total_quiz_length',None))
+    number_completed = quiz_length - len(current_quiz['list_of_selected_files']) - 1
+    if number_completed < 0:
+        number_completed = 0
+
+    points_available_for_whole_quiz = int(quiz_length*100) # points_available, # for visual bar
+    points_obtained_so_far = int(aggregate_score) # points_obtained, # for visual bar
+    points_missed_so_far = int(number_completed*100) - points_obtained_so_far
+
+    print(f'''aggregate_score {aggregate_score}.\n \
+            quiz_length {quiz_length}.\n \
+            number_completed {number_completed}.\n \
+            points_available_for_whole_quiz {points_available_for_whole_quiz}.\n\
+            points_obtained_so_far {points_obtained_so_far}.\n\
+            points_missed_so_far {points_missed_so_far}''')
+
+    if aggregate_score != None and number_completed != 0:
+        average_score = int(aggregate_score / (number_completed))
+    else:
+        average_score = 0
+
+    scored_disease = session.get('scored_disease',None)
+    this_score = session.get('this_score',None)
+    scored_submission = session.get('scored_submission',None)
+
+
 
     if request.method == 'POST':
         print('request.form is: ',request.form)
@@ -180,11 +222,32 @@ def view():
             session['scored_disease'] = disease.name
             session['scored_submission'] = guess
 
+            # Save a single image id for review after the quiz
+            images = list(session.get('images_for_later_review',[]))
+            images.append(image_ids[0])
+            session['images_for_later_review'] = images
+
         if request.form.get('move_on') == 'Next': # if the move on button has been primed
         
                 # Get next item in quiz (pop)
             if len(current_quiz['list_of_selected_files']) == 0:
-                return redirect('/')
+                
+                diseases_for_review = session.get('diseases_for_review',[])
+                images_for_later_review = session.get('images_for_later_review',[])
+
+                print(f'dfr: {diseases_for_review}\niflr:{images_for_later_review}')
+                
+                return render_template('review.html', 
+                        diseases_for_review = diseases_for_review,
+                        images_for_later_review = images_for_later_review,
+                        points_available_for_whole_quiz = points_available_for_whole_quiz, # points_available, # for visual bar
+                        points_obtained_so_far = points_obtained_so_far, # points_obtained, # for visual bar
+                        points_missed_so_far = points_missed_so_far, # points_missed, # for visual bar
+                        this_score = this_score, # for banners
+                        scored_disease = scored_disease, # for banners
+                        average_score = average_score, # for banners
+                        scored_submission = scored_submission) # for banners                
+                #return redirect('/')
             
             # Get the old list, remove the last element and assign as current disease
             print('before',len(current_quiz['list_of_selected_files']))
@@ -202,21 +265,6 @@ def view():
 
         return redirect('/view')
           
-    positive_immunohistochemistry = ''
-    negative_immunohistochemistry = ''
-    for ihc in disease.immunohistochemistry:
-        if disease.immunohistochemistry[ihc] == '+':
-            positive_immunohistochemistry+=ihc+'   '
-        if disease.immunohistochemistry[ihc] == '-':
-            negative_immunohistochemistry+=ihc+'   '
-    answer = disease.name
-    differentials = disease.differentials
-    session['differentials'] = differentials # Save in case DDx quiz initiated
-    
-    scored_disease = session.get('scored_disease',None)
-    this_score = session.get('this_score',None)
-    scored_submission = session.get('scored_submission',None)
-    print(f'\tdescription: {disease.description}\n\nimmunohistochemistry: {disease.immunohistochemistry}\n\tdifferentials: {differentials}\n\tanswer: {answer}')
 
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
