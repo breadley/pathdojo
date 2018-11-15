@@ -9,6 +9,8 @@ import tkinter as tk
 import pdb
 import gdrive_api_calls
 import config
+import io
+import sys
 
 # [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., ...]
 available_files = []
@@ -297,10 +299,37 @@ class Disease():
     def read_text_file(self):
         # Returns the contents of a the google drive .txt file without downloading
 
+
+        test_string = """
+                        # can be multiline. Use backslashes at the end of a line to indicate new line. (\)
+                        description = '''
+
+                        Monomorphic cells with granular cytoplasm, with Crooke's Hyaline (intermediate filaments that aggregate around the nucleus as cytopathic response to ACTH). ACTH is sparsely granulated, which increases local recurrence risk. Crooke's adenoma has a high Ki-67 and all cells stain positive for ACTH.
+
+                        '''
+
+                        # must be one line, in format ihc = {ihc1='+',ihc2='-'}.
+                        immunohistochemistry = {ACTH='+',Cam5.2='+',T-Pit='+'}
+
+                        genetics = '''
+                        T-Pit transcription factor
+                        '''
+
+                        # can be multiline, as strings separated by commas.
+                        differentials = [
+                        'pituitary_adenoma_densely_granulated_corticotroph',
+                        'crookes_adenoma'
+                        ]
+                        """
+        str_pres  = """
+
+                    '# can be multiline.\r\ndescription = \'\'\'\r\nCell density higher than normal brain.\r\n\r\nMild to moderate nuclear pleomorphism.\r\n\r\nMonotony of atypical nuclei and irregular distribution indicates neoplasm.\r\n\r\n"naked nuclei" without recognizeable processes.\r\n\r\nNo prominent nucleolus.\r\n\r\nCytoplasm highly variable (even within the same tumour).\r\n\r\nIn normal CNS the cytoplasm blends within the neuropil.\r\n\r\nMitoses absent or very rare.\r\n\r\nMicrocystic spaces of the background (none to extensive).\r\n\r\nNo necrosis, no vascular proliferations.\r\n\r\nExcept radiation necrosis.\r\n\r\nLymphocytic cuffing (mostly in gemistocytic type)\r\n\r\nAbent to few rosenthal fibers.\r\n\r\n\r\n\'\'\'\r\n\r\n# must be one line, in format ihc = {ihc1=\'+\',ihc2=\'-\'}.\r\nimmunohistochemistry = {}\r\n\r\n# can be multiline, as strings separated by commas.\r\ndifferentials = [\r\n\r\n]\r\n'
+
+                    """
+
         for file in self.files_within_folder:
                 if file['subfile_type'] == 'text':
                     raw_contents = gdrive_api_calls.read_subfile(file)
-
                     
                     try:
                         contents = toml.loads(raw_contents)
@@ -311,8 +340,7 @@ class Disease():
                     except:
                         print(f'There are formatting errors in .txt file for: {file}')
                         self.text_file_contents = 'the text file has a typo'
-        
-        
+
         self.description = self.get_description()
         self.differentials = self.get_differentials()
         self.immunohistochemistry = self.get_immunohistochemistry()

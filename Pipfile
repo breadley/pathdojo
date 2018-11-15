@@ -17,6 +17,7 @@ pydrive = "*"
 "boto3" = "*"
 requests = "*"
 flask-wtf = "*"
+fuzzywuzzy = {version = "*", extras = ["speedup"]}
 
 [dev-packages]
 awscli = "*"

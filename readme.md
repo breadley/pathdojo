@@ -125,14 +125,14 @@ Image [layout](https://www.samalive.co/) ideally scales with mobile browser
 
 When creating a new disease, observe the following categories:
 
-[organ]
+###### Organ
 skin, lung, brain
 
-[type]
+###### Type
 benign
 malignant
 
-[subtype]
+###### Subtype
 tumour
 inflammatory
 degenerative
@@ -140,18 +140,18 @@ vascular
 infection
 cystic
 
-[complexity]
-# as a guide, the librpathology.org/spot_diagnosis and /short_power_list and /long_power_list are used to determine complexity category
+###### Complexity
+ as a guide, the librpathology.org/spot_diagnosis and /short_power_list and /long_power_list are used to determine complexity category
 spot_diagnosis
 basic
 advanced (long power list minus (short power list and spotters)
 curiosity (really niche things)
 
-[incidence]
+###### Incidence
 common
 uncommon
 rare
 
-[name]
-#disease name with underline delimiters in the format: this_is_a_disease_name
+###### Name
+disease name with underline delimiters in the format: this_is_a_disease_name
 

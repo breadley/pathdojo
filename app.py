@@ -6,6 +6,7 @@ import random
 import quiz_logic
 import pdb
 import json
+from fuzzywuzzy import fuzz,process
 
 
 app = Flask(__name__)
@@ -58,6 +59,7 @@ def string_to_html(string):
  
 @app.route('/',methods=['GET','POST'])
 def design():
+
     google_drive = True
     message = 'Select categories to include, or go straight into a random quiz'
  
@@ -82,15 +84,22 @@ def design():
         JSONmemory = selections['memory']
         memory = json.loads(JSONmemory)
         selected_category_options = memory['category_selections']
-        max_quiz_length = memory['quiz_length']        
+        max_quiz_length = memory['quiz_length']  
+        # Reset score counters      
+        session['aggregate_score'] = 0
+        session['this_score'] = None
+        session['scored_disease'] = None
+        session['scored_submission'] = None
+
 
         # If the submit button is pressed
         if selections['submit_button'] == 'pressed': 
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
-            
+            session['total_quiz_length'] = len(selected_files)
             # Remove the last element, and assign as the current disease
-            session['current_disease'] = selected_files.pop()                  
+            if len(session['current_disease'])>1:
+                session['current_disease'] = selected_files.pop()                  
             
             # Record this quiz in the master list
             this_quiz = {}
@@ -124,17 +133,33 @@ def view():
     immunohistochemistry = ''
     description = ''
 
+    # Update scorers
     current_quiz = session.get('current_quiz',None)
+    aggregate_score = int(session.get('aggregate_score',0))
+    quiz_length = int(session.get('total_quiz_length',None))
+    number_completed = quiz_length - len(current_quiz['list_of_selected_files'])
 
+    points_available_for_whole_quiz = int(quiz_length*100) # points_available, # for visual bar
+    points_obtained_so_far = int(aggregate_score) # points_obtained, # for visual bar
+    points_missed_so_far = int(number_completed*100) - 100
+
+    if aggregate_score != None and aggregate_score != None:
+        average_score = int(aggregate_score / (number_completed))
+    else:
+        average_score = 0
+
+    # Get disease information
     current_disease = session.get('current_disease',None)
     disease = quiz_logic.Disease(current_disease,google_drive=True)
     disease.take_subfile_inventory()
 
     # Need to replace this with in-memory IO (import IO)
-    #disease.download_non_image_files()
-    # Use this instead
-    disease.read_text_file()
+    disease.download_non_image_files()
+    # Use this instead ideally - butt cannot use toml.loads on the GetContentString() output from pydrive
+    # So may have to save the file locally then delete
+    # disease.read_text_file()
     
+
     images = disease.images
     image_ids = []
     for image in disease.images:
@@ -143,8 +168,17 @@ def view():
 
     if request.method == 'POST':
         print('request.form is: ',request.form)
-        if request.form.get('guess') == disease.name:
-            print('hot dog, we have a winner!')
+        guess = request.form.get('guess') 
+        if guess != '' and guess != None: # If a guess was typed in
+            fuzz_score = fuzz.ratio(disease.name,guess)
+            print(f'Your guess {guess} scored {fuzz_score} against {disease.name}')
+
+            if aggregate_score == None:
+                aggregate_score = 0
+            session['aggregate_score'] = aggregate_score + fuzz_score
+            session['this_score'] = fuzz_score
+            session['scored_disease'] = disease.name
+            session['scored_submission'] = guess
 
         if request.form.get('move_on') == 'Next': # if the move on button has been primed
         
@@ -178,11 +212,21 @@ def view():
     answer = disease.name
     differentials = disease.differentials
     session['differentials'] = differentials # Save in case DDx quiz initiated
-
+    
+    scored_disease = session.get('scored_disease',None)
+    this_score = session.get('this_score',None)
+    scored_submission = session.get('scored_submission',None)
     print(f'\tdescription: {disease.description}\n\nimmunohistochemistry: {disease.immunohistochemistry}\n\tdifferentials: {differentials}\n\tanswer: {answer}')
 
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
+                            points_available_for_whole_quiz = points_available_for_whole_quiz, # points_available, # for visual bar
+                            points_obtained_so_far = points_obtained_so_far, # points_obtained, # for visual bar
+                            points_missed_so_far = points_missed_so_far, # points_missed, # for visual bar
+                            this_score = this_score, # for banners
+                            scored_disease = scored_disease, # for banners
+                            average_score = average_score, # for banners
+                            scored_submission = scored_submission, # for banners
                             description = disease.description,
                             immunohistochemistry = disease.immunohistochemistry,
                             positive_immunohistochemistry = positive_immunohistochemistry,
