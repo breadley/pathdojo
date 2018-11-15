@@ -98,7 +98,7 @@ def design():
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
             session['total_quiz_length'] = len(selected_files)
             # Remove the last element, and assign as the current disease
-            if len(session['current_disease'])>1:
+            if len(selected_files)>1:
                 session['current_disease'] = selected_files.pop()                  
             
             # Record this quiz in the master list
@@ -144,7 +144,7 @@ def view():
     points_missed_so_far = int(number_completed*100) - 100
 
     if aggregate_score != None and aggregate_score != None:
-        average_score = int(aggregate_score / (number_completed))
+        average_score = int(aggregate_score / (number_completed+1))
     else:
         average_score = 0
 
