@@ -2,18 +2,16 @@
 
 from google.oauth2 import service_account
 import googleapiclient.discovery
-import os, tempfile, zipfile, pprint
+import os, tempfile, zipfile, pprint, io
 from contextlib import contextmanager
 import requests
+from googleapiclient.http import MediaIoBaseDownload
 
-from pydrive.auth import GoogleAuth, ServiceAccountCredentials
-from pydrive.drive import GoogleDrive
 
 SERVICE_ACCOUNT_FILE = 'service_account_credentials.json'
 SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
 API_SERVICE_NAME = 'drive'
 API_VERSION = 'v3'
-CREDENTIALS_LOCATION = 'service_account_credentials.json'
 
 @contextmanager
 def temporary_work_dir():
@@ -41,25 +39,77 @@ def list_files_raw_api(): # Not working yet
                                             pageToken=page_token).execute()
         for file in response.get('files', []):
             count+=1
+            if count == 620:
+                pprint.PrettyPrinter().pprint(file)  
             # Process change
             print(f'Found file: %s (%s)' % (file.get('name'), file.get('id')))
         page_token = response.get('nextPageToken', None)
         if page_token is None:
             break
-    print(f'There were {count} files present in the second test')
+    print(f'There were {count} files found using the V3 service account API')
 
-def download_a_file(file_id = '1sS9ZDxt1sN-PKYhIdcSuLhBLERfx-JFk'):
-    # Inspiration
-    # https://stackoverflow.com/questions/50367862/how-to-access-google-drive-image-in-canvas
+def list_disease_folders():
+    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    drive = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
-    # https://www.googleapis.com/drive/v3/files/fileId/export
+    # Test from https://developers.google.com/drive/api/v3/search-parameters
+    page_token = None
+    count=0
+    while True:
+        response = drive.files().list(q="mimeType = 'application/vnd.google-apps.folder'",
+                                            fields='nextPageToken, files(id, name)',
+                                            pageToken=page_token).execute()
+        for file in response.get('files', []):
+            count+=1
+            # Process change
+            print(f'Found file: %s (%s)' % (file.get('name'), file.get('id')))
+        page_token = response.get('nextPageToken', None)
+        if page_token is None:
+            break
+    print(f'There were {count} folders found using the V3 service account API')
 
-    file = requests.get('https://www.googleapis.com/drive/v3/files/{file_id}')
-    pprint.PrettyPrinter().pprint(file.content)   
-    print('done here')   
+def list_folder_contents(folder_id=''):
+    # Lists the file contents for a given folder 
+    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    drive = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+
+    # Test from https://developers.google.com/drive/api/v3/search-parameters
+    page_token = None
+    count=0
+    query = f"'{str(folder_id)}' in parents"
+    while True:
+        response = drive.files().list(q=query,
+                                        fields='nextPageToken, files(id, name)',
+                                        pageToken=page_token).execute()
+        for file in response.get('files', []):
+            count+=1
+            # Process change
+            print(f'Found file: %s (%s)' % (file.get('name'), file.get('id')))
+        page_token = response.get('nextPageToken', None)
+        if page_token is None:
+            break
+    print(f'There were {count} folders found using the V3 service account API')
+
+def download_a_file(file_id = ''):
+    # https://developers.google.com/drive/api/v3/manage-downloads
+    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    drive = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+
+
+    request = drive.files().get_media(fileId=file_id)
+    fh = io.BytesIO()
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+        print("Download %d%%." % int(status.progress() * 100))
+
 
 if __name__ == '__main__':
-    list_files_raw_api()
+    download_a_file(file_id='12dO-Pv4InZuBOxwzCjbdWEct6Qw0-fVu')
+    #list_folder_contents(folder_id='1EHnywbGUb21XHMC2qUGOppY1egbBLlRO')
+    #list_disease_folders()
+    #list_files_raw_api()
     '''
     with temporary_work_dir():
         download_a_file()
