@@ -28,41 +28,27 @@ def temporary_work_dir():
         finally:
             os.chdir(old_work_dir)
 
-def list_files_raw_api(): # Not workin yet
+def list_files_raw_api(): # Not working yet
 
     credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
     drive = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
-    # Call the Drive v3 API
-    # https://developers.google.com/drive/api/v3/reference/files/list
-    results = drive.files().list().execute()
-    print('the results',results)
-    items = results.get('files', [])
+    # Test from https://developers.google.com/drive/api/v3/search-parameters
+    page_token = None
+    count=0
+    while True:
+        response = drive.files().list(fields='nextPageToken, files(id, name)',
+                                            pageToken=page_token).execute()
+        for file in response.get('files', []):
+            count+=1
+            # Process change
+            print(f'Found file: %s (%s)' % (file.get('name'), file.get('id')))
+        page_token = response.get('nextPageToken', None)
+        if page_token is None:
+            break
+    print(f'There were {count} files present in the second test')
 
-    print(items)
-    if not items:
-        print('No files found.')
-    else:
-        print('Files:')
-        for item in items:
-            print(item)
-
-def list_files_pydrive(file_id = '1NmyzauLOKFygiSfFySgkVX8h7XXFt5oz'):
-    # As per https://github.com/gsuitedevs/PyDrive/issues/107
-    gauth = GoogleAuth()
-    gauth.credentials = ServiceAccountCredentials.from_json_keyfile_name(CREDENTIALS_LOCATION, SCOPES)
-    drive = GoogleDrive(gauth)
-    
-    # Create pydrive object
-    file_id = str(file_id)
-    my_file = drive.CreateFile({'id': file_id}) 
-    # Download the file
-    my_file.GetContentFile('freshly_downloaded_image.jpg')
-
-  
-
-
-def download_a_file(file_id = '1NmyzauLOKFygiSfFySgkVX8h7XXFt5oz'):
+def download_a_file(file_id = '1sS9ZDxt1sN-PKYhIdcSuLhBLERfx-JFk'):
     # Inspiration
     # https://stackoverflow.com/questions/50367862/how-to-access-google-drive-image-in-canvas
 
@@ -73,7 +59,7 @@ def download_a_file(file_id = '1NmyzauLOKFygiSfFySgkVX8h7XXFt5oz'):
     print('done here')   
 
 if __name__ == '__main__':
-    list_files_pydrive()
+    list_files_raw_api()
     '''
     with temporary_work_dir():
         download_a_file()
