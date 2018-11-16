@@ -29,8 +29,8 @@ static/*
 
 *.zip
 
-# Exclude api test folder
-api_test_18_11_12
+# Exclude api test folder creds
+api_service_test/service_account_credentials
 
 # Exclude google drive credentials file used for server to server app
 mycreds.txt
