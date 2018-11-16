@@ -2,10 +2,12 @@
 
 from google.oauth2 import service_account
 import googleapiclient.discovery
-import os, tempfile, zipfile, pprint, io
+import os, tempfile, zipfile, pprint, io 
+import toml
 from contextlib import contextmanager
 import requests
 from googleapiclient.http import MediaIoBaseDownload
+
 
 
 SERVICE_ACCOUNT_FILE = 'service_account_credentials.json'
@@ -97,16 +99,26 @@ def download_a_file(file_id = ''):
 
 
     request = drive.files().get_media(fileId=file_id)
-    fh = io.BytesIO()
-    downloader = MediaIoBaseDownload(fh, request)
-    done = False
-    while done is False:
-        status, done = downloader.next_chunk()
-        print("Download %d%%." % int(status.progress() * 100))
+    with temporary_work_dir():
+        # This causes files to be saved in:
+        # /private/var/folders/4n/31wr80mj5_g23g8kt79nz9zm0000gn/T/tmp9e8phnks
+        fh = io.FileIO('newfangled_file.txt','wb') # changed from io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            print("Download %d%%." % int(status.progress() * 100))
 
+        print('I am in',os.getcwd())
+        for file in os.listdir('.'):
+            print('I found: ',file)
+
+        things = toml.load('newfangled_file.txt')
+        pprint.PrettyPrinter().pprint(things) 
 
 
 if __name__ == '__main__':
+    
     download_a_file(file_id='12dO-Pv4InZuBOxwzCjbdWEct6Qw0-fVu')
     #list_folder_contents(folder_id='1EHnywbGUb21XHMC2qUGOppY1egbBLlRO')
     #list_disease_folders()
