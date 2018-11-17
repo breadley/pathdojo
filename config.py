@@ -10,6 +10,10 @@ class DevelopmentConfig(Config):
 class TestingConfig(Config):
     TESTING = True
 
+class MyConfig(Config):
+    DEBUG = False
+    TESTING = False
+    SECRET_KEY = b'"\xe4\x7fTsrn[\xb7Vl\x94\xde\xaeQG'
 
 # Allowbale files to be read
 image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
@@ -26,7 +30,11 @@ index_of_category_in_filename = {'organ':0,
 
 # This config.py file and these directories (which contains diseases) should be within one folder
 # Where the disease folders are located when not using google drive
-local_storage_directory = './folder_based_dojo/'
+local_storage_directory = './folder_based_dojo/pathological_content/'
 
 # Where files are downloaded to from google drive API
 google_drive_download_directory = './static/'
+
+# Google drive ID of the folder where the diseases are store. 
+# This folder is special in that is has been shared with the service account email.
+PATHOLOGICAL_CONTENT_FOLDER_ID = '10KMBdFqoGHkAQ_ywroaAsEQLue4NYEgv'

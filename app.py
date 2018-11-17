@@ -7,14 +7,15 @@ import quiz_logic
 import pdb
 import json
 from fuzzywuzzy import fuzz,process
+import my_api
 
 
 app = Flask(__name__)
 
-app.config.from_object('config.DevelopmentConfig')
+app.config.from_object('config.MyConfig')
 
 # Debug mode on/True or off/False
-app.debug=True
+app.debug=False
 
 # Inventory needs to only be taken once
 need_to_take_inventory = True
@@ -59,6 +60,8 @@ def string_to_html(string):
  
 @app.route('/',methods=['GET','POST'])
 def design():
+
+    service_api_list_files_test = my_api.list_disease_folders()
 
     google_drive = True
     message = 'Select categories to include, or go straight into a random quiz'
@@ -128,8 +131,9 @@ def design():
             session['current_quiz'] = this_quiz
           
             return view()
-
+    
     return render_template('design.html', 
+                            service_api_list_files_test = service_api_list_files_test,
                             message = message,
                             selections = selections,
                             available_category_options = available_category_options)

@@ -1,12 +1,33 @@
-from pydrive.auth import GoogleAuth
-from pydrive.drive import GoogleDrive
+
 import random
-import os
 import pdb
 import quiz_logic
 import config
 
 
+from google.oauth2 import service_account
+import googleapiclient.discovery
+import os, tempfile, zipfile, pprint, io 
+from random import sample
+import toml
+from contextlib import contextmanager
+import requests
+from googleapiclient.http import MediaIoBaseDownload
+
+
+
+SERVICE_ACCOUNT_FILE = 'service_account_credentials.json'
+SCOPES = ['https://www.googleapis.com/auth/drive.readonly']
+API_SERVICE_NAME = 'drive'
+API_VERSION = 'v3'
+
+
+credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+drive = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+
+
+
+''' Old system
 gauth = GoogleAuth()
 
 # TODO: This seems to be for single app use, not server deployment. 
@@ -14,9 +35,9 @@ gauth = GoogleAuth()
 # As per https://pythonhosted.org/PyDrive/quickstart.html
 # OR: ----> https://stackoverflow.com/questions/24419188/automating-pydrive-verification-process
 
-""" This is the functioning element
+This is the functioning element:
 gauth.LocalWebserverAuth()
-"""
+
 #######TEST########
 # Try to load saved client credentials
 gauth.LoadCredentialsFile("mycreds.txt") # prev mycreds.txt
@@ -35,7 +56,11 @@ gauth.SaveCredentialsFile("mycreds.txt")
 
 
 
+
 drive = GoogleDrive(gauth)
+'''
+
+
 
 index_of_category_in_filename = {'organ':0,
                                 'disease_type':1,
@@ -65,55 +90,46 @@ def record_available_files(google_drive=False): # FINISHED
 	# input format: No input data required. Google drive is true/false
 	# output format:
 	# available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
-
-	# Temporary variable
-	unprocessed_files = []    
+	
+	page_token = None
+	   
 	# Clear global inventory
 	available_files = []
-
-	# if local files, record the files in dictionary format
-	if not google_drive: 
-		for file in os.listdir(quiz_logic.content_directory):
-			# A dictionary where the google drive ID is None
-			this_file = {}
-			this_file['filename'] = file
-			this_file['id'] = None
-			unprocessed_files.append(this_file)
-
-	# if google drive
-	else:
-		drive_files = drive.ListFile({'q': "'root' in parents"}).GetList()
-		for file in drive_files:
-			this_file = {}
-			this_file['filename'] = file['title']
-			this_file['id'] = file['id']
-			unprocessed_files.append(this_file)
-
-	# Go through the list of folders
-	for file in unprocessed_files:
-		folder_name = file['filename']
-		google_drive_id = file['id']
-
-		# If a completed disease folder
-		if folder_name.startswith('[') and folder_name.endswith(']'): 
-			this_disease={}
-			this_disease['folder_name'] = folder_name
-			this_disease['google_drive_id'] = google_drive_id                
-			
-			# get {'full_name':'','organ':'','disease_type':'', etc.}
-			filename_dict = filename_breakdown(folder_name)
-			for category,value in filename_dict.items():
-				this_disease[category] = value
-			
-			this_disease['printable_name'] = ''
-			for letter in this_disease['name']:
-				if letter == '_':
-					this_disease['printable_name']+=' '
-				else:
-					this_disease['printable_name']+=letter
-
-			available_files.append(this_disease)
+		
 	
+	query = f"'{config.PATHOLOGICAL_CONTENT_FOLDER_ID}' in parents" # Only get files where this folder is the parent
+	while True:
+		response = drive.files().list(q=query,
+										fields='nextPageToken, files(id, name)',
+										pageToken=page_token).execute()
+		for file in response.get('files', []):
+			folder_name = file.get('name')
+			google_drive_id = file.get('id')
+			print(f'found file {folder_name} with id {google_drive_id}')			
+			
+			# If a completed disease folder
+			if folder_name.startswith('[') and folder_name.endswith(']'): 				
+				this_disease={}
+				this_disease['folder_name'] = folder_name
+				this_disease['google_drive_id'] = google_drive_id                
+				
+				# get {'full_name':'','organ':'','disease_type':'', etc.}
+				filename_dict = filename_breakdown(folder_name)
+				for category,value in filename_dict.items():
+					this_disease[category] = value
+				
+				this_disease['printable_name'] = ''
+				for letter in this_disease['name']:
+					if letter == '_':
+						this_disease['printable_name']+=' '
+					else:
+						this_disease['printable_name']+=letter
+
+				available_files.append(this_disease)
+
+		page_token = response.get('nextPageToken', None)
+		if page_token is None:
+			break	
 	
 	# output format:
 	# available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
@@ -144,13 +160,6 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 				this_file['filename'] = file['title']
 				this_file['id'] = file['id']
 				unprocessed_subfiles.append(this_file)
-
-		if not google_drive:
-			for file in os.listdir(quiz_logic.content_directory+folder_name):
-				this_file = {}
-				this_file['filename'] = file
-				this_file['id'] = None
-				unprocessed_subfiles.append(this_file)	
 		
 		# For all of the files within the disease folder
 		for file in unprocessed_subfiles:

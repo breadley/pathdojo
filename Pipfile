@@ -4,10 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-pyinstaller = "*"
-ipykernel = "*"
-jupyter = "*"
-pillow = "*"
 toml = "*"
 zappa = "*"
 flask = "*"
@@ -18,9 +14,10 @@ pydrive = "*"
 requests = "*"
 flask-wtf = "*"
 fuzzywuzzy = {version = "*", extras = ["speedup"]}
+"urllib3" = "*"
+awscli = "*"
 
 [dev-packages]
-awscli = "*"
 
 [requires]
 python_version = "3.6"

@@ -1,7 +1,6 @@
 # This is an extension of dojo_script_upgrade_classes.ipynb
 # Using more object orientated approach, with quizzes also as objects
 
-from PIL import Image
 import glob, os, fnmatch
 from random import sample, choice
 import toml
@@ -447,14 +446,7 @@ class Disease():
 
     def show_all_images(self):
         
-        if not self.using_google_drive:
-            try:
-                for image in self.images:
-                    image_to_display = Image.open(self.content_directory+self.folder_name+'/'+image)
-                    image_to_display.show()    
-            except:
-                print('no images to display')
-        return
+        pass
 
     def get_differentials(self):
         # This retrieves the differentials
