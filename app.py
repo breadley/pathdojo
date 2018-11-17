@@ -87,7 +87,7 @@ def design():
             # A list of disease dictionaries with: name, drive id, ... but not folder contents
             session['current_quiz'] = this_quiz
           
-            return view()
+            return redirect(url_for('view'))
     
     return render_template('design.html', 
                             message = message,
