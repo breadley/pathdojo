@@ -116,6 +116,25 @@ def download_a_file(file_id = ''):
         things = toml.load('newfangled_file.txt')
         pprint.PrettyPrinter().pprint(things) 
 
+    print('now we are in ',os.getcwd())
+
+
+    with temporary_work_dir():
+        # This causes files to be saved in:
+        # /private/var/folders/4n/31wr80mj5_g23g8kt79nz9zm0000gn/T/tmp9e8phnks
+        fh = io.FileIO('newfangled_file.txt','wb') # changed from io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            print("Download %d%%." % int(status.progress() * 100))
+
+        print('I am in',os.getcwd())
+        for file in os.listdir('.'):
+            print('I found: ',file)
+
+        things = toml.load('newfangled_file.txt')
+        pprint.PrettyPrinter().pprint(things) 
 
 if __name__ == '__main__':
     
