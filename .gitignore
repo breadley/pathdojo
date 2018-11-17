@@ -31,6 +31,7 @@ static/*
 
 # Exclude api test folder creds
 api_service_test/service_account_credentials.json
+service_account_credentials.json
 
 # Exclude google drive credentials file used for server to server app
 mycreds.txt
