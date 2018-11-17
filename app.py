@@ -221,7 +221,7 @@ def view():
             session['current_disease'] = current_quiz.pop()
             print('we are skipping this disease')
 
-        return redirect('/view')
+        return redirect(url_for('view'))
           
 
     # Pass the necessary values/dicts to the view page
