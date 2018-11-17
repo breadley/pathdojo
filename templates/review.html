@@ -40,7 +40,7 @@
         <div>
             <br>
             <picture>
-                <img src="https://drive.google.com/uc?id={{individual_image}}&export=download" class="img-fluid" alt="Responsive image">
+                <img src="{{url_for('static', filename=individual_image)}}" class="img-fluid" alt="Responsive image">
             </picture>
         </div>	
         {% endfor %}	

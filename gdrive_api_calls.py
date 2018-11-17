@@ -25,56 +25,22 @@ API_VERSION = 'v3'
 credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
 drive = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
 
+@contextmanager
+def temporary_work_dir():
+    # Inspiration to download images to temp file in AWS lambda
+    # https://stackoverflow.com/questions/48364250/write-to-tmp-directory-in-aws-lambda-with-python
+    # USAGE:
+	# with temporary_work_dir():
+	# 	DO ANYTHING HERE
+	# Then by here the temp file will have been deleted
 
-
-''' Old system
-gauth = GoogleAuth()
-
-# TODO: This seems to be for single app use, not server deployment. 
-# I believe for real world deployment we just get rid of it
-# As per https://pythonhosted.org/PyDrive/quickstart.html
-# OR: ----> https://stackoverflow.com/questions/24419188/automating-pydrive-verification-process
-
-This is the functioning element:
-gauth.LocalWebserverAuth()
-
-#######TEST########
-# Try to load saved client credentials
-gauth.LoadCredentialsFile("mycreds.txt") # prev mycreds.txt
-if gauth.credentials is None:
-    # Authenticate if they're not there
-    gauth.LocalWebserverAuth()
-elif gauth.access_token_expired:
-    # Refresh them if expired
-    gauth.Refresh()
-else:
-    # Initialize the saved creds
-    gauth.Authorize()
-# Save the current credentials to a file
-gauth.SaveCredentialsFile("mycreds.txt")
-#######END of TEST########
-
-
-
-
-drive = GoogleDrive(gauth)
-'''
-
-
-
-index_of_category_in_filename = {'organ':0,
-                                'disease_type':1,
-                                'subtype':2,
-                                'complexity':3,
-                                'incidence':4,
-                                'name':5}
-
-
-
-# Allowbale files to be read
-image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
-
-
+	old_work_dir = os.getcwd()
+	with tempfile.TemporaryDirectory() as tmp_dir:
+		os.chdir(tmp_dir)
+		try:
+			yield
+		finally:
+			os.chdir(old_work_dir)
 
 # Auto-iterate through all files that matches this query
 def list_all_files(folder): # Eventually deprecate
@@ -83,10 +49,10 @@ def list_all_files(folder): # Eventually deprecate
 	for file1 in file_list:
 		if file1['title'].startswith('['):
 			results[file1['title']] = file1['id']
-	print(f'There are currently {len(results)} files in the Google Drive folder')
 	return results
 
-def record_available_files(google_drive=False): # FINISHED
+def record_available_files(google_drive=False): 
+	# Using the service account
 	# input format: No input data required. Google drive is true/false
 	# output format:
 	# available_files = [{'underlined_name':'blah_blah','folder_name':'[blah][blah][blah]'}, ..., etc. ]
@@ -105,7 +71,6 @@ def record_available_files(google_drive=False): # FINISHED
 		for file in response.get('files', []):
 			folder_name = file.get('name')
 			google_drive_id = file.get('id')
-			print(f'found file {folder_name} with id {google_drive_id}')			
 			
 			# If a completed disease folder
 			if folder_name.startswith('[') and folder_name.endswith(']'): 				
@@ -140,50 +105,51 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 	# Looks at the contents of the files and adds the important details to the file record
 	# Returns the same list but with the additional details included
 	# Google drive is True/False
+	# This could probably be optimised by making specialised queries to the google drive API if needed
 
 
 	list_of_files_including_subfiles = []
 
 	for main_file in list_of_files:
 		google_drive_id = main_file['google_drive_id']
-		
-		# Record subfiles within each folder
-		unprocessed_subfiles = []
+		page_token = None
 		files_inside = []
 
-		# Compile a list of files and IDs (none where local files)
-		if google_drive:
-			# List the contents of the folder
-			drive_subfiles = drive.ListFile({'q': f"'{google_drive_id}' in parents and trashed=false"}).GetList()
-			for file in drive_subfiles:
-				this_file = {}
-				this_file['filename'] = file['title']
-				this_file['id'] = file['id']
-				unprocessed_subfiles.append(this_file)
-		
-		# For all of the files within the disease folder
-		for file in unprocessed_subfiles:
-			subfile = file['filename']
-			subfile_id = file['id']
-			# If the file is a valid file
-			if not subfile.startswith('.') and not subfile.startswith('_'):
-				subfile_name,subfile_extension = os.path.splitext(subfile)
-				subfile_name = subfile_name.lower()
-				subfile_extension = subfile_extension.lower()
-				this_file = {}
-				this_file['subfile_name'] = subfile
-				this_file['subfile_id'] = subfile_id
-				this_file['subfile_extension'] = subfile_extension
-				this_file['temporary_file_name'] = 'temporary_file_with_id_'+subfile_id + subfile_extension
+		while True:
+			response = drive.files().list(q=f"'{google_drive_id}' in parents and trashed=false",
+												fields='nextPageToken, files(id, name)',
+												pageToken=page_token).execute()
+			for file in response.get('files', []):
+				subfile = file.get('name')
+				subfile_id = file.get('id')
+				
+				
+				# If the file is a valid file
+				if not subfile.startswith('.') and not subfile.startswith('_'):
+					this_file = {}
 
-				if subfile_extension in image_extensions:
-					this_file['subfile_type']='image'
-				if subfile_extension == '.xml':
-					this_file['subfile_type']='xml'
-				if subfile_extension == '.toml' or subfile_extension == '.txt':
-					this_file['subfile_type']='text'
+					subfile_name,subfile_extension = os.path.splitext(subfile)
+					subfile_name = subfile_name.lower()
+					subfile_extension = subfile_extension.lower()
+					this_file = {}
+					this_file['subfile_name'] = subfile
+					this_file['subfile_id'] = subfile_id
+					this_file['subfile_extension'] = subfile_extension
+					this_file['temporary_file_name'] = 'temporary_file_with_id_'+subfile_id + subfile_extension
 
-				files_inside.append(this_file)
+					if subfile_extension in config.image_extensions:
+						this_file['subfile_type']='image'
+					if subfile_extension == '.xml':
+						this_file['subfile_type']='xml'
+					if subfile_extension == '.toml' or subfile_extension == '.txt':
+						this_file['subfile_type']='text'
+
+					files_inside.append(this_file)			
+
+			page_token = response.get('nextPageToken', None)
+			if page_token is None:
+				break
+			
 		# Record list of files
 		main_file['files_within_folder'] = files_inside
 
@@ -204,7 +170,7 @@ def filename_breakdown(filename): # FINISHED
 		if segment != '':
 			components.append(segment.strip(']'))
 	
-	for category,index in index_of_category_in_filename.items():
+	for category,index in config.index_of_category_in_filename.items():
 		parts[category] = components[index]
 	
 	# output format:
@@ -216,8 +182,8 @@ def get_file_ids_from_folder(folder_id):
 	# TO BE DEPRECATED IN FAVOUR OF add_subfiles_to_file_details
 	# Returns an array of ids for the images within a given folder
 	image_ids = []
-	image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
-	print('Getting the files from within one folder...')
+	config.image_extensions = ['.jpeg', '.jpg', '.bmp', '.tif', '.png', '.gif']
+	
 	# Also returns a list containing the google drive id of any .txt files within a given folder
 	# Usually would have only one file
 	text_file_ids = []
@@ -231,7 +197,7 @@ def get_file_ids_from_folder(folder_id):
 
 		file_title = file['title']
 		file_id = file['id']
-		if file_title.endswith(tuple(image_extensions)) and not file_title.startswith('._'):
+		if file_title.endswith(tuple(config.image_extensions)) and not file_title.startswith('._'):
 			image_ids.append(file_id)
 		if file_title.endswith('.txt') and not file_title.startswith('._'):
 			text_file_ids.append(file_id)
@@ -270,20 +236,59 @@ def read_subfile(subfile):
 	content = file.GetContentString()
 	return content
 
+
 def download_subfile(subfile):
-	# Accepts the dictionary of the object
-	# Downloads the image to the temporary folder
+	# Accepts the dictionary of the object of the text file and loads as toml
+	# Downloads the .txt file to the temporary folder, for deletion by default
+	# Returns file content as toml dictionary
+    # https://developers.google.com/drive/api/v3/manage-downloads
+    
+	file_id = subfile['subfile_id']
+	temp_name = subfile['temporary_file_name'] # includes extension
+	file_contents = {}
 
-	# Create pydrive object
-	image = drive.CreateFile({'id':subfile['subfile_id']})
-	
-	# Download image
-	image_name = subfile['temporary_file_name']
-	image_path = config.google_drive_download_directory + image_name
-	image.GetContentFile(image_path)
-	
-	return 
+	request = drive.files().get_media(fileId=file_id)
+	with temporary_work_dir():
+		# This causes files to be saved in a nested folder within /tmp or /private/tmp
+		
+		fh = io.FileIO(temp_name,'wb')
+		downloader = MediaIoBaseDownload(fh, request)
+		done = False
+		while done is False:
+			status, done = downloader.next_chunk()
+		try:
+			file_contents = toml.load(temp_name)
+		except:
+			print('Fail to load a toml file from', temp_name)
+			pass
 
+	return file_contents 
+
+def download_an_image(file_id = '',file_name='one_big_image'):
+	# Downloads an image to the '/tmp' folder, which lambda keeps for about ten minutes
+    # https://developers.google.com/drive/api/v3/manage-downloads
+    
+    request = drive.files().get_media(fileId=file_id)
+
+    file_name = file_id + '_' + file_name
+
+    # Change to temp directory
+    old_work_dir = os.getcwd()
+    os.chdir('/tmp')
+
+    fh = io.FileIO(file_name,'wb') # changed from io.BytesIO()
+    downloader = MediaIoBaseDownload(fh, request)
+    done = False
+    while done is False:
+        status, done = downloader.next_chunk()
+
+    image_folder = os.getcwd()
+
+    # Change back to original directory
+
+    os.chdir(old_work_dir)
+
+    return image_folder, file_name
 
 def get_images(folder_id):
 	# DEPRECATED
@@ -298,8 +303,7 @@ def get_images(folder_id):
 	image_object_arrary = []
 	# Go through folder
 	for index,file in enumerate(content_list):
-		# Print the files
-		print('title: %s, id: %s' % (file['title'], file['id']))
+		
 		# Turn the file into an object
 		image = drive.CreateFile({'id':file['id']})
 		# Download the image as a temp file with an index
@@ -309,45 +313,9 @@ def get_images(folder_id):
 	
 	return image_object_arrary
 
-def clear_static_folder(list_of_images_to_be_destroyed):
-	# Clears a set of images in 'static' folder, once they are no longer needed
-	# Accepts list in format ['static/image_index','static/image_index']
-
-	# Go through files we have
-	for file_present in os.scandir('/static'):
-		# If we find a match
-		if file_present in list_of_images_to_be_destroyed:
-			# Remove the file
-			os.remove(f'/static{file_present}')
-	return
 
 if __name__=='__main__':
 	pass
 
 
 
-
-
-
-''' Example
-{'folder_name': '[thyroid][malignant][tumour][spot_diagnosis][uncommon][medullary_thyroid_carcinoma]', 
-				'google_drive_id': '1VujLlAbRwLhGDMGncW9M22tNc270Nhqi', 
-				'organ': 'thyroid', 
-				'disease_type': 'malignant', 
-				'subtype': 'tumour', 
-				'complexity': 'spot_diagnosis', 
-				'incidence': 'uncommon', 
-				'name': 'medullary_thyroid_carcinoma', 
-				'printable_name': 'medullary thyroid carcinoma', 
-				'files_within_folder': [{'subfile_name': 'medullary_thyroid_carcinoma.txt', 'subfile_type':'text', 'subfile_id': '1CG_gfgNuP43wwoWWG6_5PCKdURXhH4E6'}, 
-										{'subfile_name': 'lp9.jpg', 'subfile_type':'image', 'subfile_id': '1JAhCtAFyezg37PLLJTdf1elLBEMmyJo7'}, 
-										{'subfile_name': 'lp6.jpg', 'subfile_type':'image', 'subfile_id': '1lOMBZfoY8xqPZdmAH1xhDcdvKKct-T3B'}, 
-										{'subfile_name': 'lp7.jpg', 'subfile_type':'image', 'subfile_id': '17aJI9Fi2yFhen1V8hZGl9FDZond8MJRg'}, 
-										{'subfile_name': 'lp8.jpg', 'subfile_type':'image', 'subfile_id': '1aLh5p7De2pGecAk1HIDXtKKbW-qi0a_r'}, 
-										{'subfile_name': 'lp2.jpg', 'subfile_type':'image', 'subfile_id': '1OoRBGrbylp7r_CbLoMdS1E0F97l5HIxs'}, 
-										{'subfile_name': 'lp1.jpg', 'subfile_type':'image', 'subfile_id': '15BxnQscoe2-2MmGsTRBqwATFyEtRffx6'}, 
-										{'subfile_name': 'lp3.jpg', 'subfile_type':'image', 'subfile_id': '1lirTf2_3evl7K91_MyuFKqBLAcddvGHY'}, 
-										{'subfile_name': 'lp4.jpg', 'subfile_type':'image', 'subfile_id': '1o8w3A0V1YLEJLOXQmTlb7aMpBTA5tnR8'}, 
-										{'subfile_name': 'lp5.jpg', 'subfile_type':'image', 'subfile_id': '1aW2IYO_4qlpbBw6ogVA1ZSry4zqHxe4l'}]}
-
-'''

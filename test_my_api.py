@@ -1,3 +1,6 @@
+
+# THIS FILE IS NOT GOING TO BE USED - use to build out gdrive_api_calls.py
+
 # Tutorial https://codelabs.developers.google.com/codelabs/gsuite-apis-intro/#0
 
 from google.oauth2 import service_account

@@ -7,61 +7,21 @@ import quiz_logic
 import pdb
 import json
 from fuzzywuzzy import fuzz,process
-import my_api
 
+# Note that in aws lambda, os.chdir('/tmp') gets you to '/tmp', but on MacOS you end up in '/private/tmp'
+original_path = os.getcwd()
+os.chdir('/tmp')
+PATH_TO_TEMP_DIRECTORY = os.getcwd()
+os.chdir(original_path)
 
-app = Flask(__name__)
-
+app = Flask(__name__, static_url_path = PATH_TO_TEMP_DIRECTORY, static_folder = PATH_TO_TEMP_DIRECTORY)
 app.config.from_object('config.MyConfig')
-
 # Debug mode on/True or off/False
 app.debug=False
-
-# Inventory needs to only be taken once
-need_to_take_inventory = True
-
-dojo_welcome = """ Hello there """
-
-
-
-def take_inventory():
-    # TO BE DEPRECATED
-    # This function creates a dictionary of files with attributes 
-    # IDs are from google drive
-
-    # [{'name':'blah','google_drive_id':'id','folder_name':'blah'}]
-
-    # Get list from API using function that uses PyDrive
-    for folder_name,google_drive_id in gdrive_api_calls.list_all_files('dummy_folder').items():
-        # Create disease attributes
-        this_disease={}
-        this_disease['folder_name'] = folder_name
-        this_disease['google_drive_id'] = google_drive_id
-        this_disease['underlined_name'] = folder_name.split('][')[5].strip(']')
-        # replace underlines with spaces
-        this_disease['name'] = ''
-        for letter in this_disease['underlined_name']:
-            if letter == '_':
-                this_disease['name']+=' '
-            else:
-                this_disease['name']+=letter
-
-        # Add to globally addressable list
-        list_of_files_with_attributes.append(this_disease)
-
-def string_to_html(string):
-    modified_string = string\
-            .replace(" ","&nbsp;")\
-            .replace(">","&gt;")\
-            .replace("<","&lt;")\
-            .replace("\n","<br>")
-    return modified_string
 
  
 @app.route('/',methods=['GET','POST'])
 def design():
-
-    service_api_list_files_test = my_api.list_disease_folders()
 
     google_drive = True
     message = 'Select categories to include, or go straight into a random quiz'
@@ -83,7 +43,6 @@ def design():
     # If a button is pressed
     if request.method == 'POST':
         selections = request.form.to_dict()
-        print(selections)
         JSONmemory = selections['memory']
         memory = json.loads(JSONmemory)
         selected_category_options = memory['category_selections']
@@ -102,8 +61,6 @@ def design():
             
             if len(selected_files) > max_quiz_length:
                 selected_files = selected_files[:(max_quiz_length)]
-                print(selected_files)
-                print(f'you wanted quiz length {max_quiz_length}, and we have prepared the quiz with length: {len(selected_files)}')
 
             # Memory for reviewing after the quiz
             diseases_for_review = []
@@ -133,7 +90,6 @@ def design():
             return view()
     
     return render_template('design.html', 
-                            service_api_list_files_test = service_api_list_files_test,
                             message = message,
                             selections = selections,
                             available_category_options = available_category_options)
@@ -162,9 +118,12 @@ def view():
     
 
     images = disease.images
-    image_ids = []
-    for image in disease.images:
-        image_ids.append(image['subfile_id'])
+    list_of_downloaded_image_names = []
+    for image in images:
+        image_id = image['subfile_id']
+        download_name = image['temporary_file_name']
+        download_folder, downloaded_file_name = gdrive_api_calls.download_an_image(file_id = image_id,file_name=download_name)
+        list_of_downloaded_image_names.append(downloaded_file_name)
 
     positive_immunohistochemistry = ''
     negative_immunohistochemistry = ''
@@ -177,10 +136,6 @@ def view():
     differentials = disease.differentials
     session['differentials'] = differentials # Save in case DDx quiz initiated
     
-
-    print(f'\tdescription: {disease.description}\n\nimmunohistochemistry: {disease.immunohistochemistry}\n\tdifferentials: {differentials}\n\tanswer: {answer}')
-
-
 
     ######### Scoring things ########
     current_quiz = session.get('current_quiz',None)
@@ -228,7 +183,7 @@ def view():
 
             # Save a single image id for review after the quiz
             images = list(session.get('images_for_later_review',[]))
-            images.append(image_ids[0])
+            images.append(list_of_downloaded_image_names[0])
             session['images_for_later_review'] = images
 
         if request.form.get('move_on') == 'Next': # if the move on button has been primed
@@ -254,9 +209,8 @@ def view():
                 #return redirect('/')
             
             # Get the old list, remove the last element and assign as current disease
-            print('before',len(current_quiz['list_of_selected_files']))
             session['current_disease'] = current_quiz['list_of_selected_files'].pop()
-            print('after',len(current_quiz['list_of_selected_files']))
+            
             # update current quiz
             session['current_quiz'] = current_quiz
 
@@ -284,7 +238,7 @@ def view():
                             positive_immunohistochemistry = positive_immunohistochemistry,
                             negative_immunohistochemistry = negative_immunohistochemistry,
                             differentials = differentials,
-                            image_ids = image_ids,
+                            list_of_downloaded_image_names = list_of_downloaded_image_names,
                             answer = answer)
 
 
@@ -302,50 +256,6 @@ def differentials():
     differentials = session.get('differentials')
        
     return render_template('differentials.html',differentials = differentials)
-
-def get_single_image(blob_folder_drive_id):
-    # This function randomly chooses an image from a blob's folder and downloads it for display
-
-    # first clear the static folder (a cache for image to be displayed)
-    for old_image in os.listdir('static'):
-        os.remove('static/'+old_image)
-
-    # Get image id's
-    blob_folder_image_ids = gdrive_api_calls.get_file_ids_from_folder(blob_folder_drive_id)[0] # 1 is for text, 0 for images
-    # Download a single image
-    random_image_filename = gdrive_api_calls.select_an_image_from_list_of_ids(blob_folder_image_ids)[0]
-    random_image_id = gdrive_api_calls.select_an_image_from_list_of_ids(blob_folder_image_ids)[1]
-    
-    # Return image name
-    return random_image_filename
-
-
-def get_random_disease(available_files=[]):
-    # This function returns a single disease dictionary for simple displaying
-
-    disease = []
-    # Pick a random disease
-    disease.append(random.choice(available_files))
-    # Get the folder details
-    detailed_disease = gdrive_api_calls.add_subfiles_to_file_details(disease, google_drive=True)
-    return detailed_disease
-
-def get_random_image(detailed_disease_dictionary):
-    # This function picks a random image ID to display
-
-
-    files = detailed_disease_dictionary['files_within_folder']
-
-    for subfile in files:
-        if subfile['subfile_type'] == 'image':
-            # download the image using the subfile dictionary
-            gdrive_api_calls.download_subfile(subfile)
-            # Return the image name
-            
-            return subfile['temporary_file_name']
-
-
-
 
 
 # include this for local dev

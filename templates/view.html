@@ -28,11 +28,11 @@ points_missed_so_far = 25
 
 
     <div style="padding-left: 0px;  padding-right: 0px;">
-        {% for individual_image in image_ids %}			
+        {% for individual_image in list_of_downloaded_image_names %}	
         <div>
             <br>
             <picture>
-                <img src="https://drive.google.com/uc?id={{individual_image}}&export=download" class="img-fluid" alt="Responsive image">
+                <img src="{{url_for('static', filename=individual_image)}}" class="img-fluid" alt="Responsive image">
             </picture>
         </div>	
         {% endfor %}	

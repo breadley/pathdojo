@@ -346,12 +346,13 @@ class Disease():
 
 
     def download_non_image_files(self):
-        # Caches files - to be deprecated
         for file in self.files_within_folder:
-            if not file['subfile_type'] == 'image':
-                gdrive_api_calls.download_subfile(file)
+            if file['subfile_type'] == 'text':
+                self.text_file_contents = gdrive_api_calls.download_subfile(file)
+                
+            if file['subfile_type'] == 'xml':
+                pass
 
-        self.text_file_contents = self.load_text_file() 
         self.description = self.get_description()
         self.differentials = self.get_differentials()
         self.immunohistochemistry = self.get_immunohistochemistry()
@@ -372,27 +373,15 @@ class Disease():
         for image in self.images:
             gdrive_api_calls.download_subfile(image)
 
-    def load_text_file(self):
+    def load_text_file(self,content_string):
         contents = {} # start with blank dictionary to populate with toml data
-
-        if not self.using_google_drive:
-            for file in os.listdir(self.content_directory+self.folder_name): 
-
-                # if it is a text file
-                if file.endswith('.txt') and not file.startswith('._') and not file.startswith('_'):                                        
-                    try:
-                        contents = toml.load(self.content_directory+self.folder_name+'/'+file) # load .txt as .toml
-                    except FileNotFoundError:
-                        print('Error: could not load the .txt file')
-                    except:
-                        print('There are formatting errors in the %s file'%(self.content_directory+self.folder_name+'/'+file))
 
         if self.using_google_drive:
             for file in self.files_within_folder:
                 if file['subfile_type'] == 'text':
                     filename = file['temporary_file_name']
                     try:
-                        contents = toml.load(config.google_drive_download_directory+filename)
+                        contents = toml.loads(content_string)
                     except FileNotFoundError:
                         print('Error: could not load the .txt file')
                     except:
