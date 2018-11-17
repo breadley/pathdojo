@@ -58,13 +58,13 @@ def design():
                 random_files = random.sample(available_files,max_quiz_length)
                 selected_files = random_files
 
-            if len(selected_files) < max_quiz_length:
-                number_to_add = len(selected_files) - max_quiz_length
+            elif len(selected_files) < max_quiz_length:
+                number_to_add = max_quiz_length - len(selected_files)
                 random_files = random.sample(available_files,number_to_add)
                 for file in random_files:
                     selected_files.append(file)
 
-            if len(selected_files) > max_quiz_length:
+            elif len(selected_files) > max_quiz_length:
                 selected_files = selected_files[:(max_quiz_length)]
 
             # Memory for reviewing after the quiz
@@ -212,7 +212,7 @@ def view():
                 # Update scores for review page.
                 points_obtained_so_far = aggregate_score
                 points_missed_so_far = points_available_for_whole_quiz - points_obtained_so_far
-                average_score = aggregate_score / quiz_length
+                average_score = int(aggregate_score / quiz_length)
 
 
                 
