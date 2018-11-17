@@ -54,7 +54,16 @@ def design():
         if selections['submit_button'] == 'pressed': 
             
             selected_files = quiz_logic.get_filenames_that_match(available_files,selected_category_options)
-            
+            if len(selected_files) == 0:
+                random_files = random.sample(available_files,max_quiz_length)
+                selected_files = random_files
+
+            if len(selected_files) < max_quiz_length:
+                number_to_add = len(selected_files) - max_quiz_length
+                random_files = random.sample(available_files,number_to_add)
+                for file in random_files:
+                    selected_files.append(file)
+
             if len(selected_files) > max_quiz_length:
                 selected_files = selected_files[:(max_quiz_length)]
 
@@ -68,6 +77,7 @@ def design():
 
             session['total_quiz_length'] = len(selected_files)
             # Remove the last element, and assign as the current disease
+            
             if len(selected_files)>1:
                 session['current_disease'] = selected_files.pop()                  
             else:
