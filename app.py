@@ -33,13 +33,9 @@ def design():
     selected_category_options = {}
     for category in available_category_options.keys():
         selected_category_options[category]=[]
-    temp_selections = []
     
+    selections = {}
 
-    # Create a blank dictionary to hold button presses
-    selections = session.get('selections', temp_selections)
-    
-    
     # If a button is pressed
     if request.method == 'POST':
         selections = request.form.to_dict()
@@ -64,15 +60,18 @@ def design():
 
             # Memory for reviewing after the quiz
             diseases_for_review = []
+            # Forget the images from the last quiz
+            session['images_for_later_review'] = []
             for disease in selected_files:
-                diseases_for_review.append(disease['printable_name'])
+                diseases_for_review.append(disease['printable_name'])            
             session['diseases_for_review'] = diseases_for_review
 
             session['total_quiz_length'] = len(selected_files)
             # Remove the last element, and assign as the current disease
             if len(selected_files)>1:
                 session['current_disease'] = selected_files.pop()                  
-            
+            else:
+                session['current_disease'] = selected_files[0]
             # Record this quiz in the master list
             this_quiz = {}
             this_quiz['unique_id'] = random.getrandbits(32)
@@ -176,10 +175,14 @@ def view():
 
             if aggregate_score == None:
                 aggregate_score = 0
-            session['aggregate_score'] = aggregate_score + fuzz_score
-            session['this_score'] = fuzz_score
-            session['scored_disease'] = disease.name
-            session['scored_submission'] = guess
+            aggregate_score = aggregate_score + fuzz_score
+            session['aggregate_score'] = aggregate_score
+            this_score = fuzz_score
+            session['this_score'] = this_score
+            scored_disease = disease.name 
+            session['scored_disease'] = scored_disease
+            scored_submission = guess
+            session['scored_submission'] = scored_submission
 
             # Save a single image id for review after the quiz
             images = list(session.get('images_for_later_review',[]))
@@ -189,13 +192,27 @@ def view():
         if request.form.get('move_on') == 'Next': # if the move on button has been primed
         
                 # Get next item in quiz (pop)
-            if len(current_quiz['list_of_selected_files']) == 0:
-                
+            if len(current_quiz['list_of_selected_files']) == 1:
+                session['current_disease'] = None
                 diseases_for_review = session.get('diseases_for_review',[])
                 images_for_later_review = session.get('images_for_later_review',[])
 
                 print(f'dfr: {diseases_for_review}\niflr:{images_for_later_review}')
                 
+                # Update scores for review page.
+                points_obtained_so_far = aggregate_score
+                points_missed_so_far = points_available_for_whole_quiz - points_obtained_so_far
+                average_score = aggregate_score / quiz_length
+
+
+
+                original_path = os.getcwd()
+                os.chdir('/tmp')
+                for image in list_of_downloaded_image_names:
+                    while image not in os.listdir('.'):
+                        print('downloading', image)
+                os.chdir(original_path)
+
                 return render_template('review.html', 
                         diseases_for_review = diseases_for_review,
                         images_for_later_review = images_for_later_review,
@@ -205,8 +222,8 @@ def view():
                         this_score = this_score, # for banners
                         scored_disease = scored_disease, # for banners
                         average_score = average_score, # for banners
-                        scored_submission = scored_submission) # for banners                
-                #return redirect('/')
+                        scored_submission = scored_submission) #! for banners                
+                
             
             # Get the old list, remove the last element and assign as current disease
             session['current_disease'] = current_quiz['list_of_selected_files'].pop()
@@ -222,7 +239,14 @@ def view():
             print('we are skipping this disease')
 
         return redirect(url_for('view'))
-          
+
+    original_path = os.getcwd()
+    os.chdir('/tmp')
+    for image in list_of_downloaded_image_names:
+        while image not in os.listdir('.'):
+            print('downloading', image)
+    os.chdir(original_path)
+            
 
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
