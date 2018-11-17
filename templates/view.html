@@ -80,7 +80,7 @@ points_missed_so_far = 25
     </div>
 
 
-    <form action="/view" method="POST">
+    <form action="{{ url_for('view') }}" method="POST">
         <div class="form-group">
             <label class="col-form-label" for="guessing_box"></label>
             <input class="form-control" id="guessing_box" type="text" placeholder="Your answer" name="guess" value="">

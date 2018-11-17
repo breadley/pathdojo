@@ -192,7 +192,7 @@ def view():
         if request.form.get('move_on') == 'Next': # if the move on button has been primed
         
                 # Get next item in quiz (pop)
-            if len(current_quiz['list_of_selected_files']) == 1:
+            if len(current_quiz['list_of_selected_files']) == 0:
                 session['current_disease'] = None
                 diseases_for_review = session.get('diseases_for_review',[])
                 images_for_later_review = session.get('images_for_later_review',[])
@@ -205,13 +205,14 @@ def view():
                 average_score = aggregate_score / quiz_length
 
 
-
+                
                 original_path = os.getcwd()
                 os.chdir('/tmp')
                 for image in list_of_downloaded_image_names:
                     while image not in os.listdir('.'):
                         print('downloading', image)
                 os.chdir(original_path)
+                
 
                 return render_template('review.html', 
                         diseases_for_review = diseases_for_review,
@@ -240,13 +241,14 @@ def view():
 
         return redirect(url_for('view'))
 
+    
     original_path = os.getcwd()
     os.chdir('/tmp')
     for image in list_of_downloaded_image_names:
         while image not in os.listdir('.'):
             print('downloading', image)
     os.chdir(original_path)
-            
+    
 
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
