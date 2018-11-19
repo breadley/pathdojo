@@ -9,6 +9,8 @@
         "exclude":["folder_based_dojo","[*","*.ipynb","*.ipynb_checkpoints"],
         "keep_warm": false,
         "domain": "pathologi.cool",
-        "lets_encrypt_key": "s3://zappa-pnit5yu77/account.key"
+        "lets_encrypt_key": "s3://zappa-pnit5yu77/account.key",
+        "lets_encrypt_expression": "rate(30 days)", // Let's Encrypt certificates last 3 months
+        "timeout_seconds": 75 // Needed >60 to allow DNS refresh challenge
     }
 }
