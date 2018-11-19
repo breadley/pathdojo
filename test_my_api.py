@@ -209,12 +209,25 @@ def get_a_random_list_of_images(number=5):
     
     return list_of_image_ids
 
+def show_all_image_characteristics(file_id=''):
+    credentials = service_account.Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+    drive = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+    page_token = None
+    # Test from https://developers.google.com/drive/api/v3/search-parameters
+
+    response = drive.files().get(fileId=file_id,fields='*').execute()        
+    pprint.PrettyPrinter().pprint(response)
+    
+
+    return response
+
 
 if __name__ == '__main__':
-    
+    show_all_image_characteristics(file_id='12FRbWT1ArLnu-geNgmCIdU5F7624oPbJ')
+    #get_a_random_list_of_images(number=2)
     #download_a_file(file_id='12dO-Pv4InZuBOxwzCjbdWEct6Qw0-fVu')
     #list_folder_contents(folder_id='1EHnywbGUb21XHMC2qUGOppY1egbBLlRO')
-    list_disease_folders()
+    # list_disease_folders()
     #list_files_raw_api()
     '''
     with temporary_work_dir():
