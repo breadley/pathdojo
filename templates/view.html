@@ -78,15 +78,16 @@ points_missed_so_far = 25
     <div id="description_body" class="collapse">
         <p>{{description}}</p>
     </div>
+    <br>
 
 
-    <div class="form-group">
-        <label class="col-form-label" for="guessing_box"></label>
-        <input class="form-control" id="guessing_box" type="text" placeholder="Your answer" name="guess" value="">
-    </div>
 
     <form action="{{ url_for('view') }}" method="POST">
-
+        
+        <div class="form-group">
+            <label class="col-form-label" for="guessing_box"></label>
+            <input class="form-control" id="guessing_box" type="text" placeholder="Your answer" name="guess" value="">
+        </div>
         <div>
             <input type="hidden" id="move_on" class="btn btn-primary btn-block" name="move_on" value="not_ready" ></button>
         </div>
