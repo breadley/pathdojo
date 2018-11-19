@@ -6,6 +6,7 @@ import random
 import quiz_logic
 import pdb
 import json
+import test_my_api
 from fuzzywuzzy import fuzz,process
 
 # Note that in aws lambda, os.chdir('/tmp') gets you to '/tmp', but on MacOS you end up in '/private/tmp'
@@ -259,6 +260,8 @@ def view():
             print('downloading', image)
     os.chdir(original_path)
     
+    image_url_test = test_my_api.show_all_image_characteristics(file_id=disease.images[0]['subfile_id'])
+
 
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
@@ -275,7 +278,8 @@ def view():
                             negative_immunohistochemistry = negative_immunohistochemistry,
                             differentials = differentials,
                             list_of_downloaded_image_names = list_of_downloaded_image_names,
-                            answer = answer)
+                            answer = answer,
+                            image_url_test = image_url_test)
 
 
 
