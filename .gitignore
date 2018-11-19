@@ -36,3 +36,5 @@ service_account_credentials.json
 # Exclude google drive credentials file used for server to server app
 mycreds.txt
 
+# Path to account key
+account.key
