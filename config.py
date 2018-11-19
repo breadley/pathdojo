@@ -38,3 +38,5 @@ google_drive_download_directory = './static/'
 # Google drive ID of the folder where the diseases are store. 
 # This folder is special in that is has been shared with the service account email.
 PATHOLOGICAL_CONTENT_FOLDER_ID = '10KMBdFqoGHkAQ_ywroaAsEQLue4NYEgv'
+
+licenses = ['lp','lpn','qiao','hp','lpkayab','wp']

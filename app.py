@@ -128,16 +128,23 @@ def view():
     
 
     images = disease.images
-    list_of_downloaded_image_names = []
+    # list_of_downloaded_image_names = []
     list_of_image_urls = []
+    list_of_image_licenses = []
     for image in images:
+        image_license = ''
         image_id = image['subfile_id']
+        image_name = image['subfile_name']
+        for license in config.licenses:
+            if license in image_name:
+                image_license = license
         '''
         download_name = image['temporary_file_name']
         download_folder, downloaded_file_name = gdrive_api_calls.download_an_image(file_id = image_id,file_name=download_name)
         list_of_downloaded_image_names.append(downloaded_file_name)
         '''
         list_of_image_urls.append(image['subfile_url'])
+        list_of_image_licenses.append(image_license)
 
  
 
@@ -203,7 +210,7 @@ def view():
 
             # Save a single image id for review after the quiz
             images = list(session.get('images_for_later_review',[]))
-            images.append(list_of_downloaded_image_names[0])
+            images.append(list_of_image_urls[0])
             session['images_for_later_review'] = images
 
         if request.form.get('move_on') == 'Next': # if the move on button has been primed
@@ -282,17 +289,19 @@ def view():
                             positive_immunohistochemistry = positive_immunohistochemistry,
                             negative_immunohistochemistry = negative_immunohistochemistry,
                             differentials = differentials,
-                            list_of_downloaded_image_names = list_of_downloaded_image_names,
+                            # list_of_downloaded_image_names = list_of_downloaded_image_names,
                             answer = answer,
-                            list_of_image_urls = list_of_image_urls)
+                            list_of_image_urls = list_of_image_urls,
+                            list_of_image_licenses = list_of_image_licenses)
 
 
 
 @app.route('/info')
 def index():
     # Homepage    
-    message = 'Reinforcement learning for familiarity with basic disease morphology'    
-    return render_template('info.html',message = message)
+    message = 'Reinforcement learning for familiarity with basic disease morphology'   
+
+    return render_template('info.html',message = message,licenses=config.licenses)
 
 
 @app.route('/differentials')

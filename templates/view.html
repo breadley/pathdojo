@@ -55,14 +55,15 @@ points_missed_so_far = 25
                 {% endfor %}
             </div>
         </li>
-
+        <!--
         <li class="nav-item">
                 <a class="nav-link" href="{url_for('differentials')}" data-toggle="tab">DDx Quiz</a>
         </li>
+        -->
         {% endif %}
 
         <li class="nav-item">
-            <a class="nav-link" href="#move_on" data-toggle="tab">Skip</a>
+            <a class="nav-link" href="#licenses" data-toggle="tab">Licenses</a>
         </li>
 
     </ul>
@@ -72,6 +73,14 @@ points_missed_so_far = 25
           <p>Positive: {{positive_immunohistochemistry}}</p>
           <p>Negative: {{negative_immunohistochemistry}}</p>
         </div>
+    </div>
+
+    <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade" id="licenses">
+              {% for license in list_of_image_licenses %}
+                <p>{{license}}</p>
+              {% endfor %}
+            </div>
     </div>
 
     <input type="hidden" id="description_button" data-toggle="collapse" class="btn btn-primary" value="{{answer}}" data-target="#description_body"></button>
