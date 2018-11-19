@@ -62,9 +62,7 @@ points_missed_so_far = 25
         -->
         {% endif %}
 
-        <li class="nav-item">
-            <a class="nav-link" href="#licenses" data-toggle="tab">Licenses</a>
-        </li>
+
 
     </ul>
       
@@ -75,17 +73,10 @@ points_missed_so_far = 25
         </div>
     </div>
 
-    <div class="tab-content" id="myTabContent">
-            <div class="tab-pane fade" id="licenses">
-              {% for license in list_of_image_licenses %}
-                <p>{{license}}</p>
-              {% endfor %}
-            </div>
-    </div>
 
     <input type="hidden" id="description_button" data-toggle="collapse" class="btn btn-primary" value="{{answer}}" data-target="#description_body"></button>
     <div id="description_body" class="collapse">
-        Description: {{description}}
+        <p>{{description}}</p>
     </div>
 
 
@@ -104,9 +95,13 @@ points_missed_so_far = 25
         <br>   
     </form> 
 
+    <br>
+    <br>
+    <br>
+    <h6><a href="{{ url_for('info') }}">Licences</a></h6>
+    <h6><small>(in order) {% for license in list_of_image_licenses %}{{license}} {% endfor %}</small></h6>
+    <br>
 </div>
-
-
 
 {% endblock %}
 

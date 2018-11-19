@@ -228,14 +228,6 @@ def view():
                 points_missed_so_far = points_available_for_whole_quiz - points_obtained_so_far
                 average_score = int(aggregate_score / quiz_length)
 
-
-                
-                original_path = os.getcwd()
-                os.chdir('/tmp')
-                for image in list_of_downloaded_image_names:
-                    while image not in os.listdir('.'):
-                        print('downloading', image)
-                os.chdir(original_path)
                 
 
                 return render_template('review.html', 
@@ -266,12 +258,6 @@ def view():
         return redirect(url_for('view'))
 
     
-    original_path = os.getcwd()
-    os.chdir('/tmp')
-    for image in list_of_downloaded_image_names:
-        while image not in os.listdir('.'):
-            print('downloading', image)
-    os.chdir(original_path)
     
     
 
@@ -296,8 +282,8 @@ def view():
 
 
 
-@app.route('/info')
-def index():
+@app.route('/info',methods=['GET', 'POST'])
+def info():
     # Homepage    
     message = 'Reinforcement learning for familiarity with basic disease morphology'   
 
