@@ -66,6 +66,10 @@ Perhaps related to the keep warm functin? `Unscheduled pathdojo-dev-zappa-keep-w
 
 Or otherwise might be related to the Quickstart.py file calling the api too often
 
+#### DNS
+
+Domain redirection set up as per [guid](https://github.com/Miserlou/Zappa/blob/master/docs/domain_with_free_ssl_dns.md)
+
 
 #### Google Drive
 
