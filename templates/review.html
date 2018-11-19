@@ -36,11 +36,11 @@
     <br>
 
     <div style="padding-left: 0px;  padding-right: 0px;">
-        {% for individual_image in images_for_later_review %}			
+        {% for individual_url in images_for_later_review %}			
         <div>
             <br>
             <picture>
-                <img src="{{url_for('static', filename=individual_image)}}" class="img-fluid" alt="Responsive image">
+                <img src="{{individual_url}}" class="img-fluid" alt="Responsive image">
             </picture>
         </div>	
         {% endfor %}	

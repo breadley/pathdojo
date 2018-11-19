@@ -76,7 +76,7 @@ def record_available_files(google_drive=False):
 			if folder_name.startswith('[') and folder_name.endswith(']'): 				
 				this_disease={}
 				this_disease['folder_name'] = folder_name
-				this_disease['google_drive_id'] = google_drive_id                
+				this_disease['google_drive_id'] = google_drive_id             
 				
 				# get {'full_name':'','organ':'','disease_type':'', etc.}
 				filename_dict = filename_breakdown(folder_name)
@@ -117,7 +117,7 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 
 		while True:
 			response = drive.files().list(q=f"'{google_drive_id}' in parents and trashed=false",
-												fields='nextPageToken, files(id, name)',
+												fields='nextPageToken, files(id, name, webContentLink)',
 												pageToken=page_token).execute()
 			for file in response.get('files', []):
 				subfile = file.get('name')
@@ -136,6 +136,7 @@ def add_subfiles_to_file_details(list_of_files, google_drive=False):
 					this_file['subfile_id'] = subfile_id
 					this_file['subfile_extension'] = subfile_extension
 					this_file['temporary_file_name'] = 'temporary_file_with_id_'+subfile_id + subfile_extension
+					this_file['subfile_url'] = file.get('webContentLink')
 
 					if subfile_extension in config.image_extensions:
 						this_file['subfile_type']='image'

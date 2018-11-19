@@ -28,11 +28,11 @@ points_missed_so_far = 25
 
 
     <div style="padding-left: 0px;  padding-right: 0px;">
-        {% for individual_image in list_of_downloaded_image_names %}	
+        {% for individual_image in list_of_image_urls %}	
         <div>
             <br>
             <picture>
-                <img src="{{url_for('static', filename=individual_image)}}" class="img-fluid" alt="Responsive image">
+                <img src="{{individual_image}}" class="img-fluid" alt="Responsive image">
             </picture>
         </div>	
         {% endfor %}	
@@ -80,19 +80,16 @@ points_missed_so_far = 25
     </div>
 
 
+    <div class="form-group">
+        <label class="col-form-label" for="guessing_box"></label>
+        <input class="form-control" id="guessing_box" type="text" placeholder="Your answer" name="guess" value="">
+    </div>
+
     <form action="{{ url_for('view') }}" method="POST">
-        <div class="form-group">
-            <label class="col-form-label" for="guessing_box"></label>
-            <input class="form-control" id="guessing_box" type="text" placeholder="Your answer" name="guess" value="">
-            
-        </div>
 
         <div>
-
             <input type="hidden" id="move_on" class="btn btn-primary btn-block" name="move_on" value="not_ready" ></button>
-            
         </div>
-
         
         <input id="lock_in_answer" type="button" class="btn btn-primary" name="lock_in_answer" value="Submit" onclick="revealAnswer(this);" ></button>
         <br>   
@@ -101,17 +98,6 @@ points_missed_so_far = 25
 </div>
 
 
-
-<div style="padding-left: 0px;  padding-right: 0px;">
-    image test for: {{image_test_url}}
-    <div>
-        <br>
-        <picture>
-            <img src="{{image_test_url}}" class="img-fluid" alt="Responsive image">
-        </picture>
-    </div>	
-    {% endfor %}	
-</div>
 
 {% endblock %}
 

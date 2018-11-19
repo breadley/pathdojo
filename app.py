@@ -122,18 +122,24 @@ def view():
 
     # Need to replace this with in-memory IO (import IO)
     disease.download_non_image_files()
-    # Use this instead ideally - butt cannot use toml.loads on the GetContentString() output from pydrive
+    # Use this instead ideally - but cannot use toml.loads on the GetContentString() output from pydrive
     # So may have to save the file locally then delete
     # disease.read_text_file()
     
 
     images = disease.images
     list_of_downloaded_image_names = []
+    list_of_image_urls = []
     for image in images:
         image_id = image['subfile_id']
+        '''
         download_name = image['temporary_file_name']
         download_folder, downloaded_file_name = gdrive_api_calls.download_an_image(file_id = image_id,file_name=download_name)
         list_of_downloaded_image_names.append(downloaded_file_name)
+        '''
+        list_of_image_urls.append(image['subfile_url'])
+
+ 
 
     positive_immunohistochemistry = ''
     negative_immunohistochemistry = ''
@@ -260,8 +266,7 @@ def view():
             print('downloading', image)
     os.chdir(original_path)
     
-    image_url_test = test_my_api.show_all_image_characteristics(file_id=disease.images[0]['subfile_id'])
-
+    
 
     # Pass the necessary values/dicts to the view page
     return render_template('view.html', 
@@ -279,7 +284,7 @@ def view():
                             differentials = differentials,
                             list_of_downloaded_image_names = list_of_downloaded_image_names,
                             answer = answer,
-                            image_url_test = image_url_test)
+                            list_of_image_urls = list_of_image_urls)
 
 
 
